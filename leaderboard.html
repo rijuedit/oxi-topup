@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Leaderboard - OXI TOP UP</title>
+    <link rel="icon" type="image/png" href="https://i.ibb.co/HTHSLY80/Chat-GPT-Image-Jul-22-2026-11-58-48-PM.png">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="home-body">
+
+    <!-- Navbar -->
+    <nav class="home-navbar">
+        <a href="index.html"><img src="https://i.ibb.co/HTHSLY80/Chat-GPT-Image-Jul-22-2026-11-58-48-PM.png" alt="OXI TOP UP" class="logo-img"></a>
+        <div class="home-nav-right">
+            <a href="index.html" class="nav-link">Home</a>
+            <div class="wallet-badge">
+                <span>৳</span> <span id="walletBadge">0</span>
+            </div>
+            <img id="navPhoto" class="profile-icon-static" src="" alt="Profile" onclick="toggleSidebar()">
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <img id="sidebarPhoto" src="" alt="Profile">
+            <div>
+                <h4 id="sidebarName">User</h4>
+                <p id="sidebarEmail">email@gmail.com</p>
+            </div>
+            <button class="close-sidebar" onclick="toggleSidebar()">✕</button>
+        </div>
+        <div class="sidebar-menu">
+            <a href="dashboard.html" class="sidebar-item"><span>🏠</span> My Account</a>
+            <a href="orders.html" class="sidebar-item"><span>📦</span> My Orders</a>
+            <a href="transactions.html" class="sidebar-item"><span>💳</span> My Transaction</a>
+            <a href="add-money.html" class="sidebar-item"><span>💰</span> Add Money</a>
+            <a href="leaderboard.html" class="sidebar-item active"><span>🏆</span> Leaderboard</a>
+            <a href="https://wa.me/8801604080312?text=Hello%20OXI%20TOP%20UP,%20I%20need%20help" target="_blank" class="sidebar-item"><span>💬</span> WhatsApp Support</a>
+            <button class="sidebar-logout" id="logoutBtn">🚪 Logout</button>
+        </div>
+    </div>
+    <div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Container -->
+    <div class="leaderboard-container">
+        <h2 class="leaderboard-title">🏆 LEADERBOARD</h2>
+        <p class="leaderboard-subtitle">Top 100 Champions of OXI TOP UP</p>
+
+        <!-- Loading -->
+        <div id="loadingDiv" style="text-align:center;padding:50px;color:#8b00ff;">
+            <div class="spinner"></div>
+            <p>Loading Leaderboard...</p>
+        </div>
+
+        <!-- Locked Message (Bronze/Silver) -->
+        <div id="lockedMsg" class="locked-leaderboard" style="display:none;">
+            <div class="locked-icon">🔒</div>
+            <h2>Leaderboard Locked!</h2>
+            <p>Leaderboard এ ঢুকতে হলে আপনাকে <strong>Gold Rank</strong> এ পৌঁছাতে হবে।</p>
+            <div class="locked-current-rank">
+                Your Rank: <strong id="myCurrentRank">🥉 Bronze</strong>
+            </div>
+            <br>
+            <div class="locked-needed">
+                Need <span id="neededAmount">1000</span> Tk more to unlock! 🎯
+            </div>
+        </div>
+
+        <!-- Leaderboard Content -->
+        <div id="leaderboardContent" style="display:none;">
+            
+            <!-- Top 3 Podium -->
+            <div class="podium-container" id="podiumContainer"></div>
+
+            <!-- List (Rank 4-100) -->
+            <div class="leaderboard-list">
+                <div class="leaderboard-header-row">
+                    <span>Rank</span>
+                    <span>Champion</span>
+                    <span>Total Spend</span>
+                </div>
+                <div id="leaderboardList"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Floating WhatsApp Button -->
+    <a href="https://wa.me/8801604080312?text=Hello%20OXI%20TOP%20UP,%20I%20need%20help" target="_blank" class="whatsapp-float">
+        💬
+        <span class="whatsapp-tooltip">Need Help? Chat Now!</span>
+    </a>
+
+    <!-- Bottom Navigation (Mobile Only) -->
+    <nav class="bottom-nav">
+        <div class="bottom-nav-inner">
+            <a href="index.html" class="bottom-nav-item"><span class="nav-icon">🏠</span><span>Home</span></a>
+            <a href="orders.html" class="bottom-nav-item"><span class="nav-icon">📦</span><span>Orders</span></a>
+            <a href="add-money.html" class="bottom-nav-item center"><span class="nav-icon">➕</span><span>Add</span></a>
+            <a href="transactions.html" class="bottom-nav-item"><span class="nav-icon">💳</span><span>History</span></a>
+            <a href="dashboard.html" class="bottom-nav-item"><span class="nav-icon">👤</span><span>Account</span></a>
+        </div>
+    </nav>
+
+    <script type="module">
+        import { auth, database, signOut, onAuthStateChanged, ref, get } from './config.js';
+
+        window.toggleSidebar = function() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sidebarOverlay').classList.toggle('show');
+        };
+
+        // Rank Configuration
+        const ranks = [
+            { name: 'Bronze', icon: '🥉', min: 0, max: 100 },
+            { name: 'Silver', icon: '🥈', min: 101, max: 1000 },
+            { name: 'Gold', icon: '🥇', min: 1001, max: 5000 },
+            { name: 'Platinum', icon: '💎', min: 5001, max: 10000 },
+            { name: 'Diamond', icon: '💠', min: 10001, max: 25000 },
+            { name: 'Heroic', icon: '🔥', min: 25001, max: 50000 },
+            { name: 'Master', icon: '⭐', min: 50001, max: 100000 },
+            { name: 'Grand Master', icon: '👑', min: 100001, max: 999999999 }
+        ];
+
+        function getRank(spend) {
+            for (let i = ranks.length - 1; i >= 0; i--) {
+                if (spend >= ranks[i].min) return ranks[i];
+            }
+            return ranks[0];
+        }
+
+        const MIN_SPEND_FOR_LEADERBOARD = 1001; // Gold rank starts here
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            document.getElementById('navPhoto').src = user.photoURL;
+            document.getElementById('sidebarPhoto').src = user.photoURL;
+            document.getElementById('sidebarName').textContent = user.displayName;
+            document.getElementById('sidebarEmail').textContent = user.email;
+
+            // Get current user data
+            const userRef = ref(database, 'users/' + user.uid);
+            const userSnap = await get(userRef);
+            
+            let myWallet = 0;
+            let mySpend = 0;
+            
+            if (userSnap.exists()) {
+                const userData = userSnap.val();
+                myWallet = userData.wallet || 0;
+                mySpend = userData.totalSpend || 0;
+                document.getElementById('walletBadge').textContent = myWallet;
+            }
+
+            document.getElementById('loadingDiv').style.display = 'none';
+
+            // Check if user has Gold+ rank
+            if (mySpend < MIN_SPEND_FOR_LEADERBOARD) {
+                const myRank = getRank(mySpend);
+                document.getElementById('lockedMsg').style.display = 'block';
+                document.getElementById('myCurrentRank').innerHTML = myRank.icon + ' ' + myRank.name;
+                document.getElementById('neededAmount').textContent = (MIN_SPEND_FOR_LEADERBOARD - mySpend).toLocaleString();
+                return;
+            }
+
+            // Load all users
+            const usersSnap = await get(ref(database, 'users'));
+            
+            if (!usersSnap.exists()) {
+                document.getElementById('leaderboardContent').style.display = 'block';
+                document.getElementById('leaderboardList').innerHTML = '<p style="text-align:center;color:#888;padding:30px;">No users yet</p>';
+                return;
+            }
+
+            const usersData = usersSnap.val();
+            const allUsers = [];
+            
+            for (const uid in usersData) {
+                const u = usersData[uid];
+                const spend = u.totalSpend || 0;
+                if (spend >= MIN_SPEND_FOR_LEADERBOARD) {
+                    allUsers.push({
+                        uid: uid,
+                        name: u.name || 'Anonymous',
+                        photo: u.photo || 'https://via.placeholder.com/50/8b00ff/ffffff?text=U',
+                        spend: spend
+                    });
+                }
+            }
+
+            // Sort by spend (highest first) & take top 100
+            allUsers.sort((a, b) => b.spend - a.spend);
+            const top100 = allUsers.slice(0, 100);
+
+            document.getElementById('leaderboardContent').style.display = 'block';
+
+            // Render Top 3 Podium
+            const podium = document.getElementById('podiumContainer');
+            podium.innerHTML = '';
+            
+            if (top100.length > 0) {
+                // Order: 2nd, 1st, 3rd (visual arrangement)
+                const podiumOrder = [
+                    { user: top100[1], rank: 2, className: 'second', medal: '🥈', crown: '' },
+                    { user: top100[0], rank: 1, className: 'first', medal: '🥇', crown: '👑' },
+                    { user: top100[2], rank: 3, className: 'third', medal: '🥉', crown: '' }
+                ];
+
+                podiumOrder.forEach(p => {
+                    if (!p.user) {
+                        podium.innerHTML += '<div></div>';
+                        return;
+                    }
+                    const userRank = getRank(p.user.spend);
+                    podium.innerHTML += `
+                        <div class="podium-card ${p.className}">
+                            ${p.crown ? `<div class="podium-crown">${p.crown}</div>` : ''}
+                            <div class="podium-medal">${p.medal}</div>
+                            <img src="${p.user.photo}" alt="${p.user.name}" class="podium-photo" onerror="this.src='https://via.placeholder.com/60/8b00ff/ffffff?text=U'">
+                            <div class="podium-name">${p.user.name}</div>
+                            <div class="podium-spend">৳ ${p.user.spend.toLocaleString()}</div>
+                            <span class="podium-rank-badge">${userRank.icon} ${userRank.name}</span>
+                        </div>
+                    `;
+                });
+            }
+
+            // Render Rank 4 - 100
+            const list = document.getElementById('leaderboardList');
+            list.innerHTML = '';
+            
+            const remaining = top100.slice(3);
+            
+            if (remaining.length === 0 && top100.length <= 3) {
+                if (top100.length < 4) {
+                    list.innerHTML = '<p style="text-align:center;color:#888;padding:30px;">More champions coming soon! 🚀</p>';
+                }
+            } else {
+                remaining.forEach((u, index) => {
+                    const actualRank = index + 4;
+                    const userRank = getRank(u.spend);
+                    const isMe = u.uid === user.uid;
+                    
+                    list.innerHTML += `
+                        <div class="lb-item ${isMe ? 'my-position' : ''}">
+                            <div class="lb-rank">#${actualRank}</div>
+                            <div class="lb-user">
+                                <img src="${u.photo}" alt="${u.name}" class="lb-photo" onerror="this.src='https://via.placeholder.com/45/8b00ff/ffffff?text=U'">
+                                <div class="lb-info">
+                                    <div class="lb-name">${u.name} ${isMe ? '<span style="color:#ffd700;">👈 You</span>' : ''}</div>
+                                    <span class="lb-badge">${userRank.icon} ${userRank.name}</span>
+                                </div>
+                            </div>
+                            <div class="lb-spend">৳ ${u.spend.toLocaleString()}</div>
+                        </div>
+                    `;
+                });
+            }
+
+            // Check if current user is in top 3
+            const myPositionInTop3 = top100.slice(0, 3).findIndex(u => u.uid === user.uid);
+            if (myPositionInTop3 !== -1) {
+                // Highlight in podium
+                const podiumCards = document.querySelectorAll('.podium-card');
+                podiumCards.forEach(card => {
+                    const nameEl = card.querySelector('.podium-name');
+                    if (nameEl && nameEl.textContent === user.displayName) {
+                        nameEl.innerHTML += ' <span style="color:#ffd700;">👈</span>';
+                    }
+                });
+            }
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            await signOut(auth);
+            window.location.href = 'login.html';
+        });
+    </script>
+
+</body>
+</html>
