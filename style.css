@@ -1840,3 +1840,64 @@ a {
         display: block;
     }
 }
+
+/* ============================================
+   LOGO STYLES
+   ============================================ */
+
+.logo-img {
+    height: 45px;
+    width: auto;
+    max-width: 150px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 10px rgba(139, 0, 255, 0.6));
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+.logo-img:hover {
+    filter: drop-shadow(0 0 20px rgba(139, 0, 255, 1));
+    transform: scale(1.05);
+}
+
+/* Login Page Logo (Bigger) */
+.login-logo-img {
+    height: 120px;
+    width: auto;
+    max-width: 200px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 20px rgba(139, 0, 255, 0.8));
+    margin-bottom: 15px;
+    animation: logo-glow 3s ease-in-out infinite;
+}
+
+@keyframes logo-glow {
+    0%, 100% { filter: drop-shadow(0 0 20px rgba(139, 0, 255, 0.8)); }
+    50% { filter: drop-shadow(0 0 35px rgba(255, 0, 234, 1)); }
+}
+
+/* Footer Logo */
+.footer-logo-img {
+    height: 80px;
+    width: auto;
+    max-width: 180px;
+    object-fit: contain;
+    filter: drop-shadow(0 0 15px rgba(139, 0, 255, 0.7));
+    margin-bottom: 10px;
+}
+
+/* Mobile Logo */
+@media (max-width: 768px) {
+    .logo-img {
+        height: 35px !important;
+        max-width: 110px !important;
+    }
+    .login-logo-img {
+        height: 90px !important;
+        max-width: 160px !important;
+    }
+    .footer-logo-img {
+        height: 60px !important;
+        max-width: 140px !important;
+    }
+}
