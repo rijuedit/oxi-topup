@@ -102,6 +102,32 @@
         </div>
     </footer>
 
+    <!-- Bottom Navigation (Mobile Only) -->
+    <nav class="bottom-nav">
+        <div class="bottom-nav-inner">
+            <a href="index.html" class="bottom-nav-item active">
+                <span class="nav-icon">🏠</span>
+                <span>Home</span>
+            </a>
+            <a href="orders.html" class="bottom-nav-item">
+                <span class="nav-icon">📦</span>
+                <span>Orders</span>
+            </a>
+            <a href="add-money.html" class="bottom-nav-item center">
+                <span class="nav-icon">➕</span>
+                <span>Add</span>
+            </a>
+            <a href="transactions.html" class="bottom-nav-item">
+                <span class="nav-icon">💳</span>
+                <span>History</span>
+            </a>
+            <a href="dashboard.html" class="bottom-nav-item">
+                <span class="nav-icon">👤</span>
+                <span>Account</span>
+            </a>
+        </div>
+    </nav>
+
     <script type="module">
         import { auth, database, signOut, onAuthStateChanged, ref, get, set } from './config.js';
 
@@ -110,7 +136,6 @@
             document.getElementById('sidebarOverlay').classList.toggle('show');
         };
 
-        // Default products (fallback if Firebase not set)
         const defaultProducts = {
             idcode: { name: 'Free Fire Id Code (BD SERVER)', image: 'https://via.placeholder.com/300x240/1a0033/8b00ff?text=OXI+TOP+UP', stock: 'in' },
             weeklymonthly: { name: 'Weekly/Monthly', image: 'https://via.placeholder.com/300x240/1a0033/8b00ff?text=OXI+TOP+UP', stock: 'in' },
@@ -188,7 +213,6 @@
                     const data = snapshot.val();
                     walletBalance.textContent = data.wallet || 0;
                 } else {
-                    // Auto-save user if not in database
                     try {
                         await set(userRef, {
                             name: user.displayName,
