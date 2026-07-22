@@ -109,21 +109,13 @@
             </div>
         </div>
 
-        <!-- Leaderboard Preview -->
+        <!-- Leaderboard Preview (Top 2 - Everyone Can See) -->
         <div class="section-box" id="leaderboardBox">
             <div class="rank-header">
-                <h3>🏆 Leaderboard Top 3</h3>
+                <h3>🏆 Leaderboard Top 2</h3>
                 <a href="leaderboard.html" style="color:#8b00ff;font-size:13px;font-weight:600;text-decoration:none;">View All →</a>
             </div>
-            <div id="topLeaderPreview" style="display:none;"></div>
-            <div id="lockedPreview" style="display:none;text-align:center;padding:25px 15px;">
-                <div style="font-size:50px;margin-bottom:10px;">🔒</div>
-                <h4 style="color:#ff6b6b;font-size:16px;margin-bottom:8px;font-family:'Orbitron', sans-serif;">Leaderboard Locked!</h4>
-                <p style="color:#a0a0c0;font-size:13px;margin-bottom:15px;">Reach <strong style="color:#ffd700;">Gold Rank</strong> to unlock the leaderboard</p>
-                <div style="background:linear-gradient(135deg,#8b00ff,#6a0dad);padding:10px 20px;border-radius:20px;color:white;font-weight:700;display:inline-block;font-family:'Orbitron', sans-serif;font-size:13px;">
-                    Need <span id="lockedNeedAmount">1000</span> Tk more! 🎯
-                </div>
-            </div>
+            <div id="topLeaderPreview"></div>
         </div>
 
         <!-- Rank Journey -->
@@ -268,21 +260,19 @@
             document.getElementById('memberCard').style.background = currentRank.gradient;
         }
 
-        // Load Leaderboard Preview
-        async function loadLeaderboardPreview(mySpend) {
+        // Load Leaderboard Preview (Top 2 - Everyone Can See)
+        async function loadLeaderboardPreview() {
             const previewBox = document.getElementById('topLeaderPreview');
-            const lockedBox = document.getElementById('lockedPreview');
             
-            if (mySpend < 1001) {
-                lockedBox.style.display = 'block';
-                document.getElementById('lockedNeedAmount').textContent = (1001 - mySpend).toLocaleString();
-                return;
-            }
-
             const usersSnap = await get(ref(database, 'users'));
             if (!usersSnap.exists()) {
-                previewBox.innerHTML = '<p style="text-align:center;color:#888;padding:20px;">No champions yet</p>';
-                previewBox.style.display = 'block';
+                previewBox.innerHTML = `
+                    <div style="text-align:center;padding:25px 15px;">
+                        <div style="font-size:50px;margin-bottom:10px;">🏆</div>
+                        <h4 style="color:#ffd700;font-size:16px;margin-bottom:8px;font-family:'Orbitron', sans-serif;">No Champions Yet!</h4>
+                        <p style="color:#a0a0c0;font-size:13px;">Be the first to reach <strong style="color:#ffd700;">Gold Rank</strong>! 🚀</p>
+                    </div>
+                `;
                 return;
             }
 
@@ -301,19 +291,24 @@
             }
 
             allUsers.sort((a, b) => b.spend - a.spend);
-            const top3 = allUsers.slice(0, 3);
+            const top2 = allUsers.slice(0, 2);
 
-            if (top3.length === 0) {
-                previewBox.innerHTML = '<p style="text-align:center;color:#888;padding:20px;">More champions coming soon! 🚀</p>';
-                previewBox.style.display = 'block';
+            if (top2.length === 0) {
+                previewBox.innerHTML = `
+                    <div style="text-align:center;padding:25px 15px;">
+                        <div style="font-size:50px;margin-bottom:10px;">🏆</div>
+                        <h4 style="color:#ffd700;font-size:16px;margin-bottom:8px;font-family:'Orbitron', sans-serif;">No Champions Yet!</h4>
+                        <p style="color:#a0a0c0;font-size:13px;">Be the first to reach <strong style="color:#ffd700;">Gold Rank</strong>! 🚀</p>
+                    </div>
+                `;
                 return;
             }
 
-            const medals = ['🥇', '🥈', '🥉'];
-            const colors = ['#ffd700', '#c0c0c0', '#cd7f32'];
+            const medals = ['🥇', '🥈'];
+            const colors = ['#ffd700', '#c0c0c0'];
             
             let html = '<div style="display:flex;flex-direction:column;gap:10px;margin-top:10px;">';
-            top3.forEach((u, i) => {
+            top2.forEach((u, i) => {
                 html += `
                     <div style="display:flex;align-items:center;gap:12px;padding:12px;background:rgba(255,255,255,0.03);border:1px solid ${colors[i]}40;border-radius:12px;">
                         <div style="font-size:28px;">${medals[i]}</div>
@@ -328,10 +323,10 @@
             });
             html += '</div>';
             previewBox.innerHTML = html;
-            previewBox.style.display = 'block';
         }
 
         renderRankList(0);
+        loadLeaderboardPreview();
 
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
@@ -376,7 +371,6 @@
                 updateMemberCard(currentRank);
                 updateCurrentRankCard(spend, currentRank);
                 renderRankList(currentRank.index);
-                loadLeaderboardPreview(spend);
             }
         });
 
