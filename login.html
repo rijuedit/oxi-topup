@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - OXI TOP UP</title>
+    <link rel="icon" type="image/png" href="https://i.ibb.co/HTHSLY80/Chat-GPT-Image-Jul-22-2026-11-58-48-PM.png">
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
@@ -12,7 +13,7 @@
     <div class="login-container">
         <div class="login-card">
             <div class="login-logo">
-                <h1>OXI <span>TOP UP</span></h1>
+                <img src="https://i.ibb.co/HTHSLY80/Chat-GPT-Image-Jul-22-2026-11-58-48-PM.png" alt="OXI TOP UP" class="login-logo-img">
                 <p>Free Fire Diamond Top-Up</p>
             </div>
 
@@ -47,7 +48,6 @@
         const loadingDiv = document.getElementById('loadingDiv');
         const errorMsg = document.getElementById('errorMsg');
 
-        // Check if already logged in
         onAuthStateChanged(auth, (user) => {
             if (user) {
                 window.location.href = 'index.html';
@@ -63,7 +63,6 @@
                 const result = await signInWithPopup(auth, googleProvider);
                 const user = result.user;
 
-                // Save user to database
                 const userRef = ref(database, 'users/' + user.uid);
                 const snapshot = await get(userRef);
 
