@@ -103,7 +103,7 @@
     </footer>
 
     <script type="module">
-        import { auth, database, signOut, onAuthStateChanged, ref, get } from './config.js';
+        import { auth, database, signOut, onAuthStateChanged, ref, get, set } from './config.js';
 
         window.toggleSidebar = function() {
             document.getElementById('sidebar').classList.toggle('open');
@@ -124,14 +124,11 @@
             productsGrid.innerHTML = '<p style="color:#a0a0c0; text-align:center; grid-column: 1/-1;">⏳ Loading products...</p>';
 
             try {
-                // Try to load from Firebase
                 const productsRef = ref(database, 'products');
                 const snapshot = await get(productsRef);
                 
-                // Deep clone default products
                 let products = JSON.parse(JSON.stringify(defaultProducts));
                 
-                // Override with Firebase data (image, name, stock)
                 if (snapshot.exists()) {
                     const dbProducts = snapshot.val();
                     for (const key in dbProducts) {
@@ -186,9 +183,25 @@
 
                 const userRef = ref(database, 'users/' + user.uid);
                 const snapshot = await get(userRef);
+                
                 if (snapshot.exists()) {
                     const data = snapshot.val();
                     walletBalance.textContent = data.wallet || 0;
+                } else {
+                    // Auto-save user if not in database
+                    try {
+                        await set(userRef, {
+                            name: user.displayName,
+                            email: user.email,
+                            photo: user.photoURL,
+                            wallet: 0,
+                            createdAt: new Date().toISOString()
+                        });
+                        walletBalance.textContent = 0;
+                        console.log('✅ New user saved to database:', user.email);
+                    } catch (err) {
+                        console.error('❌ Failed to save user:', err);
+                    }
                 }
             } else {
                 userPhoto.style.display = 'none';
