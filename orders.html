@@ -56,6 +56,32 @@
         <span class="whatsapp-tooltip">Need Help? Chat Now!</span>
     </a>
 
+    <!-- Bottom Navigation (Mobile Only) -->
+    <nav class="bottom-nav">
+        <div class="bottom-nav-inner">
+            <a href="index.html" class="bottom-nav-item">
+                <span class="nav-icon">🏠</span>
+                <span>Home</span>
+            </a>
+            <a href="orders.html" class="bottom-nav-item active">
+                <span class="nav-icon">📦</span>
+                <span>Orders</span>
+            </a>
+            <a href="add-money.html" class="bottom-nav-item center">
+                <span class="nav-icon">➕</span>
+                <span>Add</span>
+            </a>
+            <a href="transactions.html" class="bottom-nav-item">
+                <span class="nav-icon">💳</span>
+                <span>History</span>
+            </a>
+            <a href="dashboard.html" class="bottom-nav-item">
+                <span class="nav-icon">👤</span>
+                <span>Account</span>
+            </a>
+        </div>
+    </nav>
+
     <script type="module">
         import { auth, database, signOut, onAuthStateChanged, ref, get } from './config.js';
 
