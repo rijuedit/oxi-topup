@@ -4,14 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Orders - OXI TOP UP</title>
+    <link rel="icon" type="image/png" href="https://i.ibb.co/HTHSLY80/Chat-GPT-Image-Jul-22-2026-11-58-48-PM.png">
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="home-body">
 
-    <!-- Navbar -->
     <nav class="home-navbar">
-        <div class="home-logo" onclick="window.location.href='index.html'" style="cursor:pointer;">OXI <span>TOP UP</span></div>
+        <a href="index.html"><img src="https://i.ibb.co/HTHSLY80/Chat-GPT-Image-Jul-22-2026-11-58-48-PM.png" alt="OXI TOP UP" class="logo-img"></a>
         <div class="home-nav-right">
             <a href="index.html" class="nav-link">Home</a>
             <div class="wallet-badge">
@@ -21,7 +21,6 @@
         </div>
     </nav>
 
-    <!-- Sidebar -->
     <div id="sidebar" class="sidebar">
         <div class="sidebar-header">
             <img id="sidebarPhoto" src="" alt="Profile">
@@ -42,7 +41,6 @@
     </div>
     <div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
 
-    <!-- Container -->
     <div class="dash-container">
         <h2 class="page-title">📦 My Orders</h2>
         <div id="ordersList" class="orders-list">
@@ -50,35 +48,18 @@
         </div>
     </div>
 
-    <!-- Floating WhatsApp Button -->
     <a href="https://wa.me/8801604080312?text=Hello%20OXI%20TOP%20UP,%20I%20need%20help" target="_blank" class="whatsapp-float">
         💬
         <span class="whatsapp-tooltip">Need Help? Chat Now!</span>
     </a>
 
-    <!-- Bottom Navigation (Mobile Only) -->
     <nav class="bottom-nav">
         <div class="bottom-nav-inner">
-            <a href="index.html" class="bottom-nav-item">
-                <span class="nav-icon">🏠</span>
-                <span>Home</span>
-            </a>
-            <a href="orders.html" class="bottom-nav-item active">
-                <span class="nav-icon">📦</span>
-                <span>Orders</span>
-            </a>
-            <a href="add-money.html" class="bottom-nav-item center">
-                <span class="nav-icon">➕</span>
-                <span>Add</span>
-            </a>
-            <a href="transactions.html" class="bottom-nav-item">
-                <span class="nav-icon">💳</span>
-                <span>History</span>
-            </a>
-            <a href="dashboard.html" class="bottom-nav-item">
-                <span class="nav-icon">👤</span>
-                <span>Account</span>
-            </a>
+            <a href="index.html" class="bottom-nav-item"><span class="nav-icon">🏠</span><span>Home</span></a>
+            <a href="orders.html" class="bottom-nav-item active"><span class="nav-icon">📦</span><span>Orders</span></a>
+            <a href="add-money.html" class="bottom-nav-item center"><span class="nav-icon">➕</span><span>Add</span></a>
+            <a href="transactions.html" class="bottom-nav-item"><span class="nav-icon">💳</span><span>History</span></a>
+            <a href="dashboard.html" class="bottom-nav-item"><span class="nav-icon">👤</span><span>Account</span></a>
         </div>
     </nav>
 
