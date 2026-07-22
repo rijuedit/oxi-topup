@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Orders - OXI TOP UP</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="home-body">
+
+    <!-- Navbar -->
+    <nav class="home-navbar">
+        <div class="home-logo" onclick="window.location.href='index.html'" style="cursor:pointer;">OXI <span>TOP UP</span></div>
+        <div class="home-nav-right">
+            <a href="index.html" class="nav-link">Home</a>
+            <div class="wallet-badge">
+                <span>৳</span> <span id="walletBadge">0</span>
+            </div>
+            <img id="navPhoto" class="profile-icon-static" src="" alt="Profile" onclick="toggleSidebar()">
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <img id="sidebarPhoto" src="" alt="Profile">
+            <div>
+                <h4 id="sidebarName">User</h4>
+                <p id="sidebarEmail">email@gmail.com</p>
+            </div>
+            <button class="close-sidebar" onclick="toggleSidebar()">✕</button>
+        </div>
+        <div class="sidebar-menu">
+            <a href="dashboard.html" class="sidebar-item"><span>🏠</span> My Account</a>
+            <a href="orders.html" class="sidebar-item active"><span>📦</span> My Orders</a>
+            <a href="transactions.html" class="sidebar-item"><span>💳</span> My Transaction</a>
+            <a href="add-money.html" class="sidebar-item"><span>💰</span> Add Money</a>
+            <a href="https://wa.me/8801604080312?text=Hello%20OXI%20TOP%20UP,%20I%20need%20help" target="_blank" class="sidebar-item"><span>💬</span> WhatsApp Support</a>
+            <button class="sidebar-logout" id="logoutBtn">🚪 Logout</button>
+        </div>
+    </div>
+    <div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Container -->
+    <div class="dash-container">
+        <h2 class="page-title">📦 My Orders</h2>
+        <div id="ordersList" class="orders-list">
+            <p style="text-align:center;color:#888;padding:30px;">Loading...</p>
+        </div>
+    </div>
+
+    <!-- Floating WhatsApp Button -->
+    <a href="https://wa.me/8801604080312?text=Hello%20OXI%20TOP%20UP,%20I%20need%20help" target="_blank" class="whatsapp-float">
+        💬
+        <span class="whatsapp-tooltip">Need Help? Chat Now!</span>
+    </a>
+
+    <script type="module">
+        import { auth, database, signOut, onAuthStateChanged, ref, get } from './config.js';
+
+        window.toggleSidebar = function() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sidebarOverlay').classList.toggle('show');
+        };
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            document.getElementById('navPhoto').src = user.photoURL;
+            document.getElementById('sidebarPhoto').src = user.photoURL;
+            document.getElementById('sidebarName').textContent = user.displayName;
+            document.getElementById('sidebarEmail').textContent = user.email;
+
+            const userRef = ref(database, 'users/' + user.uid);
+            const snapshot = await get(userRef);
+            if (snapshot.exists()) {
+                document.getElementById('walletBadge').textContent = snapshot.val().wallet || 0;
+            }
+
+            const orderSnapshot = await get(ref(database, 'orders'));
+            const ordersList = document.getElementById('ordersList');
+            ordersList.innerHTML = '';
+
+            if (orderSnapshot.exists()) {
+                const orders = orderSnapshot.val();
+                const myOrders = Object.entries(orders).filter(([id, ord]) => ord.userId === user.uid).reverse();
+
+                if (myOrders.length === 0) {
+                    ordersList.innerHTML = '<p style="text-align:center;color:#888;padding:30px;">You have no orders yet</p>';
+                    return;
+                }
+
+                myOrders.forEach(([id, ord]) => {
+                    const statusColor = ord.status === 'Pending' ? '#ffaa00' : ord.status === 'Complete' ? '#00ff88' : '#ff6b6b';
+                    const date = new Date(ord.orderDate).toLocaleString('en-GB');
+
+                    ordersList.innerHTML += `
+                        <div class="order-card">
+                            <div class="order-header">
+                                <h4>${ord.productName}</h4>
+                                <span class="order-status" style="background:${statusColor}20;color:${statusColor};border:1px solid ${statusColor};">● ${ord.status}</span>
+                            </div>
+                            <div class="order-body">
+                                <div class="order-row"><span>📦 Package:</span><strong>${ord.packageName}</strong></div>
+                                <div class="order-row"><span>🆔 Player ID:</span><strong>${ord.playerId}</strong></div>
+                                <div class="order-row"><span>💰 Price:</span><strong style="color:#8b00ff;">৳ ${ord.price}</strong></div>
+                                <div class="order-row"><span>📅 Date:</span><strong>${date}</strong></div>
+                                <div class="order-row"><span>🔢 Order ID:</span><strong style="font-size:11px;">${id.substring(0,15)}...</strong></div>
+                            </div>
+                        </div>
+                    `;
+                });
+            } else {
+                ordersList.innerHTML = '<p style="text-align:center;color:#888;padding:30px;">You have no orders yet</p>';
+            }
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            await signOut(auth);
+            window.location.href = 'login.html';
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OXI TOP UP - Free Fire Diamond Top-Up</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="home-body">
+
+    <!-- Navbar -->
+    <nav class="home-navbar">
+        <div class="home-logo">OXI <span>TOP UP</span></div>
+        <div class="home-nav-right">
+            <a href="index.html" class="nav-link">Home</a>
+            <a href="#contact" class="nav-link">Contact</a>
+            <div class="wallet-badge" id="walletBadge">
+                <span>৳</span> <span id="walletBalance">0</span>
+            </div>
+            <img id="userPhoto" class="profile-icon-static" src="" alt="Profile" onclick="toggleSidebar()">
+            <a href="login.html" class="btn-login-nav" id="loginNavBtn" style="display: none;">Login</a>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <img id="sidebarPhoto" src="" alt="Profile">
+            <div>
+                <h4 id="sidebarName">User</h4>
+                <p id="sidebarEmail">email@gmail.com</p>
+            </div>
+            <button class="close-sidebar" onclick="toggleSidebar()">✕</button>
+        </div>
+        <div class="sidebar-menu">
+            <a href="dashboard.html" class="sidebar-item"><span>🏠</span> My Account</a>
+            <a href="orders.html" class="sidebar-item"><span>📦</span> My Orders</a>
+            <a href="transactions.html" class="sidebar-item"><span>💳</span> My Transaction</a>
+            <a href="add-money.html" class="sidebar-item"><span>💰</span> Add Money</a>
+            <a href="https://wa.me/8801604080312?text=Hello%20OXI%20TOP%20UP,%20I%20need%20help" target="_blank" class="sidebar-item"><span>💬</span> WhatsApp Support</a>
+            <button class="sidebar-logout" id="logoutBtn">🚪 Logout</button>
+        </div>
+    </div>
+    <div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Notice Bar -->
+    <div class="notice-bar">
+        🔥 <strong>Notice:</strong> OXI TOP UP - দ্রুত, নিরাপদ এবং সহজে ফ্রি ফায়ার ডায়মন্ড কিনুন!
+    </div>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="hero-content">
+            <h1>🎮 OXI <span>TOP UP</span></h1>
+            <p>Free Fire Diamond Top-Up | Fast • Safe • Cheap</p>
+            <a href="#packages" class="btn-main">Order Now 🔥</a>
+        </div>
+    </section>
+
+    <!-- Packages Section -->
+    <section class="packages-section" id="packages">
+        <h2>💎 Free Fire Topup</h2>
+        <div class="packages-grid-v2" id="productsGrid">
+            <!-- Products will load here from Firebase -->
+        </div>
+    </section>
+
+    <!-- Why Choose Us -->
+    <section class="why-section">
+        <h2>Why Choose OXI TOP UP?</h2>
+        <div class="why-grid">
+            <div class="why-card">
+                <div class="why-icon">⚡</div>
+                <h3>Fast Delivery</h3>
+                <p>1-5 মিনিটেই আপনার ডায়মন্ড পেয়ে যাবেন</p>
+            </div>
+            <div class="why-card">
+                <div class="why-icon">🛡️</div>
+                <h3>100% Safe</h3>
+                <p>আপনার Account সম্পূর্ণ নিরাপদ থাকবে</p>
+            </div>
+            <div class="why-card">
+                <div class="why-icon">💰</div>
+                <h3>Best Price</h3>
+                <p>বাজারের সবচেয়ে কম দামে ডায়মন্ড</p>
+            </div>
+            <div class="why-card">
+                <div class="why-icon">📞</div>
+                <h3>24/7 Support</h3>
+                <p>যেকোনো সমস্যায় আমরা সবসময় আছি</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer" id="contact">
+        <div class="footer-content">
+            <div class="footer-logo">OXI <span>TOP UP</span></div>
+            <p>Fast • Safe • Reliable Free Fire Top-Up</p>
+            <p class="footer-copyright">© OXI TOP UP 2026 | All Rights Reserved | Developed by <span style="color: #8b00ff; font-weight: 700;">RIJUWAN</span></p>
+        </div>
+    </footer>
+
+    <!-- Floating WhatsApp Button -->
+    <a href="https://wa.me/8801604080312?text=Hello%20OXI%20TOP%20UP,%20I%20need%20help" target="_blank" class="whatsapp-float">
+        💬
+        <span class="whatsapp-tooltip">Need Help? Chat Now!</span>
+    </a>
+
+    <script type="module">
+        import { auth, database, signOut, onAuthStateChanged, ref, get } from './config.js';
+
+        window.toggleSidebar = function() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sidebarOverlay').classList.toggle('show');
+        };
+
+        const defaultProducts = {
+            idcode: { name: 'Free Fire Id Code (BD SERVER)', image: 'https://i.postimg.cc/mZY5RtSJ/id-code.jpg', stock: 'in' },
+            weeklymonthly: { name: 'Weekly/Monthly', image: 'https://i.postimg.cc/YSNtxvz3/weekly-monthly.jpg', stock: 'in' },
+            levelup: { name: 'New Level Up Pass (BD Server)', image: 'https://i.postimg.cc/htgtQNwv/level-up-pass.jpg', stock: 'in' },
+            weeklylite: { name: 'Weekly Lite', image: 'https://i.postimg.cc/L8xJ8j0M/weekly-lite.jpg', stock: 'in' },
+            fflike: { name: 'Free Fire Like (200 প্রতিদিন)', image: 'https://i.postimg.cc/YS8w8mLL/free-fire-like.jpg', stock: 'in' }
+        };
+
+        async function loadProducts() {
+            const productsGrid = document.getElementById('productsGrid');
+            productsGrid.innerHTML = '';
+
+            const productsRef = ref(database, 'products');
+            const snapshot = await get(productsRef);
+            
+            let products = defaultProducts;
+            if (snapshot.exists()) {
+                const dbProducts = snapshot.val();
+                for (const key in dbProducts) {
+                    if (products[key]) {
+                        products[key].stock = dbProducts[key].stock || 'in';
+                        products[key].name = dbProducts[key].name || products[key].name;
+                        products[key].image = dbProducts[key].image || products[key].image;
+                    }
+                }
+            }
+
+            for (const key in products) {
+                const product = products[key];
+                const isOutOfStock = product.stock === 'out';
+                
+                productsGrid.innerHTML += `
+                    <div class="product-card ${isOutOfStock ? 'out-of-stock' : ''}" 
+                         onclick="${isOutOfStock ? '' : `window.location.href='product.html?type=${key}'`}">
+                        <img src="${product.image}" alt="${product.name}">
+                        ${isOutOfStock ? '<div class="stock-out-badge">❌ Out of Stock</div>' : ''}
+                        <div class="product-info">
+                            <h3>${product.name}</h3>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        loadProducts();
+
+        const walletBadge = document.getElementById('walletBadge');
+        const userPhoto = document.getElementById('userPhoto');
+        const loginNavBtn = document.getElementById('loginNavBtn');
+        const walletBalance = document.getElementById('walletBalance');
+
+        onAuthStateChanged(auth, async (user) => {
+            if (user) {
+                userPhoto.src = user.photoURL;
+                userPhoto.style.display = 'block';
+                walletBadge.style.display = 'flex';
+                loginNavBtn.style.display = 'none';
+
+                document.getElementById('sidebarPhoto').src = user.photoURL;
+                document.getElementById('sidebarName').textContent = user.displayName;
+                document.getElementById('sidebarEmail').textContent = user.email;
+
+                const userRef = ref(database, 'users/' + user.uid);
+                const snapshot = await get(userRef);
+                if (snapshot.exists()) {
+                    const data = snapshot.val();
+                    walletBalance.textContent = data.wallet || 0;
+                }
+            } else {
+                userPhoto.style.display = 'none';
+                walletBadge.style.display = 'none';
+                loginNavBtn.style.display = 'block';
+            }
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            await signOut(auth);
+            window.location.href = 'login.html';
+        });
+    </script>
+
+</body>
+</html>

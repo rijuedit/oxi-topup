@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - OXI TOP UP</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="home-body">
+
+    <!-- Navbar -->
+    <nav class="home-navbar">
+        <div class="home-logo" onclick="window.location.href='index.html'" style="cursor:pointer;">OXI <span>TOP UP</span></div>
+        <div class="home-nav-right">
+            <a href="index.html" class="nav-link">Home</a>
+            <div class="wallet-badge">
+                <span>৳</span> <span id="walletBadge">0</span>
+            </div>
+            <img id="navPhoto" class="profile-icon-static" src="" alt="Profile" onclick="toggleSidebar()">
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <img id="sidebarPhoto" src="" alt="Profile">
+            <div>
+                <h4 id="sidebarName">User</h4>
+                <p id="sidebarEmail">email@gmail.com</p>
+            </div>
+            <button class="close-sidebar" onclick="toggleSidebar()">✕</button>
+        </div>
+        <div class="sidebar-menu">
+            <a href="dashboard.html" class="sidebar-item active"><span>🏠</span> My Account</a>
+            <a href="orders.html" class="sidebar-item"><span>📦</span> My Orders</a>
+            <a href="transactions.html" class="sidebar-item"><span>💳</span> My Transaction</a>
+            <a href="add-money.html" class="sidebar-item"><span>💰</span> Add Money</a>
+            <a href="https://wa.me/8801604080312?text=Hello%20OXI%20TOP%20UP,%20I%20need%20help" target="_blank" class="sidebar-item"><span>💬</span> WhatsApp Support</a>
+            <button class="sidebar-logout" id="logoutBtn">🚪 Logout</button>
+        </div>
+    </div>
+    <div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <div class="dash-container">
+
+        <!-- Profile Card -->
+        <div class="profile-card-new">
+            <div class="profile-left">
+                <img id="profileImg" src="" alt="Profile" class="profile-img-static">
+                <div>
+                    <h2 id="userName">Loading...</h2>
+                    <p id="userEmail">Loading...</p>
+                    <div class="profile-badges">
+                        <span class="badge-verified">✅ Verified</span>
+                    </div>
+                    <div class="member-card-mini" id="memberCard">
+                        <div class="member-icon" id="memberIcon">🥉</div>
+                        <div class="member-info">
+                            <h4 id="memberName">Bronze Member</h4>
+                            <p id="memberLevel">Level 1 / Current Rank</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="wallet-mini">
+                <p>Wallet Balance</p>
+                <h1>৳ <span id="walletAmount">0</span></h1>
+                <button class="btn-add-money" onclick="window.location.href='add-money.html'">+ Add Money</button>
+            </div>
+        </div>
+
+        <!-- Current Rank Big Card -->
+        <div class="current-rank-card" id="currentRankCard">
+            <div class="rank-card-left">
+                <div class="rank-big-icon" id="rankBigIcon">🥉</div>
+                <p class="rank-level" id="rankLevel">Level 1</p>
+            </div>
+            <div class="rank-card-right">
+                <p class="rank-label">CURRENT RANK</p>
+                <h2 class="rank-big-name" id="rankBigName">Bronze</h2>
+                <p class="rank-tag" id="rankTag">Bronze tier - keep topping up!</p>
+                <div class="rank-progress-info">
+                    <span id="rankRange">0 - 100 Tk</span>
+                    <span id="rankPercent">0%</span>
+                </div>
+                <div class="progress-bar-outer">
+                    <div class="progress-bar-inner" id="progressBar" style="width: 0%;"></div>
+                </div>
+                <p class="rank-need" id="rankNeed">Need <strong>100 Tk</strong> to unlock <strong>Silver</strong></p>
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid-new">
+            <div class="stat-card-new">
+                <div class="stat-icon">📦</div>
+                <h4>Orders</h4>
+                <p id="totalOrders">0</p>
+            </div>
+            <div class="stat-card-new">
+                <div class="stat-icon">💵</div>
+                <h4>Total Spend</h4>
+                <p>৳ <span id="totalSpend">0</span></p>
+            </div>
+            <div class="stat-card-new">
+                <div class="stat-icon">🏆</div>
+                <h4>Current Rank</h4>
+                <p id="currentRank">Bronze</p>
+            </div>
+        </div>
+
+        <!-- Rank Journey -->
+        <div class="section-box">
+            <div class="rank-header">
+                <h3>🎯 Rank Journey</h3>
+                <span class="rank-progress" id="rankProgress">1/8</span>
+            </div>
+            <div class="rank-list" id="rankList"></div>
+        </div>
+
+        <!-- User Info -->
+        <div class="section-box">
+            <h3>👤 User Information</h3>
+            <div class="user-info-grid">
+                <div class="info-item">
+                    <span class="info-label">Name</span>
+                    <span class="info-value" id="infoName">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Email</span>
+                    <span class="info-value" id="infoEmail">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">User ID</span>
+                    <span class="info-value" id="infoUserId">-</span>
+                </div>
+                <div class="info-item">
+                    <span class="info-label">Join Date</span>
+                    <span class="info-value" id="infoJoin">-</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Floating WhatsApp Button -->
+    <a href="https://wa.me/8801604080312?text=Hello%20OXI%20TOP%20UP,%20I%20need%20help" target="_blank" class="whatsapp-float">
+        💬
+        <span class="whatsapp-tooltip">Need Help? Chat Now!</span>
+    </a>
+
+    <script type="module">
+        import { auth, database, signOut, onAuthStateChanged, ref, get, set } from './config.js';
+
+        window.toggleSidebar = function() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sidebarOverlay').classList.toggle('show');
+        };
+
+        const ranks = [
+            { name: 'Bronze', icon: '🥉', color: '#cd7f32', gradient: 'linear-gradient(135deg, #8b4513, #cd7f32)', min: 0, max: 100 },
+            { name: 'Silver', icon: '🥈', color: '#c0c0c0', gradient: 'linear-gradient(135deg, #707070, #c0c0c0)', min: 101, max: 1000 },
+            { name: 'Gold', icon: '🥇', color: '#ffd700', gradient: 'linear-gradient(135deg, #b8860b, #ffd700)', min: 1001, max: 5000 },
+            { name: 'Platinum', icon: '💎', color: '#4a90e2', gradient: 'linear-gradient(135deg, #1e5799, #4a90e2)', min: 5001, max: 10000 },
+            { name: 'Diamond', icon: '💠', color: '#8b00ff', gradient: 'linear-gradient(135deg, #4b0082, #8b00ff)', min: 10001, max: 25000 },
+            { name: 'Heroic', icon: '🔥', color: '#ff4500', gradient: 'linear-gradient(135deg, #8b0000, #ff4500)', min: 25001, max: 50000 },
+            { name: 'Master', icon: '⭐', color: '#ff1493', gradient: 'linear-gradient(135deg, #8b008b, #ff1493)', min: 50001, max: 100000 },
+            { name: 'Grand Master', icon: '👑', color: '#ffaa00', gradient: 'linear-gradient(135deg, #ff4500, #ffaa00)', min: 100001, max: 999999999 }
+        ];
+
+        function getRank(spend) {
+            for (let i = ranks.length - 1; i >= 0; i--) {
+                if (spend >= ranks[i].min) return { ...ranks[i], index: i };
+            }
+            return { ...ranks[0], index: 0 };
+        }
+
+        function generateNumericId(uid) {
+            let num = 0;
+            for (let i = 0; i < uid.length; i++) {
+                num += uid.charCodeAt(i);
+            }
+            return String(100000 + (num % 900000));
+        }
+
+        function renderRankList(currentRankIndex) {
+            const rankList = document.getElementById('rankList');
+            rankList.innerHTML = '';
+            ranks.forEach((rank, index) => {
+                let status = 'locked';
+                let statusText = '🔒 Locked';
+                if (index < currentRankIndex) {
+                    status = 'unlocked';
+                    statusText = '✓ Unlocked';
+                } else if (index === currentRankIndex) {
+                    status = 'current';
+                    statusText = '⭐ Current';
+                }
+                const maxText = rank.max === 999999999 ? '∞' : rank.max.toLocaleString();
+                const nameColor = status === 'current' ? rank.color : 'white';
+                rankList.innerHTML += `
+                    <div class="rank-item ${status}">
+                        <div class="rank-icon-box" style="background: ${rank.color}20; border: 2px solid ${rank.color};">${rank.icon}</div>
+                        <div class="rank-info">
+                            <h4 style="color: ${nameColor};">${rank.name}</h4>
+                            <p>${rank.min.toLocaleString()} - ${maxText} Tk</p>
+                        </div>
+                        <span class="rank-status">${statusText}</span>
+                    </div>
+                `;
+            });
+        }
+
+        function updateCurrentRankCard(spend, currentRank) {
+            const card = document.getElementById('currentRankCard');
+            card.style.background = currentRank.gradient;
+            document.getElementById('rankBigIcon').textContent = currentRank.icon;
+            document.getElementById('rankLevel').textContent = 'Level ' + (currentRank.index + 1);
+            document.getElementById('rankBigName').textContent = currentRank.name;
+            document.getElementById('rankTag').textContent = currentRank.name + ' tier - keep topping up!';
+            const maxText = currentRank.max === 999999999 ? '∞' : currentRank.max.toLocaleString();
+            document.getElementById('rankRange').textContent = currentRank.min.toLocaleString() + ' - ' + maxText + ' Tk';
+            const range = currentRank.max - currentRank.min;
+            const progress = spend - currentRank.min;
+            let percent = Math.min(100, Math.floor((progress / range) * 100));
+            if (currentRank.max === 999999999) percent = 100;
+            document.getElementById('rankPercent').textContent = percent + '%';
+            document.getElementById('progressBar').style.width = percent + '%';
+            if (currentRank.index < ranks.length - 1) {
+                const nextRank = ranks[currentRank.index + 1];
+                const need = nextRank.min - spend;
+                document.getElementById('rankNeed').innerHTML = 'Need <strong>' + need.toLocaleString() + ' Tk</strong> to unlock <strong>' + nextRank.name + '</strong>';
+            } else {
+                document.getElementById('rankNeed').innerHTML = '🏆 <strong>MAX RANK ACHIEVED!</strong>';
+            }
+        }
+
+        function updateMemberCard(currentRank) {
+            document.getElementById('memberIcon').textContent = currentRank.icon;
+            document.getElementById('memberName').textContent = currentRank.name + ' Member';
+            document.getElementById('memberLevel').textContent = 'Level ' + (currentRank.index + 1) + ' / Current Rank';
+            document.getElementById('memberCard').style.background = currentRank.gradient;
+        }
+
+        renderRankList(0);
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const numericId = generateNumericId(user.uid);
+            document.getElementById('userName').textContent = user.displayName;
+            document.getElementById('userEmail').textContent = user.email;
+            document.getElementById('profileImg').src = user.photoURL;
+            document.getElementById('navPhoto').src = user.photoURL;
+            document.getElementById('sidebarPhoto').src = user.photoURL;
+            document.getElementById('sidebarName').textContent = user.displayName;
+            document.getElementById('sidebarEmail').textContent = user.email;
+            document.getElementById('infoName').textContent = user.displayName;
+            document.getElementById('infoEmail').textContent = user.email;
+            document.getElementById('infoUserId').textContent = '#' + numericId;
+
+            const userRef = ref(database, 'users/' + user.uid);
+            const snapshot = await get(userRef);
+
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                const wallet = data.wallet || 0;
+                const spend = data.totalSpend || 0;
+                const orders = data.orders || 0;
+                if (!data.numericId) {
+                    await set(userRef, { ...data, numericId: numericId });
+                }
+                document.getElementById('walletBadge').textContent = wallet;
+                document.getElementById('walletAmount').textContent = wallet;
+                document.getElementById('totalOrders').textContent = orders;
+                document.getElementById('totalSpend').textContent = spend;
+                const currentRank = getRank(spend);
+                document.getElementById('currentRank').textContent = currentRank.name;
+                document.getElementById('rankProgress').textContent = (currentRank.index + 1) + '/8';
+                if (data.joinDate) {
+                    const date = new Date(data.joinDate);
+                    document.getElementById('infoJoin').textContent = date.toLocaleDateString('en-GB');
+                }
+                updateMemberCard(currentRank);
+                updateCurrentRankCard(spend, currentRank);
+                renderRankList(currentRank.index);
+            }
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            await signOut(auth);
+            window.location.href = 'login.html';
+        });
+    </script>
+
+</body>
+</html>

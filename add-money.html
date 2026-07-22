@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Money - OXI TOP UP</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+</head>
+<body class="home-body">
+
+    <!-- Navbar -->
+    <nav class="home-navbar">
+        <div class="home-logo" onclick="window.location.href='index.html'" style="cursor:pointer;">OXI <span>TOP UP</span></div>
+        <div class="home-nav-right">
+            <a href="index.html" class="nav-link">Home</a>
+            <div class="wallet-badge">
+                <span>৳</span> <span id="walletBalance">0</span>
+            </div>
+            <img id="userPhoto" class="profile-icon-static" src="" alt="Profile" onclick="toggleSidebar()">
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <div id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <img id="sidebarPhoto" src="" alt="Profile">
+            <div>
+                <h4 id="sidebarName">User</h4>
+                <p id="sidebarEmail">email@gmail.com</p>
+            </div>
+            <button class="close-sidebar" onclick="toggleSidebar()">✕</button>
+        </div>
+        <div class="sidebar-menu">
+            <a href="dashboard.html" class="sidebar-item"><span>🏠</span> My Account</a>
+            <a href="orders.html" class="sidebar-item"><span>📦</span> My Orders</a>
+            <a href="transactions.html" class="sidebar-item"><span>💳</span> My Transaction</a>
+            <a href="add-money.html" class="sidebar-item active"><span>💰</span> Add Money</a>
+            <a href="https://wa.me/8801604080312?text=Hello%20OXI%20TOP%20UP,%20I%20need%20help" target="_blank" class="sidebar-item"><span>💬</span> WhatsApp Support</a>
+            <button class="sidebar-logout" id="logoutBtn">🚪 Logout</button>
+        </div>
+    </div>
+    <div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <!-- Toast -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Container -->
+    <div class="addmoney-container">
+
+        <h2 class="addmoney-title">💰 Add Money to Wallet</h2>
+
+        <div class="section-box">
+            <h3><span class="step">1</span> Enter Amount</h3>
+            <input type="number" id="amount" placeholder="Enter Amount (Min ৳ 20)" class="input-field" min="20">
+            <div class="quick-amounts">
+                <button onclick="setAmount(50)">৳ 50</button>
+                <button onclick="setAmount(100)">৳ 100</button>
+                <button onclick="setAmount(200)">৳ 200</button>
+                <button onclick="setAmount(500)">৳ 500</button>
+                <button onclick="setAmount(1000)">৳ 1000</button>
+            </div>
+        </div>
+
+        <div class="section-box">
+            <h3><span class="step">2</span> Select Payment Method</h3>
+            <div class="payment-methods">
+                <div class="payment-method" id="bkashMethod" onclick="selectMethod('bkash')">
+                    <img src="https://freepnglogo.com/images/all_img/1691829322bkash-app-logo-png.png" alt="bKash" class="pm-logo">
+                    <div>
+                        <h4>bKash</h4>
+                        <p>Send Money</p>
+                    </div>
+                </div>
+                <div class="payment-method" id="nagadMethod" onclick="selectMethod('nagad')">
+                    <img src="https://freepnglogo.com/images/all_img/1691829323nagad-app-logo-png.png" alt="Nagad" class="pm-logo">
+                    <div>
+                        <h4>Nagad</h4>
+                        <p>Send Money</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-box" id="paymentInfoBox" style="display: none;">
+            <h3><span class="step">3</span> Payment Instructions</h3>
+            <div class="payment-info">
+                <div class="info-line">
+                    <span>💰 Amount:</span>
+                    <strong>৳ <span id="showAmount">0</span></strong>
+                </div>
+                <div class="info-line copy-line" onclick="copyNumber()">
+                    <span>📱 Send Money to:</span>
+                    <strong id="paymentNumber">01604080312</strong>
+                    <span class="copy-btn">📋 Copy</span>
+                </div>
+                <div class="info-line">
+                    <span>💳 Method:</span>
+                    <strong id="showMethod">bKash</strong>
+                </div>
+            </div>
+
+            <div class="instructions">
+                <p>⚠️ <strong>Important Instructions:</strong></p>
+                <ol>
+                    <li>উপরের নম্বরে <strong>Send Money</strong> করুন</li>
+                    <li>Transaction সফল হলে <strong>TrxID</strong> লিখুন</li>
+                    <li>আপনার নম্বর লিখুন যেটা থেকে Send করেছেন</li>
+                    <li>Submit চাপুন — Admin Approve করলে Wallet এ টাকা এড হবে</li>
+                </ol>
+            </div>
+
+            <label>Your Number (যেটা থেকে পাঠিয়েছেন)</label>
+            <input type="text" id="senderNumber" placeholder="01XXXXXXXXX" class="input-field">
+
+            <label style="margin-top: 15px;">Transaction ID (TrxID)</label>
+            <input type="text" id="trxId" placeholder="Example: 8N7GT52KOP" class="input-field">
+
+            <button class="btn-buy-now" id="submitBtn">Submit Payment Request</button>
+        </div>
+
+    </div>
+
+    <!-- Custom Alert Modal -->
+    <div id="alertModal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-icon" id="modalIcon">⚠️</div>
+            <h3 id="modalTitle">Warning</h3>
+            <p id="modalMessage">Message here</p>
+            <button onclick="closeModal()" class="btn-modal">OK</button>
+        </div>
+    </div>
+
+    <!-- Floating WhatsApp Button -->
+    <a href="https://wa.me/8801604080312?text=Hello%20OXI%20TOP%20UP,%20I%20need%20help" target="_blank" class="whatsapp-float">
+        💬
+        <span class="whatsapp-tooltip">Need Help? Chat Now!</span>
+    </a>
+
+    <script type="module">
+        import { auth, database, signOut, onAuthStateChanged, ref, get, set, push, PAYMENT_NUMBERS } from './config.js';
+
+        let currentUser = null;
+        let selectedMethod = null;
+
+        window.toggleSidebar = function() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sidebarOverlay').classList.toggle('show');
+        };
+
+        window.showAlert = function(message, type = 'warning') {
+            const modal = document.getElementById('alertModal');
+            const icon = document.getElementById('modalIcon');
+            const title = document.getElementById('modalTitle');
+            const msg = document.getElementById('modalMessage');
+            if (type === 'success') {
+                icon.textContent = '✅';
+                title.textContent = 'Success';
+            } else if (type === 'error') {
+                icon.textContent = '❌';
+                title.textContent = 'Error';
+            } else {
+                icon.textContent = '⚠️';
+                title.textContent = 'Warning';
+            }
+            msg.textContent = message;
+            modal.classList.add('show');
+        };
+
+        window.closeModal = function() {
+            document.getElementById('alertModal').classList.remove('show');
+        };
+
+        window.showToast = function(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        };
+
+        window.copyNumber = function() {
+            const number = document.getElementById('paymentNumber').textContent;
+            navigator.clipboard.writeText(number);
+            showToast('✅ Number Copied: ' + number);
+        };
+
+        window.setAmount = function(amount) {
+            document.getElementById('amount').value = amount;
+            document.getElementById('showAmount').textContent = amount;
+        };
+
+        window.selectMethod = function(method) {
+            const amount = document.getElementById('amount').value;
+            if (!amount || amount < 20) {
+                showAlert('Please enter amount first (Min ৳ 20)');
+                return;
+            }
+            selectedMethod = method;
+            document.getElementById('bkashMethod').classList.remove('active');
+            document.getElementById('nagadMethod').classList.remove('active');
+            document.getElementById(method + 'Method').classList.add('active');
+            document.getElementById('paymentInfoBox').style.display = 'block';
+            document.getElementById('showAmount').textContent = amount;
+            document.getElementById('showMethod').textContent = method === 'bkash' ? 'bKash' : 'Nagad';
+            document.getElementById('paymentNumber').textContent = method === 'bkash' ? PAYMENT_NUMBERS.bkash : PAYMENT_NUMBERS.nagad;
+            document.getElementById('paymentInfoBox').scrollIntoView({ behavior: 'smooth' });
+        };
+
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+            currentUser = user;
+            document.getElementById('userPhoto').src = user.photoURL;
+            document.getElementById('sidebarPhoto').src = user.photoURL;
+            document.getElementById('sidebarName').textContent = user.displayName;
+            document.getElementById('sidebarEmail').textContent = user.email;
+
+            const userRef = ref(database, 'users/' + user.uid);
+            const snapshot = await get(userRef);
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                document.getElementById('walletBalance').textContent = data.wallet || 0;
+            }
+        });
+
+        document.getElementById('submitBtn').addEventListener('click', async () => {
+            const amount = parseInt(document.getElementById('amount').value);
+            const senderNumber = document.getElementById('senderNumber').value.trim();
+            const trxId = document.getElementById('trxId').value.trim();
+
+            if (!amount || amount < 20) {
+                showAlert('Amount must be at least ৳ 20');
+                return;
+            }
+            if (!senderNumber || senderNumber.length !== 11) {
+                showAlert('Please enter a valid 11-digit number');
+                return;
+            }
+            if (!trxId || trxId.length < 6) {
+                showAlert('Please enter valid Transaction ID');
+                return;
+            }
+            if (!selectedMethod) {
+                showAlert('Please select payment method');
+                return;
+            }
+
+            const trxRef = push(ref(database, 'transactions'));
+            await set(trxRef, {
+                userId: currentUser.uid,
+                userName: currentUser.displayName,
+                userEmail: currentUser.email,
+                amount: amount,
+                method: selectedMethod,
+                senderNumber: senderNumber,
+                trxId: trxId,
+                status: 'Pending',
+                date: new Date().toISOString(),
+                trxRefId: trxRef.key
+            });
+
+            showAlert('Payment Request Submitted! Admin will verify soon.', 'success');
+            setTimeout(() => window.location.href = 'dashboard.html', 2000);
+        });
+
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            await signOut(auth);
+            window.location.href = 'login.html';
+        });
+    </script>
+
+</body>
+</html>
