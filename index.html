@@ -112,46 +112,57 @@
 
         // Default products (fallback if Firebase not set)
         const defaultProducts = {
-            idcode: { name: 'Free Fire Id Code (BD SERVER)', image: 'https://i.postimg.cc/mZY5RtSJ/id-code.jpg', stock: 'in' },
-            weeklymonthly: { name: 'Weekly/Monthly', image: 'https://i.postimg.cc/YSNtxvz3/weekly-monthly.jpg', stock: 'in' },
-            levelup: { name: 'New Level Up Pass (BD Server)', image: 'https://i.postimg.cc/htgtQNwv/level-up-pass.jpg', stock: 'in' },
-            weeklylite: { name: 'Weekly Lite', image: 'https://i.postimg.cc/L8xJ8j0M/weekly-lite.jpg', stock: 'in' },
-            fflike: { name: 'Free Fire Like (200 প্রতিদিন)', image: 'https://i.postimg.cc/YS8w8mLL/free-fire-like.jpg', stock: 'in' }
+            idcode: { name: 'Free Fire Id Code (BD SERVER)', image: 'https://via.placeholder.com/300x240/1a0033/8b00ff?text=OXI+TOP+UP', stock: 'in' },
+            weeklymonthly: { name: 'Weekly/Monthly', image: 'https://via.placeholder.com/300x240/1a0033/8b00ff?text=OXI+TOP+UP', stock: 'in' },
+            levelup: { name: 'New Level Up Pass (BD Server)', image: 'https://via.placeholder.com/300x240/1a0033/8b00ff?text=OXI+TOP+UP', stock: 'in' },
+            weeklylite: { name: 'Weekly Lite', image: 'https://via.placeholder.com/300x240/1a0033/8b00ff?text=OXI+TOP+UP', stock: 'in' },
+            fflike: { name: 'Free Fire Like', image: 'https://via.placeholder.com/300x240/1a0033/8b00ff?text=OXI+TOP+UP', stock: 'in' }
         };
 
         async function loadProducts() {
             const productsGrid = document.getElementById('productsGrid');
-            productsGrid.innerHTML = '';
+            productsGrid.innerHTML = '<p style="color:#a0a0c0; text-align:center; grid-column: 1/-1;">⏳ Loading products...</p>';
 
-            // Try to load from Firebase
-            const productsRef = ref(database, 'products');
-            const snapshot = await get(productsRef);
-            
-            let products = defaultProducts;
-            if (snapshot.exists()) {
-                const dbProducts = snapshot.val();
-                // Merge with defaults
-                for (const key in dbProducts) {
-                    if (products[key]) {
-                        products[key].stock = dbProducts[key].stock || 'in';
+            try {
+                // Try to load from Firebase
+                const productsRef = ref(database, 'products');
+                const snapshot = await get(productsRef);
+                
+                // Deep clone default products
+                let products = JSON.parse(JSON.stringify(defaultProducts));
+                
+                // Override with Firebase data (image, name, stock)
+                if (snapshot.exists()) {
+                    const dbProducts = snapshot.val();
+                    for (const key in dbProducts) {
+                        if (!products[key]) {
+                            products[key] = { name: '', image: '', stock: 'in' };
+                        }
+                        if (dbProducts[key].image) products[key].image = dbProducts[key].image;
+                        if (dbProducts[key].name) products[key].name = dbProducts[key].name;
+                        if (dbProducts[key].stock) products[key].stock = dbProducts[key].stock;
                     }
                 }
-            }
 
-            for (const key in products) {
-                const product = products[key];
-                const isOutOfStock = product.stock === 'out';
-                
-                productsGrid.innerHTML += `
-                    <div class="product-card ${isOutOfStock ? 'out-of-stock' : ''}" 
-                         onclick="${isOutOfStock ? '' : `window.location.href='product.html?type=${key}'`}">
-                        <img src="${product.image}" alt="${product.name}">
-                        ${isOutOfStock ? '<div class="stock-out-badge">❌ Out of Stock</div>' : ''}
-                        <div class="product-info">
-                            <h3>${product.name}</h3>
+                productsGrid.innerHTML = '';
+                for (const key in products) {
+                    const product = products[key];
+                    const isOutOfStock = product.stock === 'out';
+                    
+                    productsGrid.innerHTML += `
+                        <div class="product-card ${isOutOfStock ? 'out-of-stock' : ''}" 
+                             onclick="${isOutOfStock ? '' : `window.location.href='product.html?type=${key}'`}">
+                            <img src="${product.image}" alt="${product.name}" onerror="this.src='https://via.placeholder.com/300x240/1a0033/8b00ff?text=OXI+TOP+UP'">
+                            ${isOutOfStock ? '<div class="stock-out-badge">❌ Out of Stock</div>' : ''}
+                            <div class="product-info">
+                                <h3>${product.name}</h3>
+                            </div>
                         </div>
-                    </div>
-                `;
+                    `;
+                }
+            } catch (error) {
+                console.error('Error loading products:', error);
+                productsGrid.innerHTML = '<p style="color:red; text-align:center; grid-column: 1/-1;">❌ Failed to load products. Please refresh.</p>';
             }
         }
 
