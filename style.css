@@ -2276,3 +2276,121 @@ a {
         font-size: 18px;
     }
 }
+
+/* ============================================
+   INSTALL APP POPUP (PWA)
+   ============================================ */
+
+.install-popup {
+    position: fixed;
+    bottom: 90px;
+    right: 20px;
+    background: linear-gradient(135deg, rgba(139, 0, 255, 0.98), rgba(106, 13, 173, 0.98));
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 15px;
+    padding: 15px 18px;
+    box-shadow: 0 10px 40px rgba(139, 0, 255, 0.5);
+    z-index: 9998;
+    max-width: 280px;
+    animation: slideInPopup 0.5s ease-out;
+    display: none;
+}
+
+.install-popup.show {
+    display: block;
+}
+
+@keyframes slideInPopup {
+    from {
+        transform: translateY(100px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.install-popup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 6px;
+}
+
+.install-popup-title {
+    color: white;
+    font-size: 15px;
+    font-weight: 700;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.install-popup-close {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: 0.3s;
+}
+
+.install-popup-close:hover {
+    background: rgba(255, 255, 255, 0.4);
+    transform: rotate(90deg);
+}
+
+.install-popup-text {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 12px;
+    margin-bottom: 12px;
+    line-height: 1.4;
+}
+
+.install-popup-btn {
+    background: white;
+    color: #8b00ff;
+    border: none;
+    padding: 10px 18px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: 0.3s;
+    font-family: 'Poppins', sans-serif;
+}
+
+.install-popup-btn:hover {
+    transform: scale(1.02);
+    box-shadow: 0 5px 20px rgba(255, 255, 255, 0.3);
+}
+
+.install-popup-btn::before {
+    content: '⬇️';
+    font-size: 16px;
+}
+
+/* Mobile Adjustments */
+@media (max-width: 768px) {
+    .install-popup {
+        bottom: 85px;
+        right: 12px;
+        left: 12px;
+        max-width: none;
+    }
+}
