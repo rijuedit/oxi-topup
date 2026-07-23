@@ -5,12 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>OXI TOP UP - Free Fire Diamond Top-Up</title>
     <link rel="icon" type="image/png" href="https://i.ibb.co/HTHSLY80/Chat-GPT-Image-Jul-22-2026-11-58-48-PM.png">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#8b00ff">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="OXI TOP UP">
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="home-body">
 
-    <!-- Navbar -->
     <nav class="home-navbar">
         <a href="index.html"><img src="https://i.ibb.co/HTHSLY80/Chat-GPT-Image-Jul-22-2026-11-58-48-PM.png" alt="OXI TOP UP" class="logo-img"></a>
         <div class="home-nav-right">
@@ -24,7 +28,6 @@
         </div>
     </nav>
 
-    <!-- Sidebar -->
     <div id="sidebar" class="sidebar">
         <div class="sidebar-header">
             <img id="sidebarPhoto" src="" alt="Profile">
@@ -45,12 +48,10 @@
     </div>
     <div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
 
-    <!-- Notice Bar -->
     <div class="notice-bar">
         🔥 <strong>Notice:</strong> OXI TOP UP - দ্রুত, নিরাপদ এবং সহজে ফ্রি ফায়ার ডায়মন্ড কিনুন!
     </div>
 
-    <!-- Hero Section -->
     <section class="hero-section">
         <div class="hero-content">
             <img src="https://i.ibb.co/HTHSLY80/Chat-GPT-Image-Jul-22-2026-11-58-48-PM.png" alt="OXI TOP UP" class="login-logo-img">
@@ -59,14 +60,11 @@
         </div>
     </section>
 
-    <!-- Packages Section -->
     <section class="packages-section" id="packages">
         <h2>💎 Free Fire Topup</h2>
-        <div class="packages-grid-v2" id="productsGrid">
-        </div>
+        <div class="packages-grid-v2" id="productsGrid"></div>
     </section>
 
-    <!-- Why Choose Us -->
     <section class="why-section">
         <h2>Why Choose OXI TOP UP?</h2>
         <div class="why-grid">
@@ -93,7 +91,6 @@
         </div>
     </section>
 
-    <!-- Footer -->
     <footer class="footer" id="contact">
         <div class="footer-content">
             <img src="https://i.ibb.co/HTHSLY80/Chat-GPT-Image-Jul-22-2026-11-58-48-PM.png" alt="OXI TOP UP" class="footer-logo-img">
@@ -102,31 +99,73 @@
         </div>
     </footer>
 
-    <!-- Bottom Navigation (Mobile Only) -->
     <nav class="bottom-nav">
         <div class="bottom-nav-inner">
-            <a href="index.html" class="bottom-nav-item active">
-                <span class="nav-icon">🏠</span>
-                <span>Home</span>
-            </a>
-            <a href="orders.html" class="bottom-nav-item">
-                <span class="nav-icon">📦</span>
-                <span>Orders</span>
-            </a>
-            <a href="add-money.html" class="bottom-nav-item center">
-                <span class="nav-icon">➕</span>
-                <span>Add</span>
-            </a>
-            <a href="transactions.html" class="bottom-nav-item">
-                <span class="nav-icon">💳</span>
-                <span>History</span>
-            </a>
-            <a href="dashboard.html" class="bottom-nav-item">
-                <span class="nav-icon">👤</span>
-                <span>Account</span>
-            </a>
+            <a href="index.html" class="bottom-nav-item active"><span class="nav-icon">🏠</span><span>Home</span></a>
+            <a href="orders.html" class="bottom-nav-item"><span class="nav-icon">📦</span><span>Orders</span></a>
+            <a href="add-money.html" class="bottom-nav-item center"><span class="nav-icon">➕</span><span>Add</span></a>
+            <a href="transactions.html" class="bottom-nav-item"><span class="nav-icon">💳</span><span>History</span></a>
+            <a href="dashboard.html" class="bottom-nav-item"><span class="nav-icon">👤</span><span>Account</span></a>
         </div>
     </nav>
+
+    <!-- Install App Popup -->
+    <div id="installPopup" class="install-popup">
+        <div class="install-popup-header">
+            <h4 class="install-popup-title">📱 Install App</h4>
+            <button class="install-popup-close" onclick="closeInstallPopup()">✕</button>
+        </div>
+        <p class="install-popup-text">Install our app for a better experience</p>
+        <button class="install-popup-btn" onclick="installApp()">Install Now</button>
+    </div>
+
+    <!-- PWA Service Worker & Install Prompt -->
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js')
+                    .then(reg => console.log('✅ Service Worker registered'))
+                    .catch(err => console.log('❌ SW registration failed:', err));
+            });
+        }
+
+        let deferredPrompt;
+        const installPopup = document.getElementById('installPopup');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            setTimeout(() => {
+                if (!localStorage.getItem('installDismissed')) {
+                    installPopup.classList.add('show');
+                }
+            }, 3000);
+        });
+
+        function installApp() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then((choiceResult) => {
+                    if (choiceResult.outcome === 'accepted') {
+                        console.log('✅ User accepted install');
+                    }
+                    deferredPrompt = null;
+                    installPopup.classList.remove('show');
+                });
+            }
+        }
+
+        function closeInstallPopup() {
+            installPopup.classList.remove('show');
+            localStorage.setItem('installDismissed', 'true');
+            setTimeout(() => localStorage.removeItem('installDismissed'), 7 * 24 * 60 * 60 * 1000);
+        }
+
+        window.addEventListener('appinstalled', () => {
+            installPopup.classList.remove('show');
+            console.log('✅ App installed');
+        });
+    </script>
 
     <script type="module">
         import { auth, database, signOut, onAuthStateChanged, ref, get, set } from './config.js';
@@ -147,47 +186,36 @@
         async function loadProducts() {
             const productsGrid = document.getElementById('productsGrid');
             productsGrid.innerHTML = '<p style="color:#a0a0c0; text-align:center; grid-column: 1/-1;">⏳ Loading products...</p>';
-
             try {
                 const productsRef = ref(database, 'products');
                 const snapshot = await get(productsRef);
-                
                 let products = JSON.parse(JSON.stringify(defaultProducts));
-                
                 if (snapshot.exists()) {
                     const dbProducts = snapshot.val();
                     for (const key in dbProducts) {
-                        if (!products[key]) {
-                            products[key] = { name: '', image: '', stock: 'in' };
-                        }
+                        if (!products[key]) products[key] = { name: '', image: '', stock: 'in' };
                         if (dbProducts[key].image) products[key].image = dbProducts[key].image;
                         if (dbProducts[key].name) products[key].name = dbProducts[key].name;
                         if (dbProducts[key].stock) products[key].stock = dbProducts[key].stock;
                     }
                 }
-
                 productsGrid.innerHTML = '';
                 for (const key in products) {
                     const product = products[key];
                     const isOutOfStock = product.stock === 'out';
-                    
                     productsGrid.innerHTML += `
                         <div class="product-card ${isOutOfStock ? 'out-of-stock' : ''}" 
                              onclick="${isOutOfStock ? '' : `window.location.href='product.html?type=${key}'`}">
                             <img src="${product.image}" alt="${product.name}" onerror="this.src='https://via.placeholder.com/300x240/1a0033/8b00ff?text=OXI+TOP+UP'">
                             ${isOutOfStock ? '<div class="stock-out-badge">❌ Out of Stock</div>' : ''}
-                            <div class="product-info">
-                                <h3>${product.name}</h3>
-                            </div>
-                        </div>
-                    `;
+                            <div class="product-info"><h3>${product.name}</h3></div>
+                        </div>`;
                 }
             } catch (error) {
-                console.error('Error loading products:', error);
-                productsGrid.innerHTML = '<p style="color:red; text-align:center; grid-column: 1/-1;">❌ Failed to load products. Please refresh.</p>';
+                console.error('Error:', error);
+                productsGrid.innerHTML = '<p style="color:red; text-align:center; grid-column: 1/-1;">❌ Failed to load</p>';
             }
         }
-
         loadProducts();
 
         const walletBadge = document.getElementById('walletBadge');
@@ -201,31 +229,21 @@
                 userPhoto.style.display = 'block';
                 walletBadge.style.display = 'flex';
                 loginNavBtn.style.display = 'none';
-
                 document.getElementById('sidebarPhoto').src = user.photoURL;
                 document.getElementById('sidebarName').textContent = user.displayName;
                 document.getElementById('sidebarEmail').textContent = user.email;
-
                 const userRef = ref(database, 'users/' + user.uid);
                 const snapshot = await get(userRef);
-                
                 if (snapshot.exists()) {
-                    const data = snapshot.val();
-                    walletBalance.textContent = data.wallet || 0;
+                    walletBalance.textContent = snapshot.val().wallet || 0;
                 } else {
                     try {
                         await set(userRef, {
-                            name: user.displayName,
-                            email: user.email,
-                            photo: user.photoURL,
-                            wallet: 0,
-                            createdAt: new Date().toISOString()
+                            name: user.displayName, email: user.email, photo: user.photoURL,
+                            wallet: 0, createdAt: new Date().toISOString()
                         });
                         walletBalance.textContent = 0;
-                        console.log('✅ New user saved to database:', user.email);
-                    } catch (err) {
-                        console.error('❌ Failed to save user:', err);
-                    }
+                    } catch (err) { console.error(err); }
                 }
             } else {
                 userPhoto.style.display = 'none';
