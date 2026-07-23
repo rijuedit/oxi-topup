@@ -1,0 +1,26 @@
+{
+  "name": "OXI TOP UP",
+  "short_name": "OXI TOP UP",
+  "description": "Free Fire Diamond Top-Up | Fast • Safe • Cheap",
+  "start_url": "/oxi-topup/",
+  "scope": "/oxi-topup/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#0a0a0a",
+  "theme_color": "#8b00ff",
+  "lang": "bn",
+  "icons": [
+    {
+      "src": "https://i.ibb.co/HTHSLY80/Chat-GPT-Image-Jul-22-2026-11-58-48-PM.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "https://i.ibb.co/HTHSLY80/Chat-GPT-Image-Jul-22-2026-11-58-48-PM.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
