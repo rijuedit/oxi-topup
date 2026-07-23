@@ -2394,3 +2394,179 @@ a {
         max-width: none;
     }
 }
+
+/* ============================================
+   PLAYER ID CHECK (Free Fire API)
+   ============================================ */
+
+.id-check-wrapper {
+    position: relative;
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+}
+
+.id-check-wrapper .input-field {
+    flex: 1;
+}
+
+.btn-check-id {
+    background: linear-gradient(135deg, #8b00ff, #6a0dad);
+    color: white;
+    border: none;
+    padding: 0 20px;
+    border-radius: 10px;
+    font-weight: 700;
+    font-size: 13px;
+    cursor: pointer;
+    transition: 0.3s;
+    white-space: nowrap;
+    font-family: 'Poppins', sans-serif;
+    box-shadow: 0 3px 10px rgba(139, 0, 255, 0.4);
+}
+
+.btn-check-id:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(139, 0, 255, 0.6);
+}
+
+.btn-check-id:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.player-info-box {
+    margin-top: 15px;
+    padding: 15px;
+    border-radius: 12px;
+    display: none;
+    animation: slideDown 0.4s ease-out;
+}
+
+.player-info-box.show {
+    display: block;
+}
+
+.player-info-box.success {
+    background: linear-gradient(135deg, rgba(0, 255, 100, 0.1), rgba(0, 200, 80, 0.05));
+    border: 1px solid rgba(0, 255, 100, 0.4);
+}
+
+.player-info-box.error {
+    background: linear-gradient(135deg, rgba(255, 60, 60, 0.1), rgba(200, 40, 40, 0.05));
+    border: 1px solid rgba(255, 60, 60, 0.4);
+}
+
+.player-info-box.loading {
+    background: linear-gradient(135deg, rgba(139, 0, 255, 0.1), rgba(106, 13, 173, 0.05));
+    border: 1px solid rgba(139, 0, 255, 0.4);
+    text-align: center;
+}
+
+@keyframes slideDown {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.player-name-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(139, 0, 255, 0.2);
+}
+
+.player-avatar {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, #8b00ff, #ff00ea);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.player-name-info h4 {
+    color: white;
+    font-size: 16px;
+    margin: 0;
+    font-weight: 700;
+}
+
+.player-name-info p {
+    color: #a0a0c0;
+    font-size: 12px;
+    margin: 2px 0 0 0;
+}
+
+.player-details-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+}
+
+.player-detail-item {
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 8px;
+    padding: 10px 8px;
+    text-align: center;
+}
+
+.player-detail-label {
+    color: #a0a0c0;
+    font-size: 10px;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+    letter-spacing: 1px;
+}
+
+.player-detail-value {
+    color: #8b00ff;
+    font-family: 'Orbitron', sans-serif;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.check-loading-spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 3px solid rgba(139, 0, 255, 0.2);
+    border-top-color: #8b00ff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    vertical-align: middle;
+    margin-right: 8px;
+}
+
+.player-info-box p {
+    color: white;
+    font-size: 14px;
+    margin: 0;
+}
+
+@media (max-width: 600px) {
+    .id-check-wrapper {
+        flex-direction: column;
+    }
+    .btn-check-id {
+        padding: 12px 20px;
+        width: 100%;
+    }
+    .player-details-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .player-name-info h4 {
+        font-size: 14px;
+    }
+}
