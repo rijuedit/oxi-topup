@@ -7,6 +7,54 @@
     <link rel="icon" type="image/png" href="https://i.ibb.co/HTHSLY80/Chat-GPT-Image-Jul-22-2026-11-58-48-PM.png">
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        .check-name-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #8b00ff, #6a0dad);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 14px;
+            margin-top: 10px;
+            transition: 0.3s;
+            font-family: 'Poppins', sans-serif;
+        }
+        .check-name-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 5px 20px rgba(139, 0, 255, 0.5);
+        }
+        .check-name-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        .name-result {
+            margin-top: 12px;
+            padding: 12px 15px;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            display: none;
+            text-align: center;
+        }
+        .name-result.success {
+            background: rgba(0, 200, 83, 0.15);
+            color: #00ff88;
+            border: 1px solid rgba(0, 200, 83, 0.4);
+        }
+        .name-result.error {
+            background: rgba(255, 50, 50, 0.15);
+            color: #ff6b6b;
+            border: 1px solid rgba(255, 50, 50, 0.4);
+        }
+        .name-result.loading {
+            background: rgba(139, 0, 255, 0.15);
+            color: #a78bfa;
+            border: 1px solid rgba(139, 0, 255, 0.4);
+        }
+    </style>
 </head>
 <body class="home-body">
 
@@ -73,6 +121,12 @@
                         <h3><span class="step">2</span> Account Info</h3>
                         <label>Player ID</label>
                         <input type="text" id="playerId" placeholder="Enter Player ID" class="input-field">
+                        
+                        <!-- Check Name Button (Only shows if API is ON) -->
+                        <button id="checkNameBtn" class="check-name-btn" style="display:none;" onclick="checkPlayerName()">
+                            🔍 Check Player Name
+                        </button>
+                        <div id="nameResult" class="name-result"></div>
                     </div>
 
                     <div class="section-box">
@@ -149,6 +203,84 @@
         let currentUserData = null;
         let selectedPackage = null;
         let productData = null;
+        let uidApiSettings = null;
+
+        // Load API Settings from Firebase
+        async function loadApiSettings() {
+            try {
+                const snap = await get(ref(database, 'apiSettings/uid'));
+                if (snap.exists()) {
+                    uidApiSettings = snap.val();
+                    // Show Check Name button if API is enabled
+                    if (uidApiSettings.enabled && uidApiSettings.url && uidApiSettings.key) {
+                        document.getElementById('checkNameBtn').style.display = 'block';
+                    }
+                }
+            } catch (err) {
+                console.log('API settings not found');
+            }
+        }
+
+        // Check Player Name via API
+        window.checkPlayerName = async function() {
+            const playerId = document.getElementById('playerId').value.trim();
+            const resultDiv = document.getElementById('nameResult');
+            const btn = document.getElementById('checkNameBtn');
+
+            if (!playerId) {
+                resultDiv.className = 'name-result error';
+                resultDiv.textContent = '⚠️ Please enter Player ID first';
+                resultDiv.style.display = 'block';
+                return;
+            }
+
+            if (!uidApiSettings || !uidApiSettings.url || !uidApiSettings.key) {
+                resultDiv.className = 'name-result error';
+                resultDiv.textContent = '❌ API not configured';
+                resultDiv.style.display = 'block';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.textContent = '⏳ Checking...';
+            resultDiv.className = 'name-result loading';
+            resultDiv.textContent = '⏳ Checking player name...';
+            resultDiv.style.display = 'block';
+
+            try {
+                const method = uidApiSettings.method || 'GET';
+                const url = uidApiSettings.url + (uidApiSettings.url.includes('?') ? '&' : '?') + 'uid=' + playerId;
+                
+                const response = await fetch(url, {
+                    method: method,
+                    headers: {
+                        'Authorization': 'Bearer ' + uidApiSettings.key,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                const data = await response.json();
+                
+                // Try to find the name from response (different APIs return different formats)
+                const playerName = data.nickname || data.name || data.username || data.player_name || 
+                                   (data.data && (data.data.nickname || data.data.name || data.data.username)) ||
+                                   (data.result && (data.result.nickname || data.result.name));
+
+                if (playerName) {
+                    resultDiv.className = 'name-result success';
+                    resultDiv.innerHTML = '✅ Player Name: <strong>' + playerName + '</strong>';
+                } else {
+                    resultDiv.className = 'name-result error';
+                    resultDiv.textContent = '❌ Player not found';
+                }
+            } catch (error) {
+                resultDiv.className = 'name-result error';
+                resultDiv.textContent = '❌ Error: ' + error.message;
+            }
+
+            btn.disabled = false;
+            btn.textContent = '🔍 Check Player Name';
+        };
 
         async function loadProduct() {
             const productRef = ref(database, 'products/' + productType);
@@ -208,6 +340,7 @@
         }
 
         loadProduct();
+        loadApiSettings();
 
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
