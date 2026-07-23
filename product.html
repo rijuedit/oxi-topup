@@ -54,6 +54,12 @@
             color: #a78bfa;
             border: 1px solid rgba(139, 0, 255, 0.4);
         }
+        .player-details {
+            margin-top: 8px;
+            font-size: 12px;
+            color: #a0a0c0;
+            font-weight: 500;
+        }
     </style>
 </head>
 <body class="home-body">
@@ -122,7 +128,6 @@
                         <label>Player ID</label>
                         <input type="text" id="playerId" placeholder="Enter Player ID" class="input-field">
                         
-                        <!-- Check Name Button (Only shows if API is ON) -->
                         <button id="checkNameBtn" class="check-name-btn" style="display:none;" onclick="checkPlayerName()">
                             🔍 Check Player Name
                         </button>
@@ -205,13 +210,11 @@
         let productData = null;
         let uidApiSettings = null;
 
-        // Load API Settings from Firebase
         async function loadApiSettings() {
             try {
                 const snap = await get(ref(database, 'apiSettings/uid'));
                 if (snap.exists()) {
                     uidApiSettings = snap.val();
-                    // Show Check Name button if API is enabled
                     if (uidApiSettings.enabled && uidApiSettings.url && uidApiSettings.key) {
                         document.getElementById('checkNameBtn').style.display = 'block';
                     }
@@ -221,7 +224,6 @@
             }
         }
 
-        // Check Player Name via API
         window.checkPlayerName = async function() {
             const playerId = document.getElementById('playerId').value.trim();
             const resultDiv = document.getElementById('nameResult');
@@ -262,16 +264,36 @@
                 const data = await response.json();
                 console.log('API Response:', data);
                 
-                // Try to find the name from response (different APIs return different formats)
-                const playerName = data.nickname || data.name || data.username || data.player_name || 
-                                   (data.data && (data.data.nickname || data.data.name || data.data.username)) ||
-                                   (data.result && (data.result.nickname || data.result.name)) ||
-                                   (data.basicInfo && data.basicInfo.nickname) ||
-                                   (data.profile && data.profile.nickname);
+                // Gameskinbo API format: data.AccountInfo.AccountName
+                let playerName = null;
+                let playerLevel = null;
+                let playerRegion = null;
+                
+                if (data.AccountInfo) {
+                    playerName = data.AccountInfo.AccountName;
+                    playerLevel = data.AccountInfo.AccountLevel;
+                    playerRegion = data.AccountInfo.AccountRegion;
+                }
+                
+                // Fallback for other API formats
+                if (!playerName) {
+                    playerName = data.nickname || data.name || data.username || data.player_name || 
+                                 (data.data && (data.data.nickname || data.data.name || data.data.username)) ||
+                                 (data.result && (data.result.nickname || data.result.name)) ||
+                                 (data.basicInfo && data.basicInfo.nickname) ||
+                                 (data.profile && data.profile.nickname);
+                }
 
                 if (playerName) {
                     resultDiv.className = 'name-result success';
-                    resultDiv.innerHTML = '✅ Player Name: <strong>' + playerName + '</strong>';
+                    let html = '✅ Player Name: <strong>' + playerName + '</strong>';
+                    if (playerLevel || playerRegion) {
+                        html += '<div class="player-details">';
+                        if (playerLevel) html += '⭐ Level: ' + playerLevel + ' ';
+                        if (playerRegion) html += '🌍 Region: ' + playerRegion;
+                        html += '</div>';
+                    }
+                    resultDiv.innerHTML = html;
                 } else {
                     resultDiv.className = 'name-result error';
                     resultDiv.textContent = '❌ Player not found';
