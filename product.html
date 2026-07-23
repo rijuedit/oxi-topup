@@ -254,17 +254,20 @@
                 const response = await fetch(url, {
                     method: method,
                     headers: {
-                        'Authorization': 'Bearer ' + uidApiSettings.key,
+                        'x-api-key': uidApiSettings.key,
                         'Content-Type': 'application/json'
                     }
                 });
 
                 const data = await response.json();
+                console.log('API Response:', data);
                 
                 // Try to find the name from response (different APIs return different formats)
                 const playerName = data.nickname || data.name || data.username || data.player_name || 
                                    (data.data && (data.data.nickname || data.data.name || data.data.username)) ||
-                                   (data.result && (data.result.nickname || data.result.name));
+                                   (data.result && (data.result.nickname || data.result.name)) ||
+                                   (data.basicInfo && data.basicInfo.nickname) ||
+                                   (data.profile && data.profile.nickname);
 
                 if (playerName) {
                     resultDiv.className = 'name-result success';
