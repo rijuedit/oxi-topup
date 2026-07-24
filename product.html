@@ -8,64 +8,23 @@
     <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
-        .check-name-btn {
-            width: 100%;
-            background: linear-gradient(135deg, #8b00ff, #6a0dad);
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 10px;
-            font-weight: 700;
-            cursor: pointer;
-            font-size: 14px;
-            margin-top: 10px;
-            transition: 0.3s;
-            font-family: 'Poppins', sans-serif;
-        }
-        .check-name-btn:hover {
-            transform: scale(1.02);
-            box-shadow: 0 5px 20px rgba(139, 0, 255, 0.5);
-        }
-        .check-name-btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-        .name-result {
-            margin-top: 12px;
-            padding: 12px 15px;
-            border-radius: 10px;
-            font-size: 14px;
-            font-weight: 600;
-            display: none;
-            text-align: center;
-        }
-        .name-result.success {
-            background: rgba(0, 200, 83, 0.15);
-            color: #00ff88;
-            border: 1px solid rgba(0, 200, 83, 0.4);
-        }
-        .name-result.error {
-            background: rgba(255, 50, 50, 0.15);
-            color: #ff6b6b;
-            border: 1px solid rgba(255, 50, 50, 0.4);
-        }
-        .name-result.loading {
-            background: rgba(139, 0, 255, 0.15);
-            color: #a78bfa;
-            border: 1px solid rgba(139, 0, 255, 0.4);
-        }
-        .player-details {
-            margin-top: 8px;
-            font-size: 12px;
-            color: #a0a0c0;
-            font-weight: 500;
-        }
+        .check-name-btn { width: 100%; background: linear-gradient(135deg, #8b00ff, #6a0dad); color: white; border: none; padding: 12px; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 14px; margin-top: 10px; transition: 0.3s; font-family: 'Poppins', sans-serif; }
+        .check-name-btn:hover { transform: scale(1.02); box-shadow: 0 5px 20px rgba(139, 0, 255, 0.5); }
+        .check-name-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .name-result { margin-top: 12px; padding: 12px 15px; border-radius: 10px; font-size: 14px; font-weight: 600; display: none; text-align: center; }
+        .name-result.success { background: rgba(0, 200, 83, 0.15); color: #00ff88; border: 1px solid rgba(0, 200, 83, 0.4); }
+        .name-result.error { background: rgba(255, 50, 50, 0.15); color: #ff6b6b; border: 1px solid rgba(255, 50, 50, 0.4); }
+        .name-result.loading { background: rgba(139, 0, 255, 0.15); color: #a78bfa; border: 1px solid rgba(139, 0, 255, 0.4); }
+        .player-details { margin-top: 8px; font-size: 12px; color: #a0a0c0; font-weight: 500; }
     </style>
 </head>
 <body class="home-body">
 
     <nav class="home-navbar">
-        <a href="index.html" style="display:flex;align-items:center;gap:10px;text-decoration:none;">     <img src="https://i.ibb.co/HTHSLY80/Chat-GPT-Image-Jul-22-2026-11-58-48-PM.png" alt="OXI TOP UP" class="logo-img">     <span style="font-family:'Orbitron',sans-serif;font-size:20px;font-weight:900;color:white;letter-spacing:1px;">OXI <span style="color:#8b00ff;">TOP UP</span></span> </a>
+        <a href="index.html" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
+            <img src="https://i.ibb.co/HTHSLY80/Chat-GPT-Image-Jul-22-2026-11-58-48-PM.png" alt="OXI TOP UP" class="logo-img">
+            <span style="font-family:'Orbitron',sans-serif;font-size:20px;font-weight:900;color:white;letter-spacing:1px;">OXI <span style="color:#8b00ff;">TOP UP</span></span>
+        </a>
         <div class="home-nav-right">
             <a href="index.html" class="nav-link">Home</a>
             <div class="wallet-badge">
@@ -264,7 +223,6 @@
                 const data = await response.json();
                 console.log('API Response:', data);
                 
-                // Gameskinbo API format: data.AccountInfo.AccountName
                 let playerName = null;
                 let playerLevel = null;
                 let playerRegion = null;
@@ -275,7 +233,6 @@
                     playerRegion = data.AccountInfo.AccountRegion;
                 }
                 
-                // Fallback for other API formats
                 if (!playerName) {
                     playerName = data.nickname || data.name || data.username || data.player_name || 
                                  (data.data && (data.data.nickname || data.data.name || data.data.username)) ||
@@ -338,8 +295,12 @@
             const rechargeList = document.getElementById('rechargeList');
             rechargeList.innerHTML = '';
 
-            for (const pkgKey in productData.packages) {
-                const pkg = productData.packages[pkgKey];
+            // Sort packages by order
+            const packagesArray = Object.entries(productData.packages).map(([pkgKey, pkgVal]) => ({ pkgKey, ...pkgVal }));
+            packagesArray.sort((a, b) => (a.order || 0) - (b.order || 0));
+
+            for (const pkg of packagesArray) {
+                const pkgKey = pkg.pkgKey;
                 const isOut = pkg.stock === 'out';
 
                 const div = document.createElement('div');
@@ -391,22 +352,10 @@
         document.getElementById('buyNowBtn').addEventListener('click', async () => {
             const playerId = document.getElementById('playerId').value.trim();
             
-            if (!playerId) {
-                showToast('⚠️ Please enter Player ID!');
-                return;
-            }
-            if (!selectedPackage) {
-                showToast('⚠️ Please select a package!');
-                return;
-            }
-            if (!currentUserData) {
-                showToast('⚠️ Please login first!');
-                return;
-            }
-            if ((currentUserData.wallet || 0) < selectedPackage.price) {
-                showToast('❌ Insufficient balance!');
-                return;
-            }
+            if (!playerId) { showToast('⚠️ Please enter Player ID!'); return; }
+            if (!selectedPackage) { showToast('⚠️ Please select a package!'); return; }
+            if (!currentUserData) { showToast('⚠️ Please login first!'); return; }
+            if ((currentUserData.wallet || 0) < selectedPackage.price) { showToast('❌ Insufficient balance!'); return; }
 
             if (!confirm('Confirm order?\n\nPackage: ' + selectedPackage.name + '\nPrice: ৳ ' + selectedPackage.price + '\nPlayer ID: ' + playerId)) return;
 
