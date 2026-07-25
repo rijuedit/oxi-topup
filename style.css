@@ -2623,3 +2623,89 @@ a {
         height: 30px !important;
     }
 }
+/* ============================================
+   MOBILE NAVBAR - FINAL FIX
+   ============================================ */
+
+@media (max-width: 768px) {
+    .home-navbar {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        justify-content: space-between !important;
+        align-items: center !important;
+        padding: 10px 12px !important;
+        gap: 8px !important;
+    }
+    
+    .home-navbar > a {
+        flex-shrink: 1 !important;
+        min-width: 0 !important;
+        overflow: hidden !important;
+    }
+    
+    .home-navbar .logo-img {
+        height: 32px !important;
+        width: 32px !important;
+        max-width: 32px !important;
+        flex-shrink: 0 !important;
+    }
+    
+    .home-navbar a span {
+        font-size: 14px !important;
+        letter-spacing: 0.5px !important;
+        white-space: nowrap !important;
+    }
+    
+    .home-nav-right {
+        display: flex !important;
+        flex-direction: row !important;
+        flex-wrap: nowrap !important;
+        align-items: center !important;
+        gap: 8px !important;
+        flex-shrink: 0 !important;
+        margin-left: auto !important;
+    }
+    
+    .home-nav-right .nav-link {
+        display: none !important;
+    }
+    
+    .wallet-badge {
+        padding: 5px 10px !important;
+        font-size: 12px !important;
+        white-space: nowrap !important;
+    }
+    
+    .profile-icon-static {
+        width: 34px !important;
+        height: 34px !important;
+        flex-shrink: 0 !important;
+    }
+}
+
+@media (max-width: 380px) {
+    .home-navbar {
+        padding: 8px 10px !important;
+        gap: 5px !important;
+    }
+    
+    .home-navbar a span {
+        font-size: 12px !important;
+    }
+    
+    .home-navbar .logo-img {
+        height: 28px !important;
+        width: 28px !important;
+    }
+    
+    .wallet-badge {
+        padding: 4px 8px !important;
+        font-size: 11px !important;
+    }
+    
+    .profile-icon-static {
+        width: 30px !important;
+        height: 30px !important;
+    }
+}
