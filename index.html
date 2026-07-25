@@ -10,7 +10,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="OXI TOP UP">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=2">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="home-body">
@@ -187,8 +187,6 @@
                 }
                 
                 const products = snapshot.val();
-                
-                // Sort products by order
                 const productsArray = Object.entries(products).map(([key, val]) => ({ key, ...val }));
                 productsArray.sort((a, b) => (a.order || 0) - (b.order || 0));
                 
