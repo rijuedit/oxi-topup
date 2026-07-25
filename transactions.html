@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Transactions - OXI TOP UP</title>
     <link rel="icon" type="image/png" href="https://i.ibb.co/HTHSLY80/Chat-GPT-Image-Jul-22-2026-11-58-48-PM.png">
-    <link rel="stylesheet" href="style.css?v=2">
+    <link rel="stylesheet" href="style.css?v=3">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="home-body">
@@ -67,7 +67,7 @@
     </nav>
 
     <script type="module">
-        import { auth, database, signOut, onAuthStateChanged, ref, get } from './config.js';
+        import { auth, database, signOut, onAuthStateChanged, ref, get, checkIfBanned } from './config.js';
 
         window.toggleSidebar = function() {
             document.getElementById('sidebar').classList.toggle('open');
@@ -76,6 +76,14 @@
 
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const banned = await checkIfBanned(user.uid);
+            if (banned) {
+                await signOut(auth);
+                alert('🚫 Your account has been banned.');
                 window.location.href = 'login.html';
                 return;
             }
@@ -91,13 +99,21 @@
                 document.getElementById('walletBadge').textContent = snapshot.val().wallet || 0;
             }
 
-            const trxSnapshot = await get(ref(database, 'transactions'));
             const trxList = document.getElementById('transactionsList');
             trxList.innerHTML = '';
 
-            if (trxSnapshot.exists()) {
+            try {
+                const trxSnapshot = await get(ref(database, 'transactions'));
+                
+                if (!trxSnapshot.exists()) {
+                    trxList.innerHTML = '<p style="text-align:center;color:#888;padding:30px;">You have no transactions yet</p>';
+                    return;
+                }
+
                 const transactions = trxSnapshot.val();
-                const myTrx = Object.entries(transactions).filter(([id, trx]) => trx.userId === user.uid).reverse();
+                const myTrx = Object.entries(transactions)
+                    .filter(([id, trx]) => trx.userId === user.uid)
+                    .sort((a, b) => new Date(b[1].date) - new Date(a[1].date));
 
                 if (myTrx.length === 0) {
                     trxList.innerHTML = '<p style="text-align:center;color:#888;padding:30px;">You have no transactions yet</p>';
@@ -105,7 +121,10 @@
                 }
 
                 myTrx.forEach(([id, trx]) => {
-                    const statusColor = trx.status === 'Pending' ? '#ffaa00' : trx.status === 'Approved' ? '#00ff88' : '#ff6b6b';
+                    let statusColor = '#ffaa00';
+                    if (trx.status === 'Approved') statusColor = '#00ff88';
+                    else if (trx.status === 'Rejected') statusColor = '#ff6b6b';
+                    
                     const date = new Date(trx.date).toLocaleString('en-GB');
                     let methodIcon = '🟣';
                     let methodName = 'bKash';
@@ -132,8 +151,9 @@
                         </div>
                     `;
                 });
-            } else {
-                trxList.innerHTML = '<p style="text-align:center;color:#888;padding:30px;">You have no transactions yet</p>';
+            } catch (err) {
+                console.error(err);
+                trxList.innerHTML = '<p style="text-align:center;color:red;padding:30px;">❌ Failed to load transactions</p>';
             }
         });
 
