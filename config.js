@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
-import { getDatabase, ref, set, get, push, onValue, update } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+import { getDatabase, ref, set, get, push, onValue, update, remove, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyAYD-szngaWPPk4wkZKHyJrXr_oDab-Lck",
@@ -17,7 +17,45 @@ const auth = getAuth(app);
 const database = getDatabase(app);
 const googleProvider = new GoogleAuthProvider();
 
-const ADMIN_PIN = "147147";
-const PAYMENT_NUMBERS = { bkash: "01604080312", nagad: "01604080312" };
+// Helper: Convert email to Firebase-safe key
+function emailToKey(email) {
+    return email.replace(/\./g, ',');
+}
 
-export { app, auth, database, googleProvider, signInWithPopup, signOut, onAuthStateChanged, ref, set, get, push, onValue, update, ADMIN_PIN, PAYMENT_NUMBERS };
+// Helper: Check admin level
+async function checkAdminLevel(email) {
+    if (!email) return 'none';
+    try {
+        const superSnap = await get(ref(database, 'permanentSuperAdmin'));
+        if (superSnap.exists() && superSnap.val() === email) return 'permanent';
+        
+        const key = emailToKey(email);
+        const superAdminSnap = await get(ref(database, 'superAdmins/' + key));
+        if (superAdminSnap.exists() && superAdminSnap.val() === true) return 'super';
+        
+        const adminSnap = await get(ref(database, 'admins/' + key));
+        if (adminSnap.exists() && adminSnap.val() === true) return 'admin';
+        
+        return 'none';
+    } catch (err) {
+        console.error('Admin check error:', err);
+        return 'none';
+    }
+}
+
+// Helper: Check if user is banned
+async function checkIfBanned(uid) {
+    try {
+        const snap = await get(ref(database, 'bannedUsers/' + uid));
+        return snap.exists() && snap.val() === true;
+    } catch (err) {
+        return false;
+    }
+}
+
+export { 
+    app, auth, database, googleProvider, 
+    signInWithPopup, signOut, onAuthStateChanged, 
+    ref, set, get, push, onValue, update, remove, runTransaction,
+    emailToKey, checkAdminLevel, checkIfBanned
+};
