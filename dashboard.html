@@ -5,13 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - OXI TOP UP</title>
     <link rel="icon" type="image/png" href="https://i.ibb.co/HTHSLY80/Chat-GPT-Image-Jul-22-2026-11-58-48-PM.png">
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=2">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="home-body">
 
     <nav class="home-navbar">
-        <a href="index.html" style="display:flex;align-items:center;gap:10px;text-decoration:none;">     <img src="https://i.ibb.co/HTHSLY80/Chat-GPT-Image-Jul-22-2026-11-58-48-PM.png" alt="OXI TOP UP" class="logo-img">     <span style="font-family:'Orbitron',sans-serif;font-size:20px;font-weight:900;color:white;letter-spacing:1px;">OXI <span style="color:#8b00ff;">TOP UP</span></span> </a>
+        <a href="index.html" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
+            <img src="https://i.ibb.co/HTHSLY80/Chat-GPT-Image-Jul-22-2026-11-58-48-PM.png" alt="OXI TOP UP" class="logo-img">
+            <span style="font-family:'Orbitron',sans-serif;font-size:20px;font-weight:900;color:white;letter-spacing:1px;">OXI <span style="color:#8b00ff;">TOP UP</span></span>
+        </a>
         <div class="home-nav-right">
             <a href="index.html" class="nav-link">Home</a>
             <div class="wallet-badge">
@@ -43,7 +46,6 @@
 
     <div class="dash-container">
 
-        <!-- Profile Card -->
         <div class="profile-card-new">
             <div class="profile-left">
                 <img id="profileImg" src="" alt="Profile" class="profile-img-static">
@@ -69,7 +71,6 @@
             </div>
         </div>
 
-        <!-- Current Rank Big Card -->
         <div class="current-rank-card" id="currentRankCard">
             <div class="rank-card-left">
                 <div class="rank-big-icon" id="rankBigIcon">🥉</div>
@@ -90,7 +91,6 @@
             </div>
         </div>
 
-        <!-- Stats -->
         <div class="stats-grid-new">
             <div class="stat-card-new">
                 <div class="stat-icon">📦</div>
@@ -109,7 +109,6 @@
             </div>
         </div>
 
-        <!-- Leaderboard Preview (Top 2 - Everyone Can See) -->
         <div class="section-box" id="leaderboardBox">
             <div class="rank-header">
                 <h3>🏆 Leaderboard</h3>
@@ -118,7 +117,6 @@
             <div id="topLeaderPreview"></div>
         </div>
 
-        <!-- Rank Journey -->
         <div class="section-box">
             <div class="rank-header">
                 <h3>🎯 Rank Journey</h3>
@@ -127,7 +125,6 @@
             <div class="rank-list" id="rankList"></div>
         </div>
 
-        <!-- User Info -->
         <div class="section-box">
             <h3>👤 User Information</h3>
             <div class="user-info-grid">
@@ -260,7 +257,6 @@
             document.getElementById('memberCard').style.background = currentRank.gradient;
         }
 
-        // Load Leaderboard Preview (Top 2 - Everyone Can See)
         async function loadLeaderboardPreview() {
             const previewBox = document.getElementById('topLeaderPreview');
             
