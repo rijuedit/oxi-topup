@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - OXI TOP UP</title>
     <link rel="icon" type="image/png" href="https://i.ibb.co/HTHSLY80/Chat-GPT-Image-Jul-22-2026-11-58-48-PM.png">
-    <link rel="stylesheet" href="style.css?v=2">
+    <link rel="stylesheet" href="style.css?v=3">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="home-body">
@@ -163,9 +163,8 @@
             <a href="dashboard.html" class="bottom-nav-item active"><span class="nav-icon">👤</span><span>Account</span></a>
         </div>
     </nav>
-
-    <script type="module">
-        import { auth, database, signOut, onAuthStateChanged, ref, get, set } from './config.js';
+        <script type="module">
+        import { auth, database, signOut, onAuthStateChanged, ref, get, update, checkIfBanned } from './config.js';
 
         window.toggleSidebar = function() {
             document.getElementById('sidebar').classList.toggle('open');
@@ -193,7 +192,7 @@
         function generateNumericId(uid) {
             let num = 0;
             for (let i = 0; i < uid.length; i++) {
-                num += uid.charCodeAt(i);
+                num += uid.charCodeAt(i) * (i + 1);
             }
             return String(100000 + (num % 900000));
         }
@@ -260,72 +259,83 @@
         async function loadLeaderboardPreview() {
             const previewBox = document.getElementById('topLeaderPreview');
             
-            const usersSnap = await get(ref(database, 'users'));
-            if (!usersSnap.exists()) {
-                previewBox.innerHTML = `
-                    <div style="text-align:center;padding:25px 15px;">
-                        <div style="font-size:50px;margin-bottom:10px;">🏆</div>
-                        <h4 style="color:#ffd700;font-size:16px;margin-bottom:8px;font-family:'Orbitron', sans-serif;">No Champions Yet!</h4>
-                        <p style="color:#a0a0c0;font-size:13px;">Be the first to reach <strong style="color:#ffd700;">Gold Rank</strong>! 🚀</p>
-                    </div>
-                `;
-                return;
-            }
-
-            const usersData = usersSnap.val();
-            const allUsers = [];
-            for (const uid in usersData) {
-                const u = usersData[uid];
-                const spend = u.totalSpend || 0;
-                if (spend >= 1001) {
-                    allUsers.push({
-                        name: u.name || 'Anonymous',
-                        photo: u.photo || 'https://via.placeholder.com/50/8b00ff/ffffff?text=U',
-                        spend: spend
-                    });
-                }
-            }
-
-            allUsers.sort((a, b) => b.spend - a.spend);
-            const top2 = allUsers.slice(0, 2);
-
-            if (top2.length === 0) {
-                previewBox.innerHTML = `
-                    <div style="text-align:center;padding:25px 15px;">
-                        <div style="font-size:50px;margin-bottom:10px;">🏆</div>
-                        <h4 style="color:#ffd700;font-size:16px;margin-bottom:8px;font-family:'Orbitron', sans-serif;">No Champions Yet!</h4>
-                        <p style="color:#a0a0c0;font-size:13px;">Be the first to reach <strong style="color:#ffd700;">Gold Rank</strong>! 🚀</p>
-                    </div>
-                `;
-                return;
-            }
-
-            const medals = ['🥇', '🥈'];
-            const colors = ['#ffd700', '#c0c0c0'];
-            
-            let html = '<div style="display:flex;flex-direction:column;gap:10px;margin-top:10px;">';
-            top2.forEach((u, i) => {
-                html += `
-                    <div style="display:flex;align-items:center;gap:12px;padding:12px;background:rgba(255,255,255,0.03);border:1px solid ${colors[i]}40;border-radius:12px;">
-                        <div style="font-size:28px;">${medals[i]}</div>
-                        <img src="${u.photo}" onerror="this.src='https://via.placeholder.com/45/8b00ff/ffffff?text=U'" style="width:42px;height:42px;border-radius:50%;border:2px solid ${colors[i]};object-fit:cover;">
-                        <div style="flex:1;min-width:0;">
-                            <div style="color:white;font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${u.name}</div>
-                            <div style="color:${colors[i]};font-size:12px;font-weight:600;">Rank #${i + 1}</div>
+            try {
+                const usersSnap = await get(ref(database, 'users'));
+                if (!usersSnap.exists()) {
+                    previewBox.innerHTML = `
+                        <div style="text-align:center;padding:25px 15px;">
+                            <div style="font-size:50px;margin-bottom:10px;">🏆</div>
+                            <h4 style="color:#ffd700;font-size:16px;margin-bottom:8px;font-family:'Orbitron', sans-serif;">No Champions Yet!</h4>
+                            <p style="color:#a0a0c0;font-size:13px;">Be the first to reach <strong style="color:#ffd700;">Gold Rank</strong>! 🚀</p>
                         </div>
-                        <div style="color:${colors[i]};font-family:'Orbitron', sans-serif;font-weight:700;font-size:13px;">৳ ${u.spend.toLocaleString()}</div>
-                    </div>
-                `;
-            });
-            html += '</div>';
-            previewBox.innerHTML = html;
+                    `;
+                    return;
+                }
+
+                const usersData = usersSnap.val();
+                const allUsers = [];
+                for (const uid in usersData) {
+                    const u = usersData[uid];
+                    const spend = u.totalSpend || 0;
+                    if (spend >= 1001 && !u.banned) {
+                        allUsers.push({
+                            name: u.name || 'Anonymous',
+                            photo: u.photo || 'https://via.placeholder.com/50/8b00ff/ffffff?text=U',
+                            spend: spend
+                        });
+                    }
+                }
+
+                allUsers.sort((a, b) => b.spend - a.spend);
+                const top2 = allUsers.slice(0, 2);
+
+                if (top2.length === 0) {
+                    previewBox.innerHTML = `
+                        <div style="text-align:center;padding:25px 15px;">
+                            <div style="font-size:50px;margin-bottom:10px;">🏆</div>
+                            <h4 style="color:#ffd700;font-size:16px;margin-bottom:8px;font-family:'Orbitron', sans-serif;">No Champions Yet!</h4>
+                            <p style="color:#a0a0c0;font-size:13px;">Be the first to reach <strong style="color:#ffd700;">Gold Rank</strong>! 🚀</p>
+                        </div>
+                    `;
+                    return;
+                }
+
+                const medals = ['🥇', '🥈'];
+                const colors = ['#ffd700', '#c0c0c0'];
+                
+                let html = '<div style="display:flex;flex-direction:column;gap:10px;margin-top:10px;">';
+                top2.forEach((u, i) => {
+                    html += `
+                        <div style="display:flex;align-items:center;gap:12px;padding:12px;background:rgba(255,255,255,0.03);border:1px solid ${colors[i]}40;border-radius:12px;">
+                            <div style="font-size:28px;">${medals[i]}</div>
+                            <img src="${u.photo}" onerror="this.src='https://via.placeholder.com/45/8b00ff/ffffff?text=U'" style="width:42px;height:42px;border-radius:50%;border:2px solid ${colors[i]};object-fit:cover;">
+                            <div style="flex:1;min-width:0;">
+                                <div style="color:white;font-weight:600;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${u.name}</div>
+                                <div style="color:${colors[i]};font-size:12px;font-weight:600;">Rank #${i + 1}</div>
+                            </div>
+                            <div style="color:${colors[i]};font-family:'Orbitron', sans-serif;font-weight:700;font-size:13px;">৳ ${u.spend.toLocaleString()}</div>
+                        </div>
+                    `;
+                });
+                html += '</div>';
+                previewBox.innerHTML = html;
+            } catch (err) {
+                previewBox.innerHTML = '<p style="text-align:center;color:#888;padding:20px;">Leaderboard unavailable</p>';
+            }
         }
 
         renderRankList(0);
-        loadLeaderboardPreview();
 
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const banned = await checkIfBanned(user.uid);
+            if (banned) {
+                await signOut(auth);
+                alert('🚫 Your account has been banned.');
                 window.location.href = 'login.html';
                 return;
             }
@@ -340,7 +350,6 @@
             document.getElementById('sidebarEmail').textContent = user.email;
             document.getElementById('infoName').textContent = user.displayName;
             document.getElementById('infoEmail').textContent = user.email;
-            document.getElementById('infoUserId').textContent = '#' + numericId;
 
             const userRef = ref(database, 'users/' + user.uid);
             const snapshot = await get(userRef);
@@ -350,24 +359,34 @@
                 const wallet = data.wallet || 0;
                 const spend = data.totalSpend || 0;
                 const orders = data.orders || 0;
+                const userNumericId = data.numericId || numericId;
+                
                 if (!data.numericId) {
-                    await set(userRef, { ...data, numericId: numericId });
+                    await update(userRef, { numericId: userNumericId });
                 }
+                
+                document.getElementById('infoUserId').textContent = '#' + userNumericId;
                 document.getElementById('walletBadge').textContent = wallet;
                 document.getElementById('walletAmount').textContent = wallet;
                 document.getElementById('totalOrders').textContent = orders;
                 document.getElementById('totalSpend').textContent = spend;
+                
                 const currentRank = getRank(spend);
                 document.getElementById('currentRank').textContent = currentRank.name;
                 document.getElementById('rankProgress').textContent = (currentRank.index + 1) + '/8';
-                if (data.joinDate) {
-                    const date = new Date(data.joinDate);
+                
+                const joinDate = data.createdAt || data.joinDate;
+                if (joinDate) {
+                    const date = new Date(joinDate);
                     document.getElementById('infoJoin').textContent = date.toLocaleDateString('en-GB');
                 }
+                
                 updateMemberCard(currentRank);
                 updateCurrentRankCard(spend, currentRank);
                 renderRankList(currentRank.index);
             }
+            
+            loadLeaderboardPreview();
         });
 
         document.getElementById('logoutBtn').addEventListener('click', async () => {
