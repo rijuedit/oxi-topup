@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - OXI TOP UP</title>
     <link rel="icon" type="image/png" href="https://i.ibb.co/HTHSLY80/Chat-GPT-Image-Jul-22-2026-11-58-48-PM.png">
-    <link rel="stylesheet" href="style.css?v=2">
+    <link rel="stylesheet" href="style.css?v=3">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="login-body">
@@ -42,14 +42,31 @@
     </div>
 
     <script type="module">
-        import { auth, database, googleProvider, signInWithPopup, ref, set, get, onAuthStateChanged } from './config.js';
+        import { auth, database, googleProvider, signInWithPopup, signOut, ref, set, get, onAuthStateChanged, checkIfBanned } from './config.js';
 
         const googleBtn = document.getElementById('googleLoginBtn');
         const loadingDiv = document.getElementById('loadingDiv');
         const errorMsg = document.getElementById('errorMsg');
 
-        onAuthStateChanged(auth, (user) => {
+        function generateNumericId(uid) {
+            let num = 0;
+            for (let i = 0; i < uid.length; i++) {
+                num += uid.charCodeAt(i) * (i + 1);
+            }
+            return String(100000 + (num % 900000));
+        }
+
+        onAuthStateChanged(auth, async (user) => {
             if (user) {
+                const banned = await checkIfBanned(user.uid);
+                if (banned) {
+                    await signOut(auth);
+                    errorMsg.style.display = 'block';
+                    errorMsg.textContent = '🚫 Your account has been banned. Contact support.';
+                    loadingDiv.style.display = 'none';
+                    googleBtn.disabled = false;
+                    return;
+                }
                 window.location.href = 'index.html';
             }
         });
@@ -63,6 +80,17 @@
                 const result = await signInWithPopup(auth, googleProvider);
                 const user = result.user;
 
+                // Check if banned first
+                const banned = await checkIfBanned(user.uid);
+                if (banned) {
+                    await signOut(auth);
+                    loadingDiv.style.display = 'none';
+                    errorMsg.style.display = 'block';
+                    errorMsg.textContent = '🚫 Your account has been banned. Contact support.';
+                    googleBtn.disabled = false;
+                    return;
+                }
+
                 const userRef = ref(database, 'users/' + user.uid);
                 const snapshot = await get(userRef);
 
@@ -72,7 +100,12 @@
                         email: user.email,
                         photo: user.photoURL,
                         wallet: 0,
-                        createdAt: new Date().toISOString()
+                        totalSpend: 0,
+                        orders: 0,
+                        numericId: generateNumericId(user.uid),
+                        banned: false,
+                        createdAt: new Date().toISOString(),
+                        joinDate: new Date().toISOString()
                     });
                 }
 
