@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Product - OXI TOP UP</title>
     <link rel="icon" type="image/png" href="https://i.ibb.co/HTHSLY80/Chat-GPT-Image-Jul-22-2026-11-58-48-PM.png">
-    <link rel="stylesheet" href="style.css?v=2">
+    <link rel="stylesheet" href="style.css?v=3">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
     <style>
         .check-name-btn { width: 100%; background: linear-gradient(135deg, #8b00ff, #6a0dad); color: white; border: none; padding: 12px; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 14px; margin-top: 10px; transition: 0.3s; font-family: 'Poppins', sans-serif; }
@@ -16,6 +16,18 @@
         .name-result.error { background: rgba(255, 50, 50, 0.15); color: #ff6b6b; border: 1px solid rgba(255, 50, 50, 0.4); }
         .name-result.loading { background: rgba(139, 0, 255, 0.15); color: #a78bfa; border: 1px solid rgba(139, 0, 255, 0.4); }
         .player-details { margin-top: 8px; font-size: 12px; color: #a0a0c0; font-weight: 500; }
+        .confirm-popup { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 10001; padding: 20px; }
+        .confirm-popup.show { display: flex; }
+        .confirm-popup-box { background: linear-gradient(135deg, #1a0033, #0a0a0a); border: 2px solid #8b00ff; border-radius: 20px; padding: 30px; max-width: 450px; width: 100%; }
+        .confirm-popup-box h3 { color: #8b00ff; font-size: 20px; margin-bottom: 15px; font-family: 'Orbitron', sans-serif; text-align: center; }
+        .confirm-details { background: rgba(139,0,255,0.1); border-radius: 12px; padding: 15px; margin-bottom: 20px; }
+        .confirm-row { display: flex; justify-content: space-between; padding: 8px 0; color: white; font-size: 14px; border-bottom: 1px solid rgba(139,0,255,0.15); }
+        .confirm-row:last-child { border-bottom: none; }
+        .confirm-row strong { color: #8b00ff; }
+        .confirm-btns { display: flex; gap: 10px; }
+        .confirm-btns button { flex: 1; padding: 12px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 14px; }
+        .btn-confirm-yes { background: linear-gradient(135deg, #00c853, #00e676); color: white; }
+        .btn-confirm-no { background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); }
     </style>
 </head>
 <body class="home-body">
@@ -128,6 +140,18 @@
 
     </div>
 
+    <div id="confirmPopup" class="confirm-popup">
+        <div class="confirm-popup-box">
+            <div style="font-size:50px;text-align:center;margin-bottom:10px;">🛒</div>
+            <h3>Confirm Order</h3>
+            <div class="confirm-details" id="confirmDetails"></div>
+            <div class="confirm-btns">
+                <button class="btn-confirm-no" onclick="closeConfirmPopup()">Cancel</button>
+                <button class="btn-confirm-yes" id="confirmYesBtn">✅ Confirm Order</button>
+            </div>
+        </div>
+    </div>
+
     <div id="toast" class="toast"></div>
 
     <a href="https://wa.me/8801604080312?text=Hello%20OXI%20TOP%20UP,%20I%20need%20help" target="_blank" class="whatsapp-float">
@@ -144,9 +168,8 @@
             <a href="dashboard.html" class="bottom-nav-item"><span class="nav-icon">👤</span><span>Account</span></a>
         </div>
     </nav>
-
-    <script type="module">
-        import { auth, database, signOut, onAuthStateChanged, ref, get, set, push } from './config.js';
+        <script type="module">
+        import { auth, database, signOut, onAuthStateChanged, ref, get, set, push, update, runTransaction, checkIfBanned } from './config.js';
 
         window.toggleSidebar = function() {
             document.getElementById('sidebar').classList.toggle('open');
@@ -168,6 +191,7 @@
         let selectedPackage = null;
         let productData = null;
         let uidApiSettings = null;
+        let orderProcessing = false;
 
         async function loadApiSettings() {
             try {
@@ -326,6 +350,15 @@
 
         onAuthStateChanged(auth, async (user) => {
             if (!user) { window.location.href = 'login.html'; return; }
+            
+            const banned = await checkIfBanned(user.uid);
+            if (banned) {
+                await signOut(auth);
+                alert('🚫 Your account has been banned. Contact support.');
+                window.location.href = 'login.html';
+                return;
+            }
+
             currentUser = user;
             document.getElementById('userPhoto').src = user.photoURL;
             document.getElementById('sidebarPhoto').src = user.photoURL;
@@ -340,27 +373,81 @@
             }
         });
 
-        document.getElementById('buyNowBtn').addEventListener('click', async () => {
+        // ============ CONFIRM POPUP ============
+        window.closeConfirmPopup = function() {
+            document.getElementById('confirmPopup').classList.remove('show');
+        };
+
+        document.getElementById('buyNowBtn').addEventListener('click', () => {
             const playerId = document.getElementById('playerId').value.trim();
             if (!playerId) { showToast('⚠️ Please enter Player ID!'); return; }
             if (!selectedPackage) { showToast('⚠️ Please select a package!'); return; }
             if (!currentUserData) { showToast('⚠️ Please login first!'); return; }
             if ((currentUserData.wallet || 0) < selectedPackage.price) { showToast('❌ Insufficient balance!'); return; }
-            if (!confirm('Confirm order?\n\nPackage: ' + selectedPackage.name + '\nPrice: ৳ ' + selectedPackage.price + '\nPlayer ID: ' + playerId)) return;
-            const orderRef = push(ref(database, 'orders'));
-            await set(orderRef, {
-                userId: currentUser.uid, userName: currentUser.displayName, userEmail: currentUser.email,
-                productName: productData.name, packageName: selectedPackage.name, price: selectedPackage.price,
-                playerId: playerId, status: 'Pending', orderDate: new Date().toISOString(), orderId: orderRef.key
-            });
-            const newWallet = (currentUserData.wallet || 0) - selectedPackage.price;
-            const newSpend = (currentUserData.totalSpend || 0) + selectedPackage.price;
-            const newOrders = (currentUserData.orders || 0) + 1;
-            await set(ref(database, 'users/' + currentUser.uid), {
-                ...currentUserData, wallet: newWallet, totalSpend: newSpend, orders: newOrders
-            });
-            showToast('✅ Order Placed Successfully!');
-            setTimeout(() => window.location.href = 'orders.html', 2000);
+
+            document.getElementById('confirmDetails').innerHTML = `
+                <div class="confirm-row"><span>🎮 Product:</span><strong>${productData.name}</strong></div>
+                <div class="confirm-row"><span>📦 Package:</span><strong>${selectedPackage.name}</strong></div>
+                <div class="confirm-row"><span>🆔 Player ID:</span><strong>${playerId}</strong></div>
+                <div class="confirm-row"><span>💰 Price:</span><strong>৳ ${selectedPackage.price}</strong></div>
+                <div class="confirm-row"><span>💵 After Balance:</span><strong>৳ ${(currentUserData.wallet||0) - selectedPackage.price}</strong></div>
+            `;
+            document.getElementById('confirmPopup').classList.add('show');
+        });
+
+        document.getElementById('confirmYesBtn').addEventListener('click', async () => {
+            if (orderProcessing) return;
+            orderProcessing = true;
+            const btn = document.getElementById('confirmYesBtn');
+            btn.disabled = true;
+            btn.textContent = '⏳ Processing...';
+
+            try {
+                const playerId = document.getElementById('playerId').value.trim();
+
+                // Get next order number using transaction
+                const counterRef = ref(database, 'orderCounter');
+                const trxResult = await runTransaction(counterRef, (current) => {
+                    return (current || 0) + 1;
+                });
+                const orderNumber = trxResult.snapshot.val();
+
+                // Create order
+                const orderRef = push(ref(database, 'orders'));
+                await set(orderRef, {
+                    orderNumber: orderNumber,
+                    userId: currentUser.uid,
+                    userName: currentUser.displayName,
+                    userEmail: currentUser.email,
+                    productName: productData.name,
+                    packageName: selectedPackage.name,
+                    price: selectedPackage.price,
+                    playerId: playerId,
+                    status: 'Pending',
+                    orderDate: new Date().toISOString(),
+                    orderId: orderRef.key
+                });
+
+                // Update user wallet
+                const newWallet = (currentUserData.wallet || 0) - selectedPackage.price;
+                const newSpend = (currentUserData.totalSpend || 0) + selectedPackage.price;
+                const newOrders = (currentUserData.orders || 0) + 1;
+                await update(ref(database, 'users/' + currentUser.uid), {
+                    wallet: newWallet,
+                    totalSpend: newSpend,
+                    orders: newOrders
+                });
+
+                closeConfirmPopup();
+                showToast('✅ Order #' + String(orderNumber).padStart(3, '0') + ' Placed!');
+                setTimeout(() => window.location.href = 'orders.html', 2000);
+            } catch (err) {
+                console.error(err);
+                showToast('❌ Error: ' + err.message);
+                btn.disabled = false;
+                btn.textContent = '✅ Confirm Order';
+                orderProcessing = false;
+            }
         });
 
         document.getElementById('logoutBtn').addEventListener('click', async () => {
