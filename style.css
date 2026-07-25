@@ -2570,3 +2570,56 @@ a {
         font-size: 14px;
     }
 }
+/* Mobile Navbar Fix */
+@media (max-width: 768px) {
+    .home-navbar {
+        flex-wrap: nowrap !important;
+        padding: 10px 12px !important;
+        gap: 8px !important;
+    }
+    
+    .home-navbar > a:first-child {
+        flex-shrink: 0;
+    }
+    
+    .home-navbar .logo-img {
+        width: 35px !important;
+        height: 35px !important;
+    }
+    
+    .home-navbar a span[style*="Orbitron"] {
+        font-size: 14px !important;
+        letter-spacing: 0.5px !important;
+    }
+    
+    .home-nav-right {
+        margin-left: auto !important;
+        gap: 8px !important;
+        flex-wrap: nowrap !important;
+    }
+    
+    .home-nav-right .nav-link {
+        display: none !important;
+    }
+    
+    .wallet-badge {
+        padding: 6px 10px !important;
+        font-size: 13px !important;
+    }
+    
+    .profile-icon-static {
+        width: 35px !important;
+        height: 35px !important;
+    }
+}
+
+@media (max-width: 400px) {
+    .home-navbar a span[style*="Orbitron"] {
+        font-size: 12px !important;
+    }
+    
+    .home-navbar .logo-img {
+        width: 30px !important;
+        height: 30px !important;
+    }
+}
