@@ -10,8 +10,111 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="OXI TOP UP">
-    <link rel="stylesheet" href="style.css?v=2">
+    <link rel="stylesheet" href="style.css?v=3">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ===== BANNER SLIDER ===== */
+        .banner-slider-section {
+            padding: 20px 20px 10px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .banner-slider {
+            position: relative;
+            width: 100%;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(139, 0, 255, 0.3);
+            background: rgba(20, 20, 40, 0.5);
+        }
+        .banner-track {
+            display: flex;
+            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 100%;
+        }
+        .banner-slide {
+            min-width: 100%;
+            width: 100%;
+            flex-shrink: 0;
+            position: relative;
+            aspect-ratio: 16/6;
+            cursor: pointer;
+        }
+        .banner-slide.no-link {
+            cursor: default;
+        }
+        .banner-slide img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        .banner-dots {
+            position: absolute;
+            bottom: 15px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            z-index: 5;
+        }
+        .banner-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            cursor: pointer;
+            transition: 0.3s;
+            border: 1px solid rgba(255, 255, 255, 0.7);
+        }
+        .banner-dot.active {
+            background: #8b00ff;
+            width: 30px;
+            border-radius: 10px;
+            border-color: white;
+        }
+        .banner-nav {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.4);
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            z-index: 5;
+            backdrop-filter: blur(5px);
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .banner-nav:hover {
+            background: #8b00ff;
+            transform: translateY(-50%) scale(1.1);
+        }
+        .banner-nav.prev { left: 15px; }
+        .banner-nav.next { right: 15px; }
+        .banner-empty {
+            padding: 40px 20px;
+            text-align: center;
+            color: #a0a0c0;
+            font-size: 14px;
+        }
+        @media (max-width: 768px) {
+            .banner-slider-section { padding: 12px 12px 8px; }
+            .banner-slider { border-radius: 15px; }
+            .banner-slide { aspect-ratio: 16/7; }
+            .banner-nav { width: 32px; height: 32px; font-size: 16px; }
+            .banner-nav.prev { left: 8px; }
+            .banner-nav.next { right: 8px; }
+            .banner-dot { width: 8px; height: 8px; }
+            .banner-dot.active { width: 24px; }
+        }
+    </style>
 </head>
 <body class="home-body">
 
@@ -55,11 +158,9 @@
         🔥 <strong>Notice:</strong> OXI TOP UP - দ্রুত, নিরাপদ এবং সহজে ফ্রি ফায়ার ডায়মন্ড কিনুন!
     </div>
 
-    <section class="hero-section">
-        <div class="hero-content">
-            <img src="https://i.ibb.co/HTHSLY80/Chat-GPT-Image-Jul-22-2026-11-58-48-PM.png" alt="OXI TOP UP" class="login-logo-img">
-            <p>Free Fire Diamond Top-Up | Fast • Safe • Cheap</p>
-            <a href="#packages" class="btn-main">Order Now 🔥</a>
+    <section class="banner-slider-section">
+        <div class="banner-slider" id="bannerSlider">
+            <div class="banner-empty">⏳ Loading banners...</div>
         </div>
     </section>
 
@@ -120,8 +221,7 @@
         <p class="install-popup-text">Install our app for a better experience</p>
         <button class="install-popup-btn" onclick="installApp()">Install Now</button>
     </div>
-
-    <script>
+        <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('sw.js')
@@ -167,13 +267,109 @@
     </script>
 
     <script type="module">
-        import { auth, database, signOut, onAuthStateChanged, ref, get, set } from './config.js';
+        import { auth, database, signOut, onAuthStateChanged, ref, get, set, checkIfBanned } from './config.js';
 
         window.toggleSidebar = function() {
             document.getElementById('sidebar').classList.toggle('open');
             document.getElementById('sidebarOverlay').classList.toggle('show');
         };
 
+        // ============ BANNER SLIDER ============
+        let currentSlide = 0;
+        let bannerCount = 0;
+        let slideInterval = null;
+
+        async function loadBanners() {
+            const slider = document.getElementById('bannerSlider');
+            try {
+                const snap = await get(ref(database, 'banners'));
+                if (!snap.exists()) {
+                    slider.style.display = 'none';
+                    return;
+                }
+                const banners = snap.val();
+                const arr = Object.entries(banners).map(([k, v]) => ({ k, ...v })).sort((a, b) => (a.order || 0) - (b.order || 0));
+                if (arr.length === 0) {
+                    slider.style.display = 'none';
+                    return;
+                }
+                bannerCount = arr.length;
+                let slidesHtml = '<div class="banner-track" id="bannerTrack">';
+                arr.forEach(b => {
+                    if (b.link) {
+                        slidesHtml += `<a href="${b.link}" target="_blank" class="banner-slide"><img src="${b.image}" alt="Banner" onerror="this.parentElement.parentElement.style.display='none'"></a>`;
+                    } else {
+                        slidesHtml += `<div class="banner-slide no-link"><img src="${b.image}" alt="Banner" onerror="this.parentElement.parentElement.style.display='none'"></div>`;
+                    }
+                });
+                slidesHtml += '</div>';
+                
+                if (arr.length > 1) {
+                    slidesHtml += `
+                        <button class="banner-nav prev" onclick="prevSlide()">‹</button>
+                        <button class="banner-nav next" onclick="nextSlide()">›</button>
+                        <div class="banner-dots" id="bannerDots"></div>
+                    `;
+                }
+                slider.innerHTML = slidesHtml;
+                
+                if (arr.length > 1) {
+                    const dotsContainer = document.getElementById('bannerDots');
+                    arr.forEach((_, i) => {
+                        const dot = document.createElement('div');
+                        dot.className = 'banner-dot' + (i === 0 ? ' active' : '');
+                        dot.onclick = () => goToSlide(i);
+                        dotsContainer.appendChild(dot);
+                    });
+                    startAutoSlide();
+                }
+            } catch (err) {
+                console.error('Banner load error:', err);
+                slider.style.display = 'none';
+            }
+        }
+
+        window.goToSlide = function(index) {
+            currentSlide = index;
+            const track = document.getElementById('bannerTrack');
+            if (track) track.style.transform = `translateX(-${currentSlide * 100}%)`;
+            updateDots();
+            resetAutoSlide();
+        };
+
+        window.nextSlide = function() {
+            currentSlide = (currentSlide + 1) % bannerCount;
+            goToSlide(currentSlide);
+        };
+
+        window.prevSlide = function() {
+            currentSlide = (currentSlide - 1 + bannerCount) % bannerCount;
+            goToSlide(currentSlide);
+        };
+
+        function updateDots() {
+            document.querySelectorAll('.banner-dot').forEach((d, i) => {
+                d.classList.toggle('active', i === currentSlide);
+            });
+        }
+
+        function startAutoSlide() {
+            slideInterval = setInterval(() => {
+                currentSlide = (currentSlide + 1) % bannerCount;
+                const track = document.getElementById('bannerTrack');
+                if (track) track.style.transform = `translateX(-${currentSlide * 100}%)`;
+                updateDots();
+            }, 4000);
+        }
+
+        function resetAutoSlide() {
+            if (slideInterval) clearInterval(slideInterval);
+            startAutoSlide();
+        }
+
+        loadBanners();
+
+        // ============ PRODUCTS ============
         async function loadProducts() {
             const productsGrid = document.getElementById('productsGrid');
             productsGrid.innerHTML = '<p style="color:#a0a0c0; text-align:center; grid-column: 1/-1;">⏳ Loading products...</p>';
@@ -209,13 +405,31 @@
         }
         loadProducts();
 
+        // ============ AUTH & WALLET ============
         const walletBadge = document.getElementById('walletBadge');
         const userPhoto = document.getElementById('userPhoto');
         const loginNavBtn = document.getElementById('loginNavBtn');
         const walletBalance = document.getElementById('walletBalance');
 
+        function generateNumericId(uid) {
+            let num = 0;
+            for (let i = 0; i < uid.length; i++) {
+                num += uid.charCodeAt(i) * (i + 1);
+            }
+            return String(100000 + (num % 900000));
+        }
+
         onAuthStateChanged(auth, async (user) => {
             if (user) {
+                // Check if banned
+                const banned = await checkIfBanned(user.uid);
+                if (banned) {
+                    await signOut(auth);
+                    alert('🚫 Your account has been banned. Contact support.');
+                    window.location.href = 'login.html';
+                    return;
+                }
+
                 userPhoto.src = user.photoURL;
                 userPhoto.style.display = 'block';
                 walletBadge.style.display = 'flex';
@@ -230,8 +444,16 @@
                 } else {
                     try {
                         await set(userRef, {
-                            name: user.displayName, email: user.email, photo: user.photoURL,
-                            wallet: 0, createdAt: new Date().toISOString()
+                            name: user.displayName, 
+                            email: user.email, 
+                            photo: user.photoURL,
+                            wallet: 0, 
+                            totalSpend: 0,
+                            orders: 0,
+                            numericId: generateNumericId(user.uid),
+                            banned: false,
+                            createdAt: new Date().toISOString(),
+                            joinDate: new Date().toISOString()
                         });
                         walletBalance.textContent = 0;
                     } catch (err) { console.error(err); }
