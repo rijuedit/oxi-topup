@@ -5,8 +5,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>My Orders - OXI TOP UP</title>
     <link rel="icon" type="image/png" href="https://i.ibb.co/HTHSLY80/Chat-GPT-Image-Jul-22-2026-11-58-48-PM.png">
-    <link rel="stylesheet" href="style.css?v=2">
+    <link rel="stylesheet" href="style.css?v=3">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        .reject-reason-box {
+            background: rgba(255, 50, 50, 0.1);
+            border: 1px solid rgba(255, 50, 50, 0.4);
+            border-radius: 10px;
+            padding: 12px 15px;
+            margin-top: 10px;
+            color: #ff6b6b;
+            font-size: 13px;
+        }
+        .reject-reason-box strong {
+            color: #ff6b6b !important;
+            display: block;
+            margin-bottom: 5px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .reject-reason-box p {
+            color: white !important;
+            font-size: 13px;
+            margin: 0;
+        }
+        .order-id-badge {
+            background: linear-gradient(135deg, #8b00ff, #6a0dad);
+            color: white;
+            padding: 4px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 700;
+            font-family: 'Orbitron', sans-serif;
+            margin-right: 8px;
+        }
+    </style>
 </head>
 <body class="home-body">
 
@@ -67,7 +101,7 @@
     </nav>
 
     <script type="module">
-        import { auth, database, signOut, onAuthStateChanged, ref, get } from './config.js';
+        import { auth, database, signOut, onAuthStateChanged, ref, get, checkIfBanned } from './config.js';
 
         window.toggleSidebar = function() {
             document.getElementById('sidebar').classList.toggle('open');
@@ -76,6 +110,14 @@
 
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            const banned = await checkIfBanned(user.uid);
+            if (banned) {
+                await signOut(auth);
+                alert('🚫 Your account has been banned.');
                 window.location.href = 'login.html';
                 return;
             }
@@ -91,13 +133,22 @@
                 document.getElementById('walletBadge').textContent = snapshot.val().wallet || 0;
             }
 
-            const orderSnapshot = await get(ref(database, 'orders'));
+            // Load user's own orders only
             const ordersList = document.getElementById('ordersList');
             ordersList.innerHTML = '';
 
-            if (orderSnapshot.exists()) {
+            try {
+                const orderSnapshot = await get(ref(database, 'orders'));
+                
+                if (!orderSnapshot.exists()) {
+                    ordersList.innerHTML = '<p style="text-align:center;color:#888;padding:30px;">You have no orders yet</p>';
+                    return;
+                }
+
                 const orders = orderSnapshot.val();
-                const myOrders = Object.entries(orders).filter(([id, ord]) => ord.userId === user.uid).reverse();
+                const myOrders = Object.entries(orders)
+                    .filter(([id, ord]) => ord.userId === user.uid)
+                    .sort((a, b) => new Date(b[1].orderDate) - new Date(a[1].orderDate));
 
                 if (myOrders.length === 0) {
                     ordersList.innerHTML = '<p style="text-align:center;color:#888;padding:30px;">You have no orders yet</p>';
@@ -105,13 +156,27 @@
                 }
 
                 myOrders.forEach(([id, ord]) => {
-                    const statusColor = ord.status === 'Pending' ? '#ffaa00' : ord.status === 'Complete' ? '#00ff88' : '#ff6b6b';
+                    let statusColor = '#ffaa00';
+                    if (ord.status === 'Complete') statusColor = '#00ff88';
+                    else if (ord.status === 'Rejected' || ord.status === 'Failed') statusColor = '#ff6b6b';
+                    
                     const date = new Date(ord.orderDate).toLocaleString('en-GB');
+                    const orderIdDisplay = ord.orderNumber ? '#' + String(ord.orderNumber).padStart(3, '0') : id.substring(0, 10);
+
+                    let rejectReasonHtml = '';
+                    if ((ord.status === 'Rejected' || ord.status === 'Failed') && ord.rejectReason) {
+                        rejectReasonHtml = `
+                            <div class="reject-reason-box">
+                                <strong>❌ Rejection Reason:</strong>
+                                <p>${ord.rejectReason}</p>
+                            </div>
+                        `;
+                    }
 
                     ordersList.innerHTML += `
                         <div class="order-card">
                             <div class="order-header">
-                                <h4>${ord.productName}</h4>
+                                <h4><span class="order-id-badge">${orderIdDisplay}</span>${ord.productName}</h4>
                                 <span class="order-status" style="background:${statusColor}20;color:${statusColor};border:1px solid ${statusColor};">● ${ord.status}</span>
                             </div>
                             <div class="order-body">
@@ -119,13 +184,14 @@
                                 <div class="order-row"><span>🆔 Player ID:</span><strong>${ord.playerId}</strong></div>
                                 <div class="order-row"><span>💰 Price:</span><strong style="color:#8b00ff;">৳ ${ord.price}</strong></div>
                                 <div class="order-row"><span>📅 Date:</span><strong>${date}</strong></div>
-                                <div class="order-row"><span>🔢 Order ID:</span><strong style="font-size:11px;">${id.substring(0,15)}...</strong></div>
+                                ${rejectReasonHtml}
                             </div>
                         </div>
                     `;
                 });
-            } else {
-                ordersList.innerHTML = '<p style="text-align:center;color:#888;padding:30px;">You have no orders yet</p>';
+            } catch (err) {
+                console.error(err);
+                ordersList.innerHTML = '<p style="text-align:center;color:red;padding:30px;">❌ Failed to load orders</p>';
             }
         });
 
