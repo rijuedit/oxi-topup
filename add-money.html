@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Add Money - OXI TOP UP</title>
     <link rel="icon" type="image/png" href="https://i.ibb.co/HTHSLY80/Chat-GPT-Image-Jul-22-2026-11-58-48-PM.png">
-    <link rel="stylesheet" href="style.css?v=2">
+    <link rel="stylesheet" href="style.css?v=3">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
 </head>
 <body class="home-body">
@@ -91,7 +91,7 @@
                 </div>
                 <div class="info-line copy-line" onclick="copyNumber()">
                     <span>📱 Send Money to:</span>
-                    <strong id="paymentNumber">01604080312</strong>
+                    <strong id="paymentNumber">Loading...</strong>
                     <span class="copy-btn">📋 Copy</span>
                 </div>
                 <div class="info-line">
@@ -146,10 +146,12 @@
     </nav>
 
     <script type="module">
-        import { auth, database, signOut, onAuthStateChanged, ref, get, set, push, PAYMENT_NUMBERS } from './config.js';
+        import { auth, database, signOut, onAuthStateChanged, ref, get, set, push, checkIfBanned } from './config.js';
 
         let currentUser = null;
         let selectedMethod = null;
+        let paymentNumbers = { bkash: '', nagad: '' };
+        let submitProcessing = false;
 
         window.toggleSidebar = function() {
             document.getElementById('sidebar').classList.toggle('open');
@@ -161,16 +163,9 @@
             const icon = document.getElementById('modalIcon');
             const title = document.getElementById('modalTitle');
             const msg = document.getElementById('modalMessage');
-            if (type === 'success') {
-                icon.textContent = '✅';
-                title.textContent = 'Success';
-            } else if (type === 'error') {
-                icon.textContent = '❌';
-                title.textContent = 'Error';
-            } else {
-                icon.textContent = '⚠️';
-                title.textContent = 'Warning';
-            }
+            if (type === 'success') { icon.textContent = '✅'; title.textContent = 'Success'; }
+            else if (type === 'error') { icon.textContent = '❌'; title.textContent = 'Error'; }
+            else { icon.textContent = '⚠️'; title.textContent = 'Warning'; }
             msg.textContent = message;
             modal.classList.add('show');
         };
@@ -210,15 +205,37 @@
             document.getElementById('paymentInfoBox').style.display = 'block';
             document.getElementById('showAmount').textContent = amount;
             document.getElementById('showMethod').textContent = method === 'bkash' ? 'bKash' : 'Nagad';
-            document.getElementById('paymentNumber').textContent = method === 'bkash' ? PAYMENT_NUMBERS.bkash : PAYMENT_NUMBERS.nagad;
+            document.getElementById('paymentNumber').textContent = paymentNumbers[method] || 'Not set';
             document.getElementById('paymentInfoBox').scrollIntoView({ behavior: 'smooth' });
         };
+
+        async function loadPaymentNumbers() {
+            try {
+                const snap = await get(ref(database, 'paymentSettings'));
+                if (snap.exists()) {
+                    const d = snap.val();
+                    paymentNumbers.bkash = d.bkash || '';
+                    paymentNumbers.nagad = d.nagad || '';
+                }
+            } catch (err) { console.log('Payment settings not found'); }
+        }
+
+        loadPaymentNumbers();
 
         onAuthStateChanged(auth, async (user) => {
             if (!user) {
                 window.location.href = 'login.html';
                 return;
             }
+            
+            const banned = await checkIfBanned(user.uid);
+            if (banned) {
+                await signOut(auth);
+                alert('🚫 Your account has been banned.');
+                window.location.href = 'login.html';
+                return;
+            }
+
             currentUser = user;
             document.getElementById('userPhoto').src = user.photoURL;
             document.getElementById('sidebarPhoto').src = user.photoURL;
@@ -234,43 +251,44 @@
         });
 
         document.getElementById('submitBtn').addEventListener('click', async () => {
+            if (submitProcessing) return;
             const amount = parseInt(document.getElementById('amount').value);
             const senderNumber = document.getElementById('senderNumber').value.trim();
             const trxId = document.getElementById('trxId').value.trim();
 
-            if (!amount || amount < 20) {
-                showAlert('Amount must be at least ৳ 20');
-                return;
-            }
-            if (!senderNumber || senderNumber.length !== 11) {
-                showAlert('Please enter a valid 11-digit number');
-                return;
-            }
-            if (!trxId || trxId.length < 6) {
-                showAlert('Please enter valid Transaction ID');
-                return;
-            }
-            if (!selectedMethod) {
-                showAlert('Please select payment method');
-                return;
-            }
+            if (!amount || amount < 20) return showAlert('Amount must be at least ৳ 20');
+            if (!senderNumber || senderNumber.length !== 11) return showAlert('Please enter a valid 11-digit number');
+            if (!trxId || trxId.length < 6) return showAlert('Please enter valid Transaction ID');
+            if (!selectedMethod) return showAlert('Please select payment method');
 
-            const trxRef = push(ref(database, 'transactions'));
-            await set(trxRef, {
-                userId: currentUser.uid,
-                userName: currentUser.displayName,
-                userEmail: currentUser.email,
-                amount: amount,
-                method: selectedMethod,
-                senderNumber: senderNumber,
-                trxId: trxId,
-                status: 'Pending',
-                date: new Date().toISOString(),
-                trxRefId: trxRef.key
-            });
+            submitProcessing = true;
+            document.getElementById('submitBtn').disabled = true;
+            document.getElementById('submitBtn').textContent = '⏳ Submitting...';
 
-            showAlert('Payment Request Submitted! Admin will verify soon.', 'success');
-            setTimeout(() => window.location.href = 'dashboard.html', 2000);
+            try {
+                const trxRef = push(ref(database, 'transactions'));
+                await set(trxRef, {
+                    userId: currentUser.uid,
+                    userName: currentUser.displayName,
+                    userEmail: currentUser.email,
+                    amount: amount,
+                    method: selectedMethod,
+                    senderNumber: senderNumber,
+                    trxId: trxId,
+                    status: 'Pending',
+                    date: new Date().toISOString(),
+                    trxRefId: trxRef.key
+                });
+
+                showAlert('Payment Request Submitted! Admin will verify soon.', 'success');
+                setTimeout(() => window.location.href = 'dashboard.html', 2000);
+            } catch (err) {
+                console.error(err);
+                showAlert('❌ Error: ' + err.message, 'error');
+                submitProcessing = false;
+                document.getElementById('submitBtn').disabled = false;
+                document.getElementById('submitBtn').textContent = 'Submit Payment Request';
+            }
         });
 
         document.getElementById('logoutBtn').addEventListener('click', async () => {
