@@ -17,19 +17,15 @@ const auth = getAuth(app);
 const database = getDatabase(app);
 const googleProvider = new GoogleAuthProvider();
 
-// Helper: Convert email to Firebase-safe key
 function emailToKey(email) {
     return email.replace(/\./g, ',');
 }
 
-// Helper: Check admin level
 async function checkAdminLevel(email) {
     if (!email) return 'none';
     try {
-        const superSnap = await get(ref(database, 'permanentSuperAdmin'));
-        if (superSnap.exists() && superSnap.val() === email) return 'permanent';
-        
         const key = emailToKey(email);
+        
         const superAdminSnap = await get(ref(database, 'superAdmins/' + key));
         if (superAdminSnap.exists() && superAdminSnap.val() === true) return 'super';
         
@@ -43,7 +39,6 @@ async function checkAdminLevel(email) {
     }
 }
 
-// Helper: Check if user is banned
 async function checkIfBanned(uid) {
     try {
         const snap = await get(ref(database, 'bannedUsers/' + uid));
