@@ -28,6 +28,7 @@
         .confirm-btns button { flex: 1; padding: 12px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 14px; }
         .btn-confirm-yes { background: linear-gradient(135deg, #00c853, #00e676); color: white; }
         .btn-confirm-no { background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); }
+        .product-detail-img { width: 100%; max-width: 100%; border-radius: 15px; margin-bottom: 20px; border: 1px solid rgba(139,0,255,0.3); box-shadow: 0 5px 20px rgba(0,0,0,0.5); }
     </style>
 </head>
 <body class="home-body">
@@ -96,7 +97,7 @@
                     
                     <div class="section-box">
                         <h3><span class="step">2</span> Account Info</h3>
-                        <label>Player ID</label>
+                        <label id="inputFieldLabel">Player ID</label>
                         <input type="text" id="playerId" placeholder="Enter Player ID" class="input-field">
                         
                         <button id="checkNameBtn" class="check-name-btn" style="display:none;" onclick="checkPlayerName()">
@@ -121,9 +122,14 @@
                 </div>
             </div>
 
-            <div class="section-box rules-box">
+            <!-- Custom Detail Image (Show if added) -->
+            <div id="detailImgBox" style="display:none; margin-top:20px;">
+                <img id="detailImg" src="" class="product-detail-img" alt="Guide / Details">
+            </div>
+
+            <div class="section-box rules-box" id="rulesBox">
                 <h3>📜 Rules & Conditions</h3>
-                <ul>
+                <ul id="rulesList">
                     <li>শুধুমাত্র Bangladesh Server এর ID Code দিয়ে টপ আপ হবে।</li>
                     <li>Player ID ভুল দিয়ে Diamond না পেলে OXI TOP UP দায়ী নয়।</li>
                     <li>Order কমপ্লিট হওয়ার পরেও Diamond না পেলে Support এ যোগাযোগ করুন।</li>
@@ -168,7 +174,8 @@
             <a href="dashboard.html" class="bottom-nav-item"><span class="nav-icon">👤</span><span>Account</span></a>
         </div>
     </nav>
-        <script type="module">
+
+    <script type="module">
         import { auth, database, signOut, onAuthStateChanged, ref, get, set, push, update, runTransaction, checkIfBanned } from './config.js';
 
         window.toggleSidebar = function() {
@@ -198,9 +205,6 @@
                 const snap = await get(ref(database, 'apiSettings/uid'));
                 if (snap.exists()) {
                     uidApiSettings = snap.val();
-                    if (uidApiSettings.enabled && uidApiSettings.url && uidApiSettings.key) {
-                        document.getElementById('checkNameBtn').style.display = 'block';
-                    }
                 }
             } catch (err) { console.log('API settings not found'); }
         }
@@ -313,10 +317,37 @@
             document.getElementById('productImg').src = productData.image;
             document.title = productData.name + " - OXI TOP UP";
 
+            // AUTO CUSTOM LABEL & PLACEHOLDER LOGIC
+            const isGuild = productData.name.toLowerCase().includes('guild') || productType.toLowerCase().includes('guild');
+            const customLabel = productData.inputLabel || (isGuild ? 'Guild ID' : 'Player ID');
+            const customPlaceholder = productData.inputPlaceholder || (isGuild ? 'Enter Guild ID Code' : 'Enter Player ID');
+
+            document.getElementById('inputFieldLabel').textContent = customLabel;
+            document.getElementById('playerId').placeholder = customPlaceholder;
+
+            // Show Check Name button ONLY if enabled AND it's standard FF Player ID
+            if (uidApiSettings && uidApiSettings.enabled && uidApiSettings.url && uidApiSettings.key && !isGuild && !productData.inputLabel) {
+                document.getElementById('checkNameBtn').style.display = 'block';
+            } else {
+                document.getElementById('checkNameBtn').style.display = 'none';
+            }
+
+            // CUSTOM DETAIL IMAGE
+            if (productData.detailImage) {
+                document.getElementById('detailImg').src = productData.detailImage;
+                document.getElementById('detailImgBox').style.display = 'block';
+            }
+
+            // CUSTOM RULES
+            if (productData.rules && Array.isArray(productData.rules)) {
+                const rulesList = document.getElementById('rulesList');
+                rulesList.innerHTML = productData.rules.map(r => `<li>${r}</li>`).join('');
+            }
+
             const rechargeList = document.getElementById('rechargeList');
             rechargeList.innerHTML = '';
 
-            const packagesArray = Object.entries(productData.packages).map(([pkgKey, pkgVal]) => ({ pkgKey, ...pkgVal }));
+            const packagesArray = Object.entries(productData.packages || {}).map(([pkgKey, pkgVal]) => ({ pkgKey, ...pkgVal }));
             packagesArray.sort((a, b) => (a.order || 0) - (b.order || 0));
 
             for (const pkg of packagesArray) {
@@ -345,8 +376,8 @@
             }
         }
 
+        await loadApiSettings();
         loadProduct();
-        loadApiSettings();
 
         onAuthStateChanged(auth, async (user) => {
             if (!user) { window.location.href = 'login.html'; return; }
@@ -380,7 +411,8 @@
 
         document.getElementById('buyNowBtn').addEventListener('click', () => {
             const playerId = document.getElementById('playerId').value.trim();
-            if (!playerId) { showToast('⚠️ Please enter Player ID!'); return; }
+            const labelText = document.getElementById('inputFieldLabel').textContent;
+            if (!playerId) { showToast('⚠️ Please enter ' + labelText + '!'); return; }
             if (!selectedPackage) { showToast('⚠️ Please select a package!'); return; }
             if (!currentUserData) { showToast('⚠️ Please login first!'); return; }
             if ((currentUserData.wallet || 0) < selectedPackage.price) { showToast('❌ Insufficient balance!'); return; }
@@ -388,7 +420,7 @@
             document.getElementById('confirmDetails').innerHTML = `
                 <div class="confirm-row"><span>🎮 Product:</span><strong>${productData.name}</strong></div>
                 <div class="confirm-row"><span>📦 Package:</span><strong>${selectedPackage.name}</strong></div>
-                <div class="confirm-row"><span>🆔 Player ID:</span><strong>${playerId}</strong></div>
+                <div class="confirm-row"><span>🆔 ${labelText}:</span><strong>${playerId}</strong></div>
                 <div class="confirm-row"><span>💰 Price:</span><strong>৳ ${selectedPackage.price}</strong></div>
                 <div class="confirm-row"><span>💵 After Balance:</span><strong>৳ ${(currentUserData.wallet||0) - selectedPackage.price}</strong></div>
             `;
