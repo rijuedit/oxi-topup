@@ -3,473 +3,327 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OXI TOP UP - Free Fire Diamond Top-Up</title>
-    <link rel="icon" type="image/png" href="https://i.ibb.co/HTHSLY80/Chat-GPT-Image-Jul-22-2026-11-58-48-PM.png">
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#8b00ff">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="OXI TOP UP">
+    <title>OXI TOPUP - Free Fire Diamond Top Up</title>
     <link rel="stylesheet" href="style.css?v=3">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="manifest" href="manifest.json">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/dist/css/all.min.css">
     <style>
-        /* ===== BANNER SLIDER ===== */
-        .banner-slider-section {
-            padding: 20px 20px 10px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-        .banner-slider {
+        /* Multi Banner Slider Styling */
+        .slider-container {
             position: relative;
             width: 100%;
-            border-radius: 20px;
+            max-width: 1000px;
+            margin: 15px auto;
             overflow: hidden;
-            box-shadow: 0 10px 40px rgba(139, 0, 255, 0.3);
-            background: rgba(20, 20, 40, 0.5);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            aspect-ratio: 16 / 7;
+            background: #1a1a1a;
         }
-        .banner-track {
+        .slider-wrapper {
             display: flex;
-            transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
             width: 100%;
+            height: 100%;
+            transition: transform 0.4s ease-in-out;
         }
-        .banner-slide {
+        .slide {
             min-width: 100%;
-            width: 100%;
-            flex-shrink: 0;
+            height: 100%;
+            box-sizing: border-box;
             position: relative;
-            aspect-ratio: 16/6;
-            cursor: pointer;
         }
-        .banner-slide.no-link {
-            cursor: default;
-        }
-        .banner-slide img {
+        .slide img {
             width: 100%;
             height: 100%;
             object-fit: cover;
             display: block;
+            cursor: pointer;
         }
-        .banner-dots {
+        .slider-btn {
             position: absolute;
-            bottom: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(0, 0, 0, 0.5);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+            border-radius: 50%;
+            font-size: 16px;
+            z-index: 10;
+            transition: background 0.3s;
+        }
+        .slider-btn:hover { background: rgba(125, 95, 255, 0.8); }
+        .prev-btn { left: 10px; }
+        .next-btn { right: 10px; }
+        .slider-dots {
+            position: absolute;
+            bottom: 10px;
             left: 50%;
             transform: translateX(-50%);
             display: flex;
             gap: 8px;
-            z-index: 5;
+            z-index: 10;
         }
-        .banner-dot {
-            width: 10px;
-            height: 10px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.5);
-            cursor: pointer;
-            transition: 0.3s;
-            border: 1px solid rgba(255, 255, 255, 0.7);
-        }
-        .banner-dot.active {
-            background: #8b00ff;
-            width: 30px;
-            border-radius: 10px;
-            border-color: white;
-        }
-        .banner-nav {
-            position: absolute;
-            top: 50%;
-            transform: translateY(-50%);
-            background: rgba(0, 0, 0, 0.4);
-            color: white;
-            border: none;
-            width: 40px;
-            height: 40px;
+        .dot {
+            width: 8px;
+            height: 8px;
+            background: rgba(255,255,255,0.5);
             border-radius: 50%;
             cursor: pointer;
-            font-size: 20px;
-            z-index: 5;
-            backdrop-filter: blur(5px);
-            transition: 0.3s;
+            transition: all 0.3s;
+        }
+        .dot.active {
+            background: #7d5fff;
+            width: 20px;
+            border-radius: 4px;
+        }
+        .no-banners {
             display: flex;
             align-items: center;
             justify-content: center;
-        }
-        .banner-nav:hover {
-            background: #8b00ff;
-            transform: translateY(-50%) scale(1.1);
-        }
-        .banner-nav.prev { left: 15px; }
-        .banner-nav.next { right: 15px; }
-        .banner-empty {
-            padding: 40px 20px;
-            text-align: center;
-            color: #a0a0c0;
+            height: 100%;
+            color: #888;
             font-size: 14px;
-        }
-        @media (max-width: 768px) {
-            .banner-slider-section { padding: 12px 12px 8px; }
-            .banner-slider { border-radius: 15px; }
-            .banner-slide { aspect-ratio: 16/7; }
-            .banner-nav { width: 32px; height: 32px; font-size: 16px; }
-            .banner-nav.prev { left: 8px; }
-            .banner-nav.next { right: 8px; }
-            .banner-dot { width: 8px; height: 8px; }
-            .banner-dot.active { width: 24px; }
         }
     </style>
 </head>
-<body class="home-body">
-
-    <nav class="home-navbar">
-        <a href="index.html" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
-            <img src="https://i.ibb.co/HTHSLY80/Chat-GPT-Image-Jul-22-2026-11-58-48-PM.png" alt="OXI TOP UP" class="logo-img">
-            <span style="font-family:'Orbitron',sans-serif;font-size:20px;font-weight:900;color:white;letter-spacing:1px;">OXI <span style="color:#8b00ff;">TOP UP</span></span>
-        </a>
-        <div class="home-nav-right">
-            <a href="index.html" class="nav-link">Home</a>
-            <a href="#contact" class="nav-link">Contact</a>
-            <div class="wallet-badge" id="walletBadge">
-                <span>৳</span> <span id="walletBalance">0</span>
-            </div>
-            <img id="userPhoto" class="profile-icon-static" src="" alt="Profile" onclick="toggleSidebar()">
-            <a href="login.html" class="btn-login-nav" id="loginNavBtn" style="display: none;">Login</a>
+<body>
+    <header class="navbar">
+        <div class="logo">
+            <a href="index.html">OXI <span>TOPUP</span></a>
         </div>
-    </nav>
-
-    <div id="sidebar" class="sidebar">
-        <div class="sidebar-header">
-            <img id="sidebarPhoto" src="" alt="Profile">
-            <div>
-                <h4 id="sidebarName">User</h4>
-                <p id="sidebarEmail">email@gmail.com</p>
-            </div>
-            <button class="close-sidebar" onclick="toggleSidebar()">✕</button>
+        <div class="user-actions" id="authNav">
+            <a href="login.html" class="login-btn"><i class="fas fa-sign-in-alt"></i> লগইন</a>
         </div>
-        <div class="sidebar-menu">
-            <a href="dashboard.html" class="sidebar-item"><span>🏠</span> My Account</a>
-            <a href="orders.html" class="sidebar-item"><span>📦</span> My Orders</a>
-            <a href="transactions.html" class="sidebar-item"><span>💳</span> My Transaction</a>
-            <a href="add-money.html" class="sidebar-item"><span>💰</span> Add Money</a>
-            <a href="https://wa.me/8801604080312?text=Hello%20OXI%20TOP%20UP,%20I%20need%20help" target="_blank" class="sidebar-item"><span>📞</span> Contact Us (WhatsApp)</a>
-            <button class="sidebar-logout" id="logoutBtn">🚪 Logout</button>
-        </div>
-    </div>
-    <div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
+    </header>
 
-    <div class="notice-bar">
-        🔥 <strong>Notice:</strong> OXI TOP UP - দ্রুত, নিরাপদ এবং সহজে ফ্রি ফায়ার ডায়মন্ড কিনুন!
-    </div>
-
-    <section class="banner-slider-section">
-        <div class="banner-slider" id="bannerSlider">
-            <div class="banner-empty">⏳ Loading banners...</div>
-        </div>
-    </section>
-
-    <section class="packages-section" id="packages">
-        <h2>💎 Free Fire Topup</h2>
-        <div class="packages-grid-v2" id="productsGrid"></div>
-    </section>
-
-    <section class="why-section">
-        <h2>Why Choose OXI TOP UP?</h2>
-        <div class="why-grid">
-            <div class="why-card">
-                <div class="why-icon">⚡</div>
-                <h3>Fast Delivery</h3>
-                <p>1-5 মিনিটেই আপনার ডায়মন্ড পেয়ে যাবেন</p>
+    <main class="container">
+        <!-- Banner Slider -->
+        <div class="slider-container" id="bannerContainer">
+            <div class="slider-wrapper" id="sliderWrapper">
+                <div class="no-banners">লোডিং ব্যানার...</div>
             </div>
-            <div class="why-card">
-                <div class="why-icon">🛡️</div>
-                <h3>100% Safe</h3>
-                <p>আপনার Account সম্পূর্ণ নিরাপদ থাকবে</p>
-            </div>
-            <div class="why-card">
-                <div class="why-icon">💰</div>
-                <h3>Best Price</h3>
-                <p>বাজারের সবচেয়ে কম দামে ডায়মন্ড</p>
-            </div>
-            <div class="why-card">
-                <div class="why-icon">📞</div>
-                <h3>24/7 Support</h3>
-                <p>যেকোনো সমস্যায় আমরা সবসময় আছি</p>
-            </div>
+            <button class="slider-btn prev-btn" id="prevBtn" onclick="moveSlide(-1)"><i class="fas fa-chevron-left"></i></button>
+            <button class="slider-btn next-btn" id="nextBtn" onclick="moveSlide(1)"><i class="fas fa-chevron-right"></i></button>
+            <div class="slider-dots" id="sliderDots"></div>
         </div>
-    </section>
 
-    <footer class="footer" id="contact">
-        <div class="footer-content">
-            <img src="https://i.ibb.co/HTHSLY80/Chat-GPT-Image-Jul-22-2026-11-58-48-PM.png" alt="OXI TOP UP" class="footer-logo-img">
-            <p>Fast • Safe • Reliable Free Fire Top-Up</p>
-            <p class="footer-copyright">© OXI TOP UP 2026 | All Rights Reserved | Developed by <span style="color: #8b00ff; font-weight: 700;">RIJUWAN</span></p>
+        <!-- Search Bar -->
+        <div class="search-container">
+            <i class="fas fa-search search-icon"></i>
+            <input type="text" id="searchInput" placeholder="গেম বা প্যাক খুঁজুন..." oninput="filterProducts()">
         </div>
-    </footer>
 
+        <!-- Section Title -->
+        <div class="section-title">
+            <h2><i class="fas fa-fire" style="color:#ff4757;"></i> পপুলার ক্যাটাগরি</h2>
+        </div>
+
+        <!-- Products Grid -->
+        <div class="product-grid" id="productGrid">
+            <p style="grid-column: 1/-1; text-align:center; color:#888; padding:30px;">লোডিং হচ্ছে...</p>
+        </div>
+    </main>
+
+    <!-- Bottom Navigation Bar for Mobile -->
     <nav class="bottom-nav">
-        <div class="bottom-nav-inner">
-            <a href="index.html" class="bottom-nav-item active"><span class="nav-icon">🏠</span><span>Home</span></a>
-            <a href="orders.html" class="bottom-nav-item"><span class="nav-icon">📦</span><span>Orders</span></a>
-            <a href="add-money.html" class="bottom-nav-item center"><span class="nav-icon">➕</span><span>Add</span></a>
-            <a href="transactions.html" class="bottom-nav-item"><span class="nav-icon">💳</span><span>History</span></a>
-            <a href="dashboard.html" class="bottom-nav-item"><span class="nav-icon">👤</span><span>Account</span></a>
-        </div>
+        <a href="index.html" class="nav-item active">
+            <i class="fas fa-home"></i>
+            <span>হোম</span>
+        </a>
+        <a href="orders.html" class="nav-item">
+            <i class="fas fa-shopping-bag"></i>
+            <span>অর্ডারস</span>
+        </a>
+        <a href="add-money.html" class="nav-item">
+            <i class="fas fa-wallet"></i>
+            <span>এড মানি</span>
+        </a>
+        <a href="dashboard.html" class="nav-item">
+            <i class="fas fa-user"></i>
+            <span>প্রোফাইল</span>
+        </a>
     </nav>
+        <script type="module">
+        import { auth, database, ref, onValue, get, checkIfBanned, signOut } from './config.js';
 
-    <div id="installPopup" class="install-popup">
-        <div class="install-popup-header">
-            <h4 class="install-popup-title">📱 Install App</h4>
-            <button class="install-popup-close" onclick="closeInstallPopup()">✕</button>
-        </div>
-        <p class="install-popup-text">Install our app for a better experience</p>
-        <button class="install-popup-btn" onclick="installApp()">Install Now</button>
-    </div>
-        <script>
-        if ('serviceWorker' in navigator) {
-            window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw.js')
-                    .then(reg => console.log('✅ Service Worker registered'))
-                    .catch(err => console.log('❌ SW registration failed:', err));
-            });
-        }
-
-        let deferredPrompt;
-        const installPopup = document.getElementById('installPopup');
-
-        window.addEventListener('beforeinstallprompt', (e) => {
-            e.preventDefault();
-            deferredPrompt = e;
-            setTimeout(() => {
-                if (!localStorage.getItem('installDismissed')) {
-                    installPopup.classList.add('show');
-                }
-            }, 3000);
-        });
-
-        function installApp() {
-            if (deferredPrompt) {
-                deferredPrompt.prompt();
-                deferredPrompt.userChoice.then((choiceResult) => {
-                    if (choiceResult.outcome === 'accepted') console.log('✅ User accepted install');
-                    deferredPrompt = null;
-                    installPopup.classList.remove('show');
-                });
-            }
-        }
-
-        function closeInstallPopup() {
-            installPopup.classList.remove('show');
-            localStorage.setItem('installDismissed', 'true');
-            setTimeout(() => localStorage.removeItem('installDismissed'), 7 * 24 * 60 * 60 * 1000);
-        }
-
-        window.addEventListener('appinstalled', () => {
-            installPopup.classList.remove('show');
-            console.log('✅ App installed');
-        });
-    </script>
-
-    <script type="module">
-        import { auth, database, signOut, onAuthStateChanged, ref, get, set, checkIfBanned } from './config.js';
-
-        window.toggleSidebar = function() {
-            document.getElementById('sidebar').classList.toggle('open');
-            document.getElementById('sidebarOverlay').classList.toggle('show');
-        };
-
-        // ============ BANNER SLIDER ============
+        let allProducts = {};
         let currentSlide = 0;
-        let bannerCount = 0;
-        let slideInterval = null;
+        let slideInterval;
+        let totalSlides = 0;
 
-        async function loadBanners() {
-            const slider = document.getElementById('bannerSlider');
-            try {
-                const snap = await get(ref(database, 'banners'));
-                if (!snap.exists()) {
-                    slider.style.display = 'none';
-                    return;
-                }
-                const banners = snap.val();
-                const arr = Object.entries(banners).map(([k, v]) => ({ k, ...v })).sort((a, b) => (a.order || 0) - (b.order || 0));
-                if (arr.length === 0) {
-                    slider.style.display = 'none';
-                    return;
-                }
-                bannerCount = arr.length;
-                let slidesHtml = '<div class="banner-track" id="bannerTrack">';
-                arr.forEach(b => {
-                    if (b.link) {
-                        slidesHtml += `<a href="${b.link}" target="_blank" class="banner-slide"><img src="${b.image}" alt="Banner" onerror="this.parentElement.parentElement.style.display='none'"></a>`;
-                    } else {
-                        slidesHtml += `<div class="banner-slide no-link"><img src="${b.image}" alt="Banner" onerror="this.parentElement.parentElement.style.display='none'"></div>`;
-                    }
-                });
-                slidesHtml += '</div>';
-                
-                if (arr.length > 1) {
-                    slidesHtml += `
-                        <button class="banner-nav prev" onclick="prevSlide()">‹</button>
-                        <button class="banner-nav next" onclick="nextSlide()">›</button>
-                        <div class="banner-dots" id="bannerDots"></div>
-                    `;
-                }
-                slider.innerHTML = slidesHtml;
-                
-                if (arr.length > 1) {
-                    const dotsContainer = document.getElementById('bannerDots');
-                    arr.forEach((_, i) => {
-                        const dot = document.createElement('div');
-                        dot.className = 'banner-dot' + (i === 0 ? ' active' : '');
-                        dot.onclick = () => goToSlide(i);
-                        dotsContainer.appendChild(dot);
-                    });
-                    startAutoSlide();
-                }
-            } catch (err) {
-                console.error('Banner load error:', err);
-                slider.style.display = 'none';
-            }
-        }
-
-        window.goToSlide = function(index) {
-            currentSlide = index;
-            const track = document.getElementById('bannerTrack');
-            if (track) track.style.transform = `translateX(-${currentSlide * 100}%)`;
-            updateDots();
-            resetAutoSlide();
-        };
-
-        window.nextSlide = function() {
-            currentSlide = (currentSlide + 1) % bannerCount;
-            goToSlide(currentSlide);
-        };
-
-        window.prevSlide = function() {
-            currentSlide = (currentSlide - 1 + bannerCount) % bannerCount;
-            goToSlide(currentSlide);
-        };
-
-        function updateDots() {
-            document.querySelectorAll('.banner-dot').forEach((d, i) => {
-                d.classList.toggle('active', i === currentSlide);
-            });
-        }
-
-        function startAutoSlide() {
-            slideInterval = setInterval(() => {
-                currentSlide = (currentSlide + 1) % bannerCount;
-                const track = document.getElementById('bannerTrack');
-                if (track) track.style.transform = `translateX(-${currentSlide * 100}%)`;
-                updateDots();
-            }, 4000);
-        }
-
-        function resetAutoSlide() {
-            if (slideInterval) clearInterval(slideInterval);
-            startAutoSlide();
-        }
-
-        loadBanners();
-
-        // ============ PRODUCTS ============
-        async function loadProducts() {
-            const productsGrid = document.getElementById('productsGrid');
-            productsGrid.innerHTML = '<p style="color:#a0a0c0; text-align:center; grid-column: 1/-1;">⏳ Loading products...</p>';
-            try {
-                const productsRef = ref(database, 'products');
-                const snapshot = await get(productsRef);
-                
-                if (!snapshot.exists()) {
-                    productsGrid.innerHTML = '<p style="color:#a0a0c0; text-align:center; grid-column: 1/-1;">No products available</p>';
-                    return;
-                }
-                
-                const products = snapshot.val();
-                const productsArray = Object.entries(products).map(([key, val]) => ({ key, ...val }));
-                productsArray.sort((a, b) => (a.order || 0) - (b.order || 0));
-                
-                productsGrid.innerHTML = '';
-                for (const product of productsArray) {
-                    const key = product.key;
-                    const isOutOfStock = product.stock === 'out';
-                    productsGrid.innerHTML += `
-                        <div class="product-card ${isOutOfStock ? 'out-of-stock' : ''}" 
-                             onclick="${isOutOfStock ? '' : `window.location.href='product.html?type=${key}'`}">
-                            <img src="${product.image}" alt="${product.name}" onerror="this.src='https://via.placeholder.com/300x240/1a0033/8b00ff?text=OXI+TOP+UP'">
-                            ${isOutOfStock ? '<div class="stock-out-badge">❌ Out of Stock</div>' : ''}
-                            <div class="product-info"><h3>${product.name}</h3></div>
-                        </div>`;
-                }
-            } catch (error) {
-                console.error('Error:', error);
-                productsGrid.innerHTML = '<p style="color:red; text-align:center; grid-column: 1/-1;">❌ Failed to load</p>';
-            }
-        }
-        loadProducts();
-
-        // ============ AUTH & WALLET ============
-        const walletBadge = document.getElementById('walletBadge');
-        const userPhoto = document.getElementById('userPhoto');
-        const loginNavBtn = document.getElementById('loginNavBtn');
-        const walletBalance = document.getElementById('walletBalance');
-
-        function generateNumericId(uid) {
-            let num = 0;
-            for (let i = 0; i < uid.length; i++) {
-                num += uid.charCodeAt(i) * (i + 1);
-            }
-            return String(100000 + (num % 900000));
-        }
-
-        onAuthStateChanged(auth, async (user) => {
+        // Auth State Check
+        auth.onAuthStateChanged(async (user) => {
             if (user) {
-                // Check if banned
-                const banned = await checkIfBanned(user.uid);
-                if (banned) {
+                const isBanned = await checkIfBanned(user.uid);
+                if (isBanned) {
+                    alert("আপনার অ্যাকাউন্টটি সাময়িকভাবে স্থগিত (Ban) করা হয়েছে।");
                     await signOut(auth);
-                    alert('🚫 Your account has been banned. Contact support.');
                     window.location.href = 'login.html';
                     return;
                 }
 
-                userPhoto.src = user.photoURL;
-                userPhoto.style.display = 'block';
-                walletBadge.style.display = 'flex';
-                loginNavBtn.style.display = 'none';
-                document.getElementById('sidebarPhoto').src = user.photoURL;
-                document.getElementById('sidebarName').textContent = user.displayName;
-                document.getElementById('sidebarEmail').textContent = user.email;
-                const userRef = ref(database, 'users/' + user.uid);
-                const snapshot = await get(userRef);
-                if (snapshot.exists()) {
-                    walletBalance.textContent = snapshot.val().wallet || 0;
-                } else {
-                    try {
-                        await set(userRef, {
-                            name: user.displayName, 
-                            email: user.email, 
-                            photo: user.photoURL,
-                            wallet: 0, 
-                            totalSpend: 0,
-                            orders: 0,
-                            numericId: generateNumericId(user.uid),
-                            banned: false,
-                            createdAt: new Date().toISOString(),
-                            joinDate: new Date().toISOString()
-                        });
-                        walletBalance.textContent = 0;
-                    } catch (err) { console.error(err); }
-                }
+                const userSnap = await get(ref(database, 'users/' + user.uid));
+                const userData = userSnap.val() || {};
+                
+                document.getElementById('authNav').innerHTML = `
+                    <a href="dashboard.html" class="user-profile-btn">
+                        <i class="fas fa-wallet" style="color:#2ecc71;"></i> 
+                        <span>৳${userData.wallet || 0}</span>
+                    </a>
+                `;
             } else {
-                userPhoto.style.display = 'none';
-                walletBadge.style.display = 'none';
-                loginNavBtn.style.display = 'block';
+                document.getElementById('authNav').innerHTML = `
+                    <a href="login.html" class="login-btn"><i class="fas fa-sign-in-alt"></i> লগইন</a>
+                `;
             }
         });
 
-        document.getElementById('logoutBtn').addEventListener('click', async () => {
-            await signOut(auth);
-            window.location.href = 'login.html';
+        // Load Banners
+        onValue(ref(database, 'banners'), (snapshot) => {
+            const banners = snapshot.val() || {};
+            renderBanners(banners);
         });
-    </script>
 
+        function renderBanners(banners) {
+            const wrapper = document.getElementById('sliderWrapper');
+            const dotsContainer = document.getElementById('sliderDots');
+            const keys = Object.keys(banners);
+            
+            totalSlides = keys.length;
+            wrapper.innerHTML = '';
+            dotsContainer.innerHTML = '';
+
+            if (totalSlides === 0) {
+                wrapper.innerHTML = '<div class="no-banners">কোন ব্যানার পাওয়া যায়নি</div>';
+                document.getElementById('prevBtn').style.display = 'none';
+                document.getElementById('nextBtn').style.display = 'none';
+                return;
+            }
+
+            document.getElementById('prevBtn').style.display = 'block';
+            document.getElementById('nextBtn').style.display = 'block';
+
+            keys.forEach((key, index) => {
+                const b = banners[key];
+                const slide = document.createElement('div');
+                slide.className = 'slide';
+                
+                const img = document.createElement('img');
+                img.src = b.image;
+                img.alt = "Banner " + (index + 1);
+                if (b.link) {
+                    img.onclick = () => window.open(b.link, '_blank');
+                }
+                
+                slide.appendChild(img);
+                wrapper.appendChild(slide);
+
+                const dot = document.createElement('div');
+                dot.className = `dot ${index === 0 ? 'active' : ''}`;
+                dot.onclick = () => goToSlide(index);
+                dotsContainer.appendChild(dot);
+            });
+
+            currentSlide = 0;
+            updateSlidePosition();
+            startAutoSlide();
+        }
+
+        window.moveSlide = (step) => {
+            if (totalSlides === 0) return;
+            currentSlide = (currentSlide + step + totalSlides) % totalSlides;
+            updateSlidePosition();
+            resetAutoSlide();
+        };
+
+        window.goToSlide = (index) => {
+            currentSlide = index;
+            updateSlidePosition();
+            resetAutoSlide();
+        };
+
+        function updateSlidePosition() {
+            const wrapper = document.getElementById('sliderWrapper');
+            wrapper.style.transform = `translateX(-${currentSlide * 100}%)`;
+
+            const dots = document.querySelectorAll('.dot');
+            dots.forEach((dot, index) => {
+                if (index === currentSlide) {
+                    dot.classList.add('active');
+                } else {
+                    dot.classList.remove('active');
+                }
+            });
+        }
+
+        function startAutoSlide() {
+            clearInterval(slideInterval);
+            if (totalSlides > 1) {
+                slideInterval = setInterval(() => {
+                    moveSlide(1);
+                }, 4000);
+            }
+        }
+
+        function resetAutoSlide() {
+            clearInterval(slideInterval);
+            startAutoSlide();
+        }
+
+        // Load Products
+        onValue(ref(database, 'products'), (snapshot) => {
+            allProducts = snapshot.val() || {};
+            renderProducts(allProducts);
+        });
+
+        window.renderProducts = (products) => {
+            const grid = document.getElementById('productGrid');
+            grid.innerHTML = '';
+
+            const keys = Object.keys(products);
+            let activeCount = 0;
+
+            keys.forEach(catId => {
+                const cat = products[catId];
+                if (cat.status === 'OFF') return;
+                activeCount++;
+
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                
+                // Safe URL Encoding for Special Characters like Apostrophe
+                const safeCatId = encodeURIComponent(catId);
+                card.onclick = () => window.location.href = `product.html?id=${safeCatId}`;
+
+                card.innerHTML = `
+                    <img src="${cat.image}" alt="${catId}" onerror="this.src='assets/placeholder.png'">
+                    <div class="product-info">
+                        <h3>${catId}</h3>
+                        <p><i class="fas fa-bolt" style="color:#e1b12c;"></i> Instant Delivery</p>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+
+            if (activeCount === 0) {
+                grid.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color:#888; padding:30px;">কোন ক্যাটাগরি পাওয়া যায়নি</p>';
+            }
+        };
+
+        window.filterProducts = () => {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const filtered = {};
+
+            Object.keys(allProducts).forEach(catId => {
+                if (catId.toLowerCase().includes(query)) {
+                    filtered[catId] = allProducts[catId];
+                }
+            });
+
+            renderProducts(filtered);
+        };
+    </script>
 </body>
 </html>
