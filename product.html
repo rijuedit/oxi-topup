@@ -28,7 +28,7 @@
         .confirm-btns button { flex: 1; padding: 12px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 14px; }
         .btn-confirm-yes { background: linear-gradient(135deg, #00c853, #00e676); color: white; }
         .btn-confirm-no { background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); }
-        .product-detail-img { width: 100%; max-width: 100%; border-radius: 15px; margin-bottom: 20px; border: 1px solid rgba(139,0,255,0.3); box-shadow: 0 5px 20px rgba(0,0,0,0.5); }
+        .product-detail-img { width: 100%; border-radius: 12px; margin-top: 10px; border: 1px solid rgba(139,0,255,0.3); }
     </style>
 </head>
 <body class="home-body">
@@ -122,12 +122,13 @@
                 </div>
             </div>
 
-            <!-- Custom Detail Image (Show if added) -->
-            <div id="detailImgBox" style="display:none; margin-top:20px;">
-                <img id="detailImg" src="" class="product-detail-img" alt="Guide / Details">
+            <!-- গিল্ড সেটিং পিকচার সেকশন -->
+            <div id="guildSettingBox" class="section-box" style="display:none; margin-top:20px;">
+                <h3>📸 গিল্ড সেটিং</h3>
+                <img id="guildSettingImg" src="https://i.ibb.co/LdQyJXt/guild-setting.jpg" class="product-detail-img" alt="Guild Setting Guide">
             </div>
 
-            <div class="section-box rules-box" id="rulesBox">
+            <div class="section-box rules-box">
                 <h3>📜 Rules & Conditions</h3>
                 <ul id="rulesList">
                     <li>শুধুমাত্র Bangladesh Server এর ID Code দিয়ে টপ আপ হবে।</li>
@@ -297,11 +298,6 @@
 
             if (!snapshot.exists()) {
                 document.getElementById('outOfStockMsg').style.display = 'block';
-                document.getElementById('outOfStockMsg').innerHTML = `
-                    <h2 style="color:#ff3d00;font-size:32px;">❌ Product Not Found</h2>
-                    <p style="color:#a0a0c0;margin-top:15px;">This product doesn't exist.</p>
-                    <a href="index.html" class="btn-buy-now" style="display:inline-block;margin-top:20px;padding:15px 40px;text-decoration:none;">← Back to Home</a>
-                `;
                 return;
             }
 
@@ -317,31 +313,24 @@
             document.getElementById('productImg').src = productData.image;
             document.title = productData.name + " - OXI TOP UP";
 
-            // AUTO CUSTOM LABEL & PLACEHOLDER LOGIC
+            // AUTO GUILD DETECT & SETTINGS
             const isGuild = productData.name.toLowerCase().includes('guild') || productType.toLowerCase().includes('guild');
-            const customLabel = productData.inputLabel || (isGuild ? 'Guild ID' : 'Player ID');
-            const customPlaceholder = productData.inputPlaceholder || (isGuild ? 'Enter Guild ID Code' : 'Enter Player ID');
-
-            document.getElementById('inputFieldLabel').textContent = customLabel;
-            document.getElementById('playerId').placeholder = customPlaceholder;
-
-            // Show Check Name button ONLY if enabled AND it's standard FF Player ID
-            if (uidApiSettings && uidApiSettings.enabled && uidApiSettings.url && uidApiSettings.key && !isGuild && !productData.inputLabel) {
-                document.getElementById('checkNameBtn').style.display = 'block';
-            } else {
+            
+            if (isGuild) {
+                document.getElementById('inputFieldLabel').textContent = 'Guild ID';
+                document.getElementById('playerId').placeholder = 'Enter Guild ID Code';
                 document.getElementById('checkNameBtn').style.display = 'none';
-            }
-
-            // CUSTOM DETAIL IMAGE
-            if (productData.detailImage) {
-                document.getElementById('detailImg').src = productData.detailImage;
-                document.getElementById('detailImgBox').style.display = 'block';
-            }
-
-            // CUSTOM RULES
-            if (productData.rules && Array.isArray(productData.rules)) {
-                const rulesList = document.getElementById('rulesList');
-                rulesList.innerHTML = productData.rules.map(r => `<li>${r}</li>`).join('');
+                document.getElementById('guildSettingBox').style.display = 'block';
+                if (productData.detailImage) {
+                    document.getElementById('guildSettingImg').src = productData.detailImage;
+                }
+            } else {
+                document.getElementById('inputFieldLabel').textContent = 'Player ID';
+                document.getElementById('playerId').placeholder = 'Enter Player ID';
+                document.getElementById('guildSettingBox').style.display = 'none';
+                if (uidApiSettings && uidApiSettings.enabled && uidApiSettings.url && uidApiSettings.key) {
+                    document.getElementById('checkNameBtn').style.display = 'block';
+                }
             }
 
             const rechargeList = document.getElementById('rechargeList');
@@ -437,14 +426,12 @@
             try {
                 const playerId = document.getElementById('playerId').value.trim();
 
-                // Get next order number using transaction
                 const counterRef = ref(database, 'orderCounter');
                 const trxResult = await runTransaction(counterRef, (current) => {
                     return (current || 0) + 1;
                 });
                 const orderNumber = trxResult.snapshot.val();
 
-                // Create order
                 const orderRef = push(ref(database, 'orders'));
                 await set(orderRef, {
                     orderNumber: orderNumber,
@@ -460,7 +447,6 @@
                     orderId: orderRef.key
                 });
 
-                // Update user wallet
                 const newWallet = (currentUserData.wallet || 0) - selectedPackage.price;
                 const newSpend = (currentUserData.totalSpend || 0) + selectedPackage.price;
                 const newOrders = (currentUserData.orders || 0) + 1;
