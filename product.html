@@ -28,7 +28,7 @@
         .confirm-btns button { flex: 1; padding: 12px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 14px; }
         .btn-confirm-yes { background: linear-gradient(135deg, #00c853, #00e676); color: white; }
         .btn-confirm-no { background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); }
-        .product-detail-img { width: 100%; border-radius: 12px; margin-top: 10px; border: 1px solid rgba(139,0,255,0.3); }
+        .product-detail-img { width: 100%; border-radius: 12px; margin-top: 10px; border: 1px solid rgba(139,0,255,0.3); display: block; }
     </style>
 </head>
 <body class="home-body">
@@ -77,7 +77,7 @@
         <div id="productContent" style="display:none;">
             
             <div class="product-header">
-                <img id="productImg" src="" alt="Product">
+                <img id="productImg" src="" alt="Product" onerror="this.src='https://i.ibb.co/HTHSLY80/Chat-GPT-Image-Jul-22-2026-11-58-48-PM.png'">
                 <div>
                     <h2 id="productName">Loading...</h2>
                     <p>Game / Top Up</p>
@@ -125,7 +125,7 @@
             <!-- গিল্ড সেটিং পিকচার সেকশন -->
             <div id="guildSettingBox" class="section-box" style="display:none; margin-top:20px;">
                 <h3>📸 গিল্ড সেটিং</h3>
-                <img id="guildSettingImg" src="https://i.ibb.co/0yNZXkq4/image.png" class="product-detail-img" alt="Guild Setting Guide">
+                <img id="guildSettingImg" src="https://i.ibb.co.com/0yNZXkq4/image.png" class="product-detail-img" alt="Guild Setting Guide" onerror="this.src='https://i.ibb.co/0yNZXkq4/image.png'">
             </div>
 
             <div class="section-box rules-box">
@@ -310,7 +310,7 @@
 
             document.getElementById('productContent').style.display = 'block';
             document.getElementById('productName').textContent = productData.name;
-            document.getElementById('productImg').src = productData.image;
+            if (productData.image) document.getElementById('productImg').src = productData.image;
             document.title = productData.name + " - OXI TOP UP";
 
             // AUTO GUILD DETECT & SETTINGS
