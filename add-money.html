@@ -1,1136 +1,439 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Panel - OXI TOP UP</title>
-    <link rel="stylesheet" href="admin-style.css">
+    <title>Add Money - OXI TOP UP</title>
+    <link rel="icon" type="image/png" href="https://i.ibb.co/HTHSLY80/Chat-GPT-Image-Jul-22-2026-11-58-48-PM.png">
+    <link rel="stylesheet" href="style.css?v=3">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
     <style>
-        .login-screen { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: linear-gradient(135deg, #000, #1a0033, #000); display: flex; align-items: center; justify-content: center; z-index: 9999; padding: 20px; }
-        .login-box { background: rgba(20, 20, 40, 0.95); border: 2px solid #8b00ff; border-radius: 25px; padding: 40px 30px; max-width: 400px; width: 100%; text-align: center; box-shadow: 0 0 50px rgba(139, 0, 255, 0.5); }
-        .login-box h2 { font-family: 'Orbitron', sans-serif; color: white; font-size: 26px; margin: 15px 0 8px; }
-        .login-box > p { color: #a0a0c0; font-size: 14px; margin-bottom: 25px; }
-        .btn-google-admin { width: 100%; padding: 14px; background: white; color: #333; border: none; border-radius: 12px; font-size: 15px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px; transition: 0.3s; }
-        .btn-google-admin:hover { transform: translateY(-3px); box-shadow: 0 8px 25px rgba(139, 0, 255, 0.4); }
-        .btn-google-admin img { width: 22px; height: 22px; }
-        .login-error { background: rgba(255, 50, 50, 0.15); border: 1px solid rgba(255, 50, 50, 0.4); color: #ff6b6b; padding: 12px; border-radius: 10px; margin-top: 15px; font-size: 13px; display: none; }
-        .admin-role-badge { background: linear-gradient(135deg, #ff4500, #ff0000); padding: 6px 14px; border-radius: 15px; font-weight: 700; color: white; font-size: 12px; margin-right: 10px; }
-        .admin-role-badge.super { background: linear-gradient(135deg, #ffaa00, #ff6600); }
-        .user-modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(10px); display: none; align-items: flex-start; justify-content: center; z-index: 10000; padding: 20px; overflow-y: auto; }
-        .user-modal-overlay.show { display: flex; }
-        .user-modal-box { background: linear-gradient(135deg, #1a0033, #0a0a0a); border: 2px solid #8b00ff; border-radius: 20px; max-width: 800px; width: 100%; margin: 20px auto; padding: 25px; max-height: 90vh; overflow-y: auto; }
-        .user-modal-header { display: flex; justify-content: space-between; align-items: center; padding-bottom: 15px; border-bottom: 2px solid rgba(139,0,255,0.3); margin-bottom: 20px; }
-        .user-modal-header h2 { color: #8b00ff; font-family: 'Orbitron', sans-serif; font-size: 22px; }
-        .user-modal-close { background: rgba(255,50,50,0.15); color: #ff6b6b; border: 1px solid rgba(255,50,50,0.4); width: 38px; height: 38px; border-radius: 50%; cursor: pointer; font-size: 16px; font-weight: 700; }
-        .user-modal-close:hover { background: rgba(255,50,50,0.3); transform: rotate(90deg); }
-        .user-profile-section { display: flex; align-items: center; gap: 15px; padding: 20px; background: rgba(139,0,255,0.1); border-radius: 15px; margin-bottom: 20px; }
-        .user-profile-section img { width: 70px; height: 70px; border-radius: 50%; border: 3px solid #8b00ff; }
-        .user-profile-info h3 { color: white; font-size: 20px; margin-bottom: 5px; }
-        .user-profile-info p { color: #a0a0c0; font-size: 13px; margin: 2px 0; }
-        .user-stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px; }
-        .user-stat-item { background: rgba(20,20,40,0.85); border: 1px solid rgba(139,0,255,0.3); border-radius: 12px; padding: 15px 10px; text-align: center; }
-        .user-stat-item .stat-value { color: #8b00ff; font-family: 'Orbitron',sans-serif; font-size: 20px; font-weight: 900; }
-        .user-stat-item .stat-label { color: #a0a0c0; font-size: 11px; margin-top: 5px; text-transform: uppercase; }
-        .modal-section { background: rgba(20,20,40,0.6); border-radius: 15px; padding: 20px; margin-bottom: 15px; }
-        .modal-section h4 { color: #8b00ff; font-size: 16px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; font-family: 'Orbitron',sans-serif; }
-        .modal-section h4 span { background: rgba(139,0,255,0.2); color: #a78bfa; padding: 3px 12px; border-radius: 15px; font-size: 12px; font-family: 'Poppins',sans-serif; }
-        .modal-item { background: rgba(255,255,255,0.03); border: 1px solid rgba(139,0,255,0.2); border-radius: 10px; padding: 12px; margin-bottom: 10px; font-size: 13px; }
-        .modal-item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid rgba(139,0,255,0.15); }
-        .modal-item-header strong { color: white; font-size: 14px; }
-        .modal-status { padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; }
-        .modal-item p { color: #a0a0c0; font-size: 12px; margin: 3px 0; }
-        .modal-item p strong { color: white; }
-        .empty-msg { text-align: center; color: #888; padding: 20px; font-size: 13px; }
-        .clickable-user { cursor: pointer; transition: 0.3s; user-select: none; -webkit-user-select: none; }
-        .clickable-user:hover { transform: translateY(-2px); box-shadow: 0 10px 30px rgba(139,0,255,0.3); border-color: #8b00ff !important; }
-        .sub-tabs { display: flex; gap: 8px; margin-bottom: 20px; padding: 5px; background: rgba(20,20,40,0.5); border-radius: 12px; flex-wrap: wrap; }
-        .sub-tab-btn { flex: 1; min-width: 130px; background: transparent; border: none; color: #a0a0c0; padding: 10px 15px; border-radius: 10px; cursor: pointer; font-weight: 600; font-size: 13px; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: 'Poppins',sans-serif; }
-        .sub-tab-btn:hover { color: white; background: rgba(139,0,255,0.15); }
-        .sub-tab-btn.active { background: linear-gradient(135deg, #8b00ff, #6a0dad); color: white; }
-        .sub-badge { background: #ff3d00; color: white; font-size: 11px; padding: 2px 8px; border-radius: 10px; font-weight: 700; min-width: 20px; display: inline-block; }
-        .sub-tab-btn.active .sub-badge { background: white; color: #8b00ff; }
-        .filter-tabs { display: flex; gap: 8px; margin-bottom: 15px; flex-wrap: wrap; padding: 10px; background: rgba(139,0,255,0.05); border-radius: 12px; border: 1px solid rgba(139,0,255,0.2); }
-        .filter-btn { background: rgba(20,20,40,0.6); color: #a0a0c0; border: 1px solid rgba(139,0,255,0.3); padding: 8px 15px; border-radius: 20px; cursor: pointer; font-size: 12px; font-weight: 600; font-family: 'Poppins',sans-serif; }
-        .filter-btn:hover { background: rgba(139,0,255,0.15); color: white; }
-        .filter-btn.active { background: linear-gradient(135deg, #8b00ff, #6a0dad); color: white; border-color: #8b00ff; }
-        .filter-summary { background: rgba(139,0,255,0.1); border: 1px solid rgba(139,0,255,0.3); border-radius: 10px; padding: 12px 15px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
-        .filter-summary-info { color: white; font-size: 13px; }
-        .filter-summary-info strong { color: #8b00ff; font-size: 15px; font-family: 'Orbitron',sans-serif; }
-        .stat-card-new.clickable { cursor: pointer; }
-        .stat-card-new.clickable:hover { transform: translateY(-5px); border-color: #8b00ff; box-shadow: 0 10px 30px rgba(139,0,255,0.3); }
-        .stat-select { width: 100%; margin-top: 8px; padding: 6px; background: rgba(139,0,255,0.15); color: #8b00ff; border: 1px solid rgba(139,0,255,0.4); border-radius: 8px; font-family: 'Poppins',sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; outline: none; }
-        .stat-select:focus { border-color: #8b00ff; }
-        .stat-select option { background: #1a0033; color: white; }
-        .drag-handle { cursor: grab; color: #8b00ff; font-size: 20px; padding: 5px 10px; user-select: none; }
-        .sortable-ghost { opacity: 0.4; background: rgba(139,0,255,0.2) !important; }
-        .add-product-btn { width: 100%; background: linear-gradient(135deg, #00c853, #00e676); color: white; border: none; padding: 15px; border-radius: 12px; font-weight: 700; cursor: pointer; font-size: 15px; margin-bottom: 15px; }
-        .add-product-btn:hover { transform: scale(1.02); }
-        .search-box { width: 100%; padding: 12px 15px; background: rgba(0,0,0,0.4); border: 1px solid rgba(139,0,255,0.3); border-radius: 10px; color: white; font-size: 14px; margin-bottom: 15px; font-family: 'Poppins',sans-serif; }
-        .search-box:focus { outline: none; border-color: #8b00ff; box-shadow: 0 0 15px rgba(139,0,255,0.3); }
-        .stats-grid-new { grid-template-columns: repeat(4, 1fr); }
-        .banned-badge { background: rgba(255,50,50,0.2); color: #ff6b6b; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 700; border: 1px solid rgba(255,50,50,0.4); margin-left: 8px; }
-        .ban-popup { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 10001; padding: 20px; }
-        .ban-popup.show { display: flex; }
-        .ban-popup-box { background: linear-gradient(135deg, #1a0033, #0a0a0a); border: 2px solid #ff3d00; border-radius: 20px; padding: 30px; max-width: 400px; width: 100%; text-align: center; }
-        .ban-popup-box h3 { color: #ff6b6b; font-size: 22px; margin-bottom: 15px; font-family: 'Orbitron',sans-serif; }
-        .ban-popup-box p { color: #a0a0c0; margin-bottom: 20px; }
-        .ban-popup-btns { display: flex; gap: 10px; }
-        .ban-popup-btns button { flex: 1; padding: 12px; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 14px; }
-        .btn-ban-confirm { background: linear-gradient(135deg, #ff3d00, #ff0000); color: white; }
-        .btn-ban-cancel { background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); }
-        .reject-popup { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 10001; padding: 20px; }
-        .reject-popup.show { display: flex; }
-        .reject-popup-box { background: linear-gradient(135deg, #1a0033, #0a0a0a); border: 2px solid #ff3d00; border-radius: 20px; padding: 30px; max-width: 450px; width: 100%; }
-        .reject-popup-box h3 { color: #ff6b6b; font-size: 20px; margin-bottom: 15px; font-family: 'Orbitron',sans-serif; text-align: center; }
-        .reject-popup-box textarea { width: 100%; padding: 12px 15px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,50,50,0.4); border-radius: 10px; color: white; font-size: 14px; font-family: 'Poppins',sans-serif; min-height: 100px; resize: vertical; margin-bottom: 15px; }
-        .reject-popup-box textarea:focus { outline: none; border-color: #ff3d00; }
-        .banner-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(139,0,255,0.2); border-radius: 12px; padding: 15px; margin-bottom: 12px; display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
-        .banner-card img { width: 100px; height: 60px; object-fit: cover; border-radius: 8px; border: 1px solid #8b00ff; }
-        .banner-card .banner-info { flex: 1; min-width: 200px; color: white; font-size: 13px; }
-        .banner-card .banner-actions { display: flex; gap: 8px; }
-        .admin-mgmt-item { background: rgba(255,255,255,0.03); border: 1px solid rgba(139,0,255,0.2); border-radius: 12px; padding: 15px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
-        .admin-mgmt-item .admin-info { color: white; font-size: 14px; flex: 1; min-width: 200px; }
-        .admin-mgmt-item .admin-info small { color: #a0a0c0; font-size: 11px; display: block; margin-top: 3px; }
-        .banner-popup { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(5px); display: none; align-items: center; justify-content: center; z-index: 10001; padding: 20px; }
-        .banner-popup.show { display: flex; }
-        .banner-popup-box { background: linear-gradient(135deg, #1a0033, #0a0a0a); border: 2px solid #8b00ff; border-radius: 20px; padding: 30px; max-width: 500px; width: 100%; }
-        .banner-popup-box h3 { color: #8b00ff; font-size: 20px; margin-bottom: 20px; font-family: 'Orbitron',sans-serif; text-align: center; }
-        .banner-popup-box label { display: block; color: #a0a0c0; margin-bottom: 6px; font-size: 13px; font-weight: 600; }
-        .banner-popup-box input { width: 100%; padding: 12px 15px; background: rgba(0,0,0,0.4); border: 1px solid rgba(139,0,255,0.3); border-radius: 10px; color: white; font-size: 14px; font-family: 'Poppins',sans-serif; margin-bottom: 15px; }
-        .banner-popup-box input:focus { outline: none; border-color: #8b00ff; }
-        .banner-popup-box small { color: #888; font-size: 11px; display: block; margin-top: -10px; margin-bottom: 15px; }
-        
-        .main-tab-badge { 
-            background: #ff0000; 
-            color: white; 
-            font-size: 10px; 
-            font-weight: 700; 
-            padding: 2px 6px; 
-            border-radius: 12px; 
-            margin-left: 6px; 
-            box-shadow: 0 0 5px rgba(255,0,0,0.5); 
-            display: none; 
-            vertical-align: middle;
-        }
-
-        .toggle-switch { position: relative; width: 50px; height: 26px; display: inline-block; }
-        .toggle-switch input { opacity: 0; width: 0; height: 0; }
-        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #444; transition: .4s; border-radius: 30px; }
-        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px; background: white; transition: .4s; border-radius: 50%; }
-        input:checked + .slider { background: linear-gradient(135deg, #8b00ff, #6a0dad); }
-        input:checked + .slider:before { transform: translateX(24px); }
-
-        @media (max-width: 768px) {
-            .home-navbar { padding: 10px 12px !important; flex-wrap: nowrap !important; gap: 6px !important; }
-            .home-logo { font-size: 16px !important; }
-            .home-nav-right { gap: 5px !important; flex-wrap: nowrap !important; align-items: center !important; }
-            .admin-role-badge { padding: 4px 8px !important; font-size: 10px !important; margin-right: 0 !important; white-space: nowrap !important; }
-            #adminEmail { display: none !important; }
-            .btn-logout-admin { padding: 6px 12px !important; font-size: 11px !important; white-space: nowrap !important; }
-            .dash-container { padding: 12px !important; margin: 10px auto !important; }
-            .stats-grid-new { grid-template-columns: repeat(2, 1fr) !important; gap: 10px !important; }
-            .stat-card-new { padding: 15px 10px !important; }
-            .stat-card-new h4 { font-size: 11px !important; margin-bottom: 6px !important; }
-            .stat-card-new p { font-size: 24px !important; }
-            .stat-icon { font-size: 32px !important; margin-bottom: 8px !important; }
-            .stat-select { font-size: 11px !important; padding: 5px !important; margin-top: 6px !important; }
-            .admin-tabs { gap: 6px !important; }
-            .tab-btn { padding: 8px 12px !important; font-size: 12px !important; }
-            .section-box { padding: 15px !important; }
-            .section-box h3 { font-size: 15px !important; margin-bottom: 15px !important; }
-            .user-modal-box { padding: 15px; }
-            .user-stats-grid { grid-template-columns: repeat(2, 1fr); }
-            .filter-btn { padding: 7px 12px; font-size: 11px; }
-        }
+        .auto-pay-badge { background: linear-gradient(135deg, #00c853, #00e676); color: white; font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 700; margin-left: 5px; }
+        .auto-pay-box { background: rgba(0, 200, 83, 0.1); border: 1px solid rgba(0, 200, 83, 0.4); border-radius: 15px; padding: 20px; text-align: center; margin-top: 15px; display: none; }
+        .auto-pay-box h4 { color: #00ff88; font-size: 16px; margin-bottom: 8px; font-family: 'Poppins', sans-serif; }
+        .auto-pay-box p { color: #a0a0c0; font-size: 13px; margin-bottom: 15px; }
+        .btn-auto-pay { width: 100%; background: linear-gradient(135deg, #00c853, #00e676); color: white; border: none; padding: 14px; border-radius: 12px; font-weight: 700; font-size: 15px; cursor: pointer; transition: 0.3s; font-family: 'Poppins', sans-serif; }
+        .btn-auto-pay:hover { transform: scale(1.02); box-shadow: 0 5px 20px rgba(0, 230, 118, 0.4); }
     </style>
 </head>
 <body class="home-body">
 
-    <div id="loginScreen" class="login-screen">
-        <div class="login-box">
-            <div style="font-size: 60px;">🔐</div>
-            <h2>Admin Panel</h2>
-            <p>Sign in with your admin Google account</p>
-            <button id="googleLoginBtn" class="btn-google-admin">
-                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
-                Sign in with Google
-            </button>
-            <div id="loginError" class="login-error"></div>
+    <nav class="home-navbar">
+        <a href="index.html" style="display:flex;align-items:center;gap:10px;text-decoration:none;">
+            <img src="https://i.ibb.co/HTHSLY80/Chat-GPT-Image-Jul-22-2026-11-58-48-PM.png" alt="OXI TOP UP" class="logo-img">
+            <span style="font-family:'Orbitron',sans-serif;font-size:20px;font-weight:900;color:white;letter-spacing:1px;">OXI <span style="color:#8b00ff;">TOP UP</span></span>
+        </a>
+        <div class="home-nav-right">
+            <a href="index.html" class="nav-link">Home</a>
+            <div class="wallet-badge">
+                <span>৳</span> <span id="walletBalance">0</span>
+            </div>
+            <img id="userPhoto" class="profile-icon-static" src="" alt="Profile" onclick="toggleSidebar()">
+        </div>
+    </nav>
+
+    <div id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <img id="sidebarPhoto" src="" alt="Profile">
+            <div>
+                <h4 id="sidebarName">User</h4>
+                <p id="sidebarEmail">email@gmail.com</p>
+            </div>
+            <button class="close-sidebar" onclick="toggleSidebar()">✕</button>
+        </div>
+        <div class="sidebar-menu">
+            <a href="dashboard.html" class="sidebar-item"><span>🏠</span> My Account</a>
+            <a href="orders.html" class="sidebar-item"><span>📦</span> My Orders</a>
+            <a href="transactions.html" class="sidebar-item"><span>💳</span> My Transaction</a>
+            <a href="add-money.html" class="sidebar-item active"><span>💰</span> Add Money</a>
+            <a href="https://wa.me/8801604080312?text=Hello%20OXI%20TOP%20UP,%20I%20need%20help" target="_blank" class="sidebar-item"><span>💬</span> WhatsApp Support</a>
+            <button class="sidebar-logout" id="logoutBtn">🚪 Logout</button>
         </div>
     </div>
+    <div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
 
-    <div id="adminDashboard" style="display:none;">
-        <nav class="home-navbar">
-            <div class="home-logo">OXI <span>ADMIN</span></div>
-            <div class="home-nav-right">
-                <span id="adminRoleBadge" class="admin-role-badge">Admin</span>
-                <span id="adminEmail" style="color:#a0a0c0;font-size:13px;"></span>
-                <button class="btn-logout-admin" onclick="logoutAdmin()">Logout</button>
-            </div>
-        </nav>
+    <div class="product-container">
+        <h2 class="addmoney-title">💰 Add Money to Wallet</h2>
 
-        <div class="dash-container">
-            <div class="stats-grid-new">
-                <div class="stat-card-new clickable" onclick="showTab('users', event)">
-                    <div class="stat-icon">👥</div>
-                    <h4>Total Users</h4>
-                    <p id="totalUsers">0</p>
-                </div>
-                <div class="stat-card-new">
-                    <div class="stat-icon" onclick="showTab('orders', event)" style="cursor:pointer;">📦</div>
-                    <h4 onclick="showTab('orders', event)" style="cursor:pointer;">Total Orders</h4>
-                    <p id="totalOrdersCount">0</p>
-                    <select id="orderFilterSelect" class="stat-select" onchange="updateOrderCount(this.value)">
-                        <option value="1">Today</option>
-                        <option value="3">3 Day</option>
-                        <option value="7">7 Day</option>
-                        <option value="15">15 Day</option>
-                        <option value="30">30 Day</option>
-                        <option value="60">60 Day</option>
-                        <option value="365">1 Year</option>
-                        <option value="0">Lifetime</option>
-                    </select>
-                </div>
-                <div class="stat-card-new clickable" onclick="showTab('transactions', event)">
-                    <div class="stat-icon">💰</div>
-                    <h4>Pending Add Money</h4>
-                    <p id="pendingCount">0</p>
-                </div>
-                <div class="stat-card-new clickable" onclick="showTab('banned', event)">
-                    <div class="stat-icon">🚫</div>
-                    <h4>Banned Users</h4>
-                    <p id="bannedCount">0</p>
-                </div>
-            </div>
-
-            <div class="admin-tabs">
-                <button class="tab-btn active" onclick="showTab('transactions', event)">💳 Add Money <span id="mainTrxBadge" class="main-tab-badge">0</span></button>
-                <button class="tab-btn" onclick="showTab('orders', event)">📦 Orders <span id="mainOrdBadge" class="main-tab-badge">0</span></button>
-                <button class="tab-btn" onclick="showTab('users', event)">👥 Users</button>
-                <button class="tab-btn" onclick="showTab('banned', event)">🚫 Ban List</button>
-                <button class="tab-btn" onclick="showTab('products', event)">🎮 Products</button>
-                <button class="tab-btn" onclick="showTab('banners', event)">🖼️ Banner</button>
-                <button class="tab-btn" onclick="showTab('payment', event)" id="paymentTabBtn" style="display:none;">💵 Payment</button>
-                <button class="tab-btn" onclick="showTab('adminMgmt', event)" id="adminMgmtTab" style="display:none;">👑 Admins</button>
-                <a href="api-settings.html" class="tab-btn" id="apiTabBtn" style="text-decoration:none;display:none;">⚙️ API</a>
-            </div>
-
-            <div id="transactionsTab" class="tab-content">
-                <div class="section-box">
-                    <h3>💳 Add Money Requests</h3>
-                    <div class="sub-tabs">
-                        <button class="sub-tab-btn active" onclick="showSubTab('trxPending', event)">🔔 Pending <span id="trxPendingBadge" class="sub-badge">0</span></button>
-                        <button class="sub-tab-btn" onclick="showSubTab('trxHistory', event)">📜 History</button>
-                    </div>
-                    <div id="trxPending" class="sub-tab-content"></div>
-                    <div id="trxHistory" class="sub-tab-content" style="display:none;">
-                        <div class="filter-tabs">
-                            <button class="filter-btn active" onclick="filterHistory('trx', 1, event)">Today</button>
-                            <button class="filter-btn" onclick="filterHistory('trx', 3, event)">3 Day</button>
-                            <button class="filter-btn" onclick="filterHistory('trx', 7, event)">7 Day</button>
-                            <button class="filter-btn" onclick="filterHistory('trx', 15, event)">15 Day</button>
-                            <button class="filter-btn" onclick="filterHistory('trx', 30, event)">30 Day</button>
-                            <button class="filter-btn" onclick="filterHistory('trx', 60, event)">60 Day</button>
-                            <button class="filter-btn" onclick="filterHistory('trx', 365, event)">1 Year</button>
-                            <button class="filter-btn" onclick="filterHistory('trx', 0, event)">Lifetime</button>
-                        </div>
-                        <div id="trxHistorySummary" class="filter-summary"></div>
-                        <div id="trxHistoryList"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="ordersTab" class="tab-content" style="display:none;">
-                <div class="section-box">
-                    <h3>📦 All Orders</h3>
-                    <input type="text" id="orderSearch" class="search-box" placeholder="🔍 Search by Order ID (e.g. 001, 002)..." oninput="filterOrders()">
-                    <div class="sub-tabs">
-                        <button class="sub-tab-btn active" onclick="showSubTab('ordPending', event)">🔔 Pending <span id="ordPendingBadge" class="sub-badge">0</span></button>
-                        <button class="sub-tab-btn" onclick="showSubTab('ordHistory', event)">📜 History</button>
-                    </div>
-                    <div id="ordPending" class="sub-tab-content"></div>
-                    <div id="ordHistory" class="sub-tab-content" style="display:none;">
-                        <div class="filter-tabs">
-                            <button class="filter-btn active" onclick="filterHistory('ord', 1, event)">Today</button>
-                            <button class="filter-btn" onclick="filterHistory('ord', 3, event)">3 Day</button>
-                            <button class="filter-btn" onclick="filterHistory('ord', 7, event)">7 Day</button>
-                            <button class="filter-btn" onclick="filterHistory('ord', 15, event)">15 Day</button>
-                            <button class="filter-btn" onclick="filterHistory('ord', 30, event)">30 Day</button>
-                            <button class="filter-btn" onclick="filterHistory('ord', 60, event)">60 Day</button>
-                            <button class="filter-btn" onclick="filterHistory('ord', 365, event)">1 Year</button>
-                            <button class="filter-btn" onclick="filterHistory('ord', 0, event)">Lifetime</button>
-                        </div>
-                        <div id="ordHistorySummary" class="filter-summary"></div>
-                        <div id="ordHistoryList"></div>
-                    </div>
-                </div>
-            </div>
-
-            <div id="usersTab" class="tab-content" style="display:none;">
-                <div class="section-box">
-                    <h3>👥 All Users <span style="font-size:12px;color:#a0a0c0;font-weight:400;">(Click to view, Long press to Ban)</span></h3>
-                    <button class="add-product-btn" style="background:linear-gradient(135deg,#4a90e2,#1e5799);margin-bottom:10px;" onclick="fixAllUserIds()" id="fixIdsBtn">🔧 Fix All User IDs</button>
-                    <input type="text" id="userSearch" class="search-box" placeholder="🔍 Search by Name, Email or User ID..." oninput="filterUsers()">
-                    <div id="usersList"></div>
-                </div>
-            </div>
-
-            <div id="bannedTab" class="tab-content" style="display:none;">
-                <div class="section-box">
-                    <h3>🚫 Banned Users List</h3>
-                    <input type="text" id="banSearch" class="search-box" placeholder="🔍 Search by Name, Email or User ID..." oninput="filterBanned()">
-                    <div id="bannedList"></div>
-                </div>
-            </div>
-
-            <div id="productsTab" class="tab-content" style="display:none;">
-                <div class="section-box">
-                    <h3>🎮 Product Management</h3>
-                    <button class="add-product-btn" onclick="addNewProduct()">➕ Add New Product</button>
-                    <div id="productsList"></div>
-                </div>
-            </div>
-
-            <div id="bannersTab" class="tab-content" style="display:none;">
-                <div class="section-box">
-                    <h3>🖼️ Home Page Banner</h3>
-                    <button class="add-product-btn" onclick="showBannerPopup(null)">➕ Add New Banner</button>
-                    <div id="bannersList"></div>
-                </div>
-            </div>
-
-            <!-- PAYMENT TAB WITH TOGGLE SWITCHES -->
-            <div id="paymentTab" class="tab-content" style="display:none;">
-                <div class="section-box">
-                    <h3>💵 Payment Numbers & Status</h3>
-                    <div style="background:rgba(139,0,255,0.1);border-left:3px solid #8b00ff;padding:12px 15px;border-radius:8px;margin-bottom:20px;color:#d0d0e0;font-size:13px;">
-                        💡 এই number গুলোতে user টাকা পাঠাবে। অফ রাখলে User পেজে দেখাবে না।
-                    </div>
-                    
-                    <div style="margin-bottom:20px;background:rgba(0,0,0,0.3);padding:15px;border-radius:12px;border:1px solid rgba(139,0,255,0.2);">
-                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-                            <label style="color:#a0a0c0;font-size:14px;font-weight:700;">🟣 bKash Manual Payment</label>
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="bkashEnabled" checked>
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        <input type="text" id="bkashInput" class="search-box" style="margin-bottom:0;" placeholder="01XXXXXXXXX">
-                    </div>
-
-                    <div style="margin-bottom:20px;background:rgba(0,0,0,0.3);padding:15px;border-radius:12px;border:1px solid rgba(139,0,255,0.2);">
-                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-                            <label style="color:#a0a0c0;font-size:14px;font-weight:700;">🟠 Nagad Manual Payment</label>
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="nagadEnabled" checked>
-                                <span class="slider"></span>
-                            </label>
-                        </div>
-                        <input type="text" id="nagadInput" class="search-box" style="margin-bottom:0;" placeholder="01XXXXXXXXX">
-                    </div>
-
-                    <button class="add-product-btn" onclick="savePaymentNumbers()">💾 Save Payment Settings</button>
-                </div>
-            </div>
-
-            <div id="adminMgmtTab_content" class="tab-content" style="display:none;">
-                <div class="section-box">
-                    <h3>👑 Admin Management</h3>
-                    <div style="background:rgba(139,0,255,0.1);border-left:3px solid #8b00ff;padding:12px 15px;border-radius:8px;margin-bottom:20px;color:#d0d0e0;font-size:13px;">
-                        💡 Super Admin: সব কাজ + Wallet manage + Admin manage<br>
-                        💡 Normal Admin: শুধু order/payment/product/ban manage
-                    </div>
-                    <div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;">
-                        <button class="add-product-btn" style="flex:1;min-width:200px;" onclick="addAdmin('super')">➕ Add Super Admin</button>
-                        <button class="add-product-btn" style="flex:1;min-width:200px;background:linear-gradient(135deg,#4a90e2,#1e5799);" onclick="addAdmin('admin')">➕ Add Normal Admin</button>
-                    </div>
-                    <h4 style="color:#ffd700;margin-bottom:10px;">👑 Super Admins</h4>
-                    <div id="superAdminsList" style="margin-bottom:20px;"></div>
-                    <h4 style="color:#4a90e2;margin-bottom:10px;">🔧 Normal Admins</h4>
-                    <div id="normalAdminsList"></div>
-                </div>
+        <div class="section-box">
+            <h3><span class="step">1</span> Enter Amount</h3>
+            <input type="number" id="amount" placeholder="Enter Amount (Min ৳ 20)" class="input-field" min="20">
+            <div class="quick-amounts">
+                <button onclick="setAmount(50)">৳ 50</button>
+                <button onclick="setAmount(100)">৳ 100</button>
+                <button onclick="setAmount(200)">৳ 200</button>
+                <button onclick="setAmount(500)">৳ 500</button>
+                <button onclick="setAmount(1000)">৳ 1000</button>
             </div>
         </div>
-    </div>
 
-    <div id="userModal" class="user-modal-overlay" onclick="if(event.target === this) closeUserModal()">
-        <div class="user-modal-box">
-            <div class="user-modal-header">
-                <h2>👤 User Details</h2>
-                <button class="user-modal-close" onclick="closeUserModal()">✕</button>
+        <div class="section-box">
+            <h3><span class="step">2</span> Select Payment Method</h3>
+            <div class="payment-methods">
+                
+                <!-- Auto Payment Gateway -->
+                <div class="payment-method" id="autoMethod" style="display:none;" onclick="selectMethod('auto')">
+                    <img src="https://i.ibb.co/FLhq721L/image.png" alt="Auto Payment" class="pm-logo">
+                    <div>
+                        <h4>⚡ Auto Payment <span class="auto-pay-badge">Instant</span></h4>
+                        <p>bKash / Nagad / Rocket (Auto Add)</p>
+                    </div>
+                </div>
+
+                <!-- bKash Manual -->
+                <div class="payment-method" id="bkashMethod" style="display:none;" onclick="selectMethod('bkash')">
+                    <img src="https://i.ibb.co/FLhq721L/image.png" alt="bKash" class="pm-logo">
+                    <div>
+                        <h4>bKash</h4>
+                        <p>Send Money (Manual)</p>
+                    </div>
+                </div>
+
+                <!-- Nagad Manual -->
+                <div class="payment-method" id="nagadMethod" style="display:none;" onclick="selectMethod('nagad')">
+                    <img src="https://i.ibb.co/fdQMrx8q/image.png" alt="Nagad" class="pm-logo">
+                    <div>
+                        <h4>Nagad</h4>
+                        <p>Send Money (Manual)</p>
+                    </div>
+                </div>
+
             </div>
-            <div id="userModalContent"></div>
         </div>
-    </div>
 
-    <div id="banPopup" class="ban-popup">
-        <div class="ban-popup-box">
-            <div style="font-size:50px;margin-bottom:10px;">🚫</div>
-            <h3 id="banPopupTitle">Ban User?</h3>
-            <p id="banPopupText">Are you sure?</p>
-            <div class="ban-popup-btns">
-                <button class="btn-ban-cancel" onclick="closeBanPopup()">Cancel</button>
-                <button class="btn-ban-confirm" id="banConfirmBtn">Ban User</button>
-            </div>
+        <!-- AUTO PAYMENT BOX -->
+        <div class="auto-pay-box" id="autoPayBox">
+            <h4>⚡ Instant Auto Add Money</h4>
+            <p>নিচের বাটনে ক্লিক করলে পেমেন্ট পেজ ওপেন হবে। টাকা পেমেন্ট সম্পূর্ণ করার সাথে সাথে ওয়ালেটে অটো টাকা জমা হবে!</p>
+            <button class="btn-auto-pay" id="autoPayBtn" onclick="processAutoPayment()">⚡ Proceed to Auto Pay ৳ <span id="autoPayAmount">0</span></button>
         </div>
-    </div>
 
-    <div id="rejectPopup" class="reject-popup">
-        <div class="reject-popup-box">
-            <div style="font-size:50px;text-align:center;margin-bottom:10px;">❌</div>
-            <h3>Reject Order?</h3>
-            <p style="color:#a0a0c0;margin-bottom:15px;font-size:13px;">Reason (Optional - user will see this):</p>
-            <textarea id="rejectReason" placeholder="Example: Wrong player ID, Server issue, etc..."></textarea>
-            <div class="ban-popup-btns">
-                <button class="btn-ban-cancel" onclick="closeRejectPopup()">Cancel</button>
-                <button class="btn-ban-confirm" id="rejectConfirmBtn">Reject Order</button>
+        <!-- MANUAL PAYMENT BOX -->
+        <div class="section-box" id="paymentInfoBox" style="display: none;">
+            <h3><span class="step">3</span> Payment Instructions</h3>
+            <div class="payment-info">
+                <div class="info-line">
+                    <span>💰 Amount:</span>
+                    <strong>৳ <span id="showAmount">0</span></strong>
+                </div>
+                <div class="info-line copy-line" onclick="copyNumber()">
+                    <span>📱 Send Money to:</span>
+                    <strong id="paymentNumber">Loading...</strong>
+                    <span class="copy-btn">📋 Copy</span>
+                </div>
+                <div class="info-line">
+                    <span>💳 Method:</span>
+                    <strong id="showMethod">bKash</strong>
+                </div>
             </div>
+
+            <div class="instructions">
+                <p>⚠️ <strong>Important Instructions:</strong></p>
+                <ol>
+                    <li>উপরের নম্বরে <strong>Send Money</strong> করুন।</li>
+                    <li>Transaction সফল হলে <strong>TrxID</strong> লিখুন।</li>
+                    <li>আপনার নম্বর লিখুন যেটা থেকে Send করেছেন।</li>
+                    <li>Submit চাপুন - Admin Approve করলে Wallet এ টাকা এড হবে।</li>
+                </ol>
+            </div>
+
+            <label>Your Number (যেটা থেকে পাঠিয়েছেন)</label>
+            <input type="text" id="senderNumber" placeholder="01XXXXXXXXX" class="input-field">
+
+            <label style="margin-top: 15px;">Transaction ID (TrxID)</label>
+            <input type="text" id="trxId" placeholder="Example: 8N7GT52K0P" class="input-field">
+
+            <button class="btn-buy-now" id="submitBtn">Submit Payment Request</button>
         </div>
+
     </div>
 
-    <div id="bannerPopup" class="banner-popup">
-        <div class="banner-popup-box">
-            <h3 id="bannerPopupTitle">🖼️ Add New Banner</h3>
-            <label>🖼️ Banner Image URL (Required)</label>
-            <input type="text" id="bannerImageInput" placeholder="https://example.com/banner.jpg">
-            <label>🔗 Click Link (Optional)</label>
-            <input type="text" id="bannerLinkInput" placeholder="https://t.me/yourchannel">
-            <small>💡 খালি রাখলে banner এ click করা যাবে না</small>
-            <div class="ban-popup-btns">
-                <button class="btn-ban-cancel" onclick="closeBannerPopup()">Cancel</button>
-                <button class="btn-ban-confirm" style="background:linear-gradient(135deg,#8b00ff,#6a0dad);" id="bannerConfirmBtn">Save Banner</button>
-            </div>
+    <!-- Alert Modal -->
+    <div id="alertModal" class="modal-overlay">
+        <div class="modal-box">
+            <div class="modal-icon" id="modalIcon">⚠️</div>
+            <h3 id="modalTitle">Warning</h3>
+            <p id="modalMessage">Message here</p>
+            <button onclick="closeModal()" class="btn-modal">OK</button>
         </div>
     </div>
 
     <div id="toast" class="toast"></div>
 
+    <a href="https://wa.me/8801604080312?text=Hello%20OXI%20TOP%20UP,%20I%20need%20help" target="_blank" class="whatsapp-float">
+        💬
+        <span class="whatsapp-tooltip">Need Help? Chat Now!</span>
+    </a>
+
+    <nav class="bottom-nav">
+        <div class="bottom-nav-inner">
+            <a href="index.html" class="bottom-nav-item"><span class="nav-icon">🏠</span><span>Home</span></a>
+            <a href="orders.html" class="bottom-nav-item"><span class="nav-icon">📦</span><span>Orders</span></a>
+            <a href="add-money.html" class="bottom-nav-item center active"><span class="nav-icon">➕</span><span>Add</span></a>
+            <a href="transactions.html" class="bottom-nav-item"><span class="nav-icon">💳</span><span>History</span></a>
+            <a href="dashboard.html" class="bottom-nav-item"><span class="nav-icon">👤</span><span>Account</span></a>
+        </div>
+    </nav>
+
     <script type="module">
-        import { auth, database, googleProvider, signInWithPopup, signOut, onAuthStateChanged, ref, set, get, push, update, remove, runTransaction, emailToKey, checkAdminLevel } from './config.js';
+        import { auth, database, signOut, onAuthStateChanged, ref, get, set, push, update, checkIfBanned } from './config.js';
 
         let currentUser = null;
-        let currentAdminLevel = 'none';
-        let allUsers = {};
-        let allTransactionsHistory = [];
-        let allOrdersHistory = [];
-        let currentRejectOrderId = null;
-        let currentBannerKey = null;
-        let longPressTimer = null;
-        let _originalOrdPending = '';
-        let _originalOrdHistory = '';
+        let selectedMethod = null;
+        let paymentNumbers = { bkash: '', nagad: '' };
+        let paymentApiSettings = null;
+        let submitProcessing = false;
 
-        window.fixAllUserIds = async function() {
-            if (!confirm('সব user এর ID number এ convert করবেন?')) return;
-            const snap = await get(ref(database, 'users'));
-            if (!snap.exists()) return alert('No users');
-            const users = snap.val();
-            const updates = {};
-            let count = 0;
-            for (const uid in users) {
-                let num = 0;
-                for (let i = 0; i < uid.length; i++) {
-                    num += uid.charCodeAt(i) * (i + 1);
-                }
-                const newId = String(100000 + (num % 900000));
-                updates['users/' + uid + '/numericId'] = newId;
-                count++;
-            }
-            await update(ref(database), updates);
-            showToast('✅ ' + count + ' user IDs fixed!');
-            loadData();
+        window.toggleSidebar = function() {
+            document.getElementById('sidebar').classList.toggle('open');
+            document.getElementById('sidebarOverlay').classList.toggle('show');
         };
 
-        document.getElementById('googleLoginBtn').addEventListener('click', async () => {
+        window.showAlert = function(message, type = 'warning') {
+            const modal = document.getElementById('alertModal');
+            const icon = document.getElementById('modalIcon');
+            const title = document.getElementById('modalTitle');
+            const msg = document.getElementById('modalMessage');
+            if (type === 'success') { icon.textContent = '✅'; title.textContent = 'Success'; }
+            else if (type === 'error') { icon.textContent = '❌'; title.textContent = 'Error'; }
+            else { icon.textContent = '⚠️'; title.textContent = 'Warning'; }
+            msg.textContent = message;
+            modal.classList.add('show');
+        };
+
+        window.closeModal = function() {
+            document.getElementById('alertModal').classList.remove('show');
+        };
+
+        window.showToast = function(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        };
+
+        window.copyNumber = function() {
+            const number = document.getElementById('paymentNumber').textContent;
+            navigator.clipboard.writeText(number);
+            showToast('📋 Number Copied: ' + number);
+        };
+
+        window.setAmount = function(amount) {
+            document.getElementById('amount').value = amount;
+            document.getElementById('showAmount').textContent = amount;
+            document.getElementById('autoPayAmount').textContent = amount;
+        };
+
+        window.selectMethod = function(method) {
+            const amount = document.getElementById('amount').value;
+            if (!amount || amount < 20) {
+                showAlert('Please enter amount first (Min ৳ 20)');
+                return;
+            }
+            selectedMethod = method;
+            document.getElementById('bkashMethod').classList.remove('active');
+            document.getElementById('nagadMethod').classList.remove('active');
+            document.getElementById('autoMethod').classList.remove('active');
+            
+            if(document.getElementById(method + 'Method')) {
+                document.getElementById(method + 'Method').classList.add('active');
+            }
+
+            if (method === 'auto') {
+                document.getElementById('paymentInfoBox').style.display = 'none';
+                document.getElementById('autoPayBox').style.display = 'block';
+                document.getElementById('autoPayAmount').textContent = amount;
+                document.getElementById('autoPayBox').scrollIntoView({ behavior: 'smooth' });
+            } else {
+                document.getElementById('autoPayBox').style.display = 'none';
+                document.getElementById('paymentInfoBox').style.display = 'block';
+                document.getElementById('showAmount').textContent = amount;
+                document.getElementById('showMethod').textContent = method === 'bkash' ? 'bKash' : 'Nagad';
+                document.getElementById('paymentNumber').textContent = paymentNumbers[method] || 'Not set';
+                document.getElementById('paymentInfoBox').scrollIntoView({ behavior: 'smooth' });
+            }
+        };
+
+        // ============ AUTO PAYMENT CHECKOUT ============
+        window.processAutoPayment = async function() {
+            const amount = document.getElementById('amount').value;
+            if (!amount || amount < 20) return showAlert('Please enter a valid amount (Min ৳ 20)');
+            if (!currentUser) return showAlert('Please login first');
+            if (!paymentApiSettings || !paymentApiSettings.enabled || !paymentApiSettings.key) {
+                return showAlert('Auto payment is not configured by Admin', 'error');
+            }
+
+            const btn = document.getElementById('autoPayBtn');
+            btn.disabled = true;
+            btn.textContent = '⏳ Creating Payment Link...';
+
             try {
-                document.getElementById('loginError').style.display = 'none';
-                const result = await signInWithPopup(auth, googleProvider);
-                const level = await checkAdminLevel(result.user.email);
-                if (level === 'none') {
-                    await signOut(auth);
-                    document.getElementById('loginError').textContent = '❌ You are not authorized. Only admins can login.';
-                    document.getElementById('loginError').style.display = 'block';
-                    return;
-                }
-            } catch (err) {
-                document.getElementById('loginError').textContent = '❌ ' + err.message;
-                document.getElementById('loginError').style.display = 'block';
-            }
-        });
+                let baseUrl = paymentApiSettings.url.trim().replace(/\/$/, '');
+                let checkoutEndpoint = baseUrl.includes('/checkout') ? baseUrl : baseUrl + '/checkout';
 
-        onAuthStateChanged(auth, async (user) => {
-            if (!user) {
-                document.getElementById('loginScreen').style.display = 'flex';
-                document.getElementById('adminDashboard').style.display = 'none';
-                return;
-            }
-            const level = await checkAdminLevel(user.email);
-            if (level === 'none') { await signOut(auth); return; }
-            currentUser = user;
-            currentAdminLevel = level;
-            document.getElementById('loginScreen').style.display = 'none';
-            document.getElementById('adminDashboard').style.display = 'block';
-            document.getElementById('adminEmail').textContent = user.email;
-            const badge = document.getElementById('adminRoleBadge');
-            if (level === 'super') { badge.textContent = '👑 Super Admin'; badge.className = 'admin-role-badge super'; }
-            else { badge.textContent = '🔧 Admin'; badge.className = 'admin-role-badge'; }
-            if (level === 'super') {
-                document.getElementById('adminMgmtTab').style.display = 'inline-block';
-                document.getElementById('paymentTabBtn').style.display = 'inline-block';
-                document.getElementById('apiTabBtn').style.display = 'inline-block';
-                document.getElementById('fixIdsBtn').style.display = 'block';
-            } else {
-                document.getElementById('fixIdsBtn').style.display = 'none';
-            }
-            loadData();
-        });
+                const payload = {
+                    full_name: currentUser.displayName || 'User',
+                    email: currentUser.email || 'user@gmail.com',
+                    amount: parseInt(amount),
+                    metadata: {
+                        userId: currentUser.uid,
+                        amount: amount
+                    },
+                    redirect_url: window.location.origin + window.location.pathname + '?auto_status=success',
+                    cancel_url: window.location.origin + window.location.pathname + '?auto_status=cancel'
+                };
 
-        window.logoutAdmin = async function() { await signOut(auth); location.reload(); };
+                const response = await fetch(checkoutEndpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'RT-PAYMENTLY-API-KEY': paymentApiSettings.key,
+                        'RT-UDDOKTAPAY-API-KEY': paymentApiSettings.key,
+                        'Authorization': 'Bearer ' + paymentApiSettings.key,
+                        'x-api-key': paymentApiSettings.key
+                    },
+                    body: JSON.stringify(payload)
+                });
 
-        window.showTab = function(tab, event) {
-            document.querySelectorAll('.tab-content').forEach(el => el.style.display = 'none');
-            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-            const tabId = tab === 'adminMgmt' ? 'adminMgmtTab_content' : tab + 'Tab';
-            const el = document.getElementById(tabId);
-            if (el) el.style.display = 'block';
-            if (event && event.target) event.target.classList.add('active');
-            if (tab === 'banners') loadBanners();
-            if (tab === 'payment') loadPaymentNumbers();
-            if (tab === 'adminMgmt') loadAdmins();
-            if (tab === 'banned') loadBanned();
-        };
+                const data = await response.json();
+                const redirectUrl = data.payment_url || data.checkout_url || (data.data && data.data.payment_url);
 
-        window.showSubTab = function(subTab, event) {
-            const parent = event.target.closest('.section-box');
-            parent.querySelectorAll('.sub-tab-content').forEach(el => el.style.display = 'none');
-            parent.querySelectorAll('.sub-tab-btn').forEach(el => el.classList.remove('active'));
-            document.getElementById(subTab).style.display = 'block';
-            event.target.classList.add('active');
-        };
-
-        window.showToast = function(msg) {
-            const t = document.getElementById('toast');
-            t.textContent = msg;
-            t.classList.add('show');
-            setTimeout(() => t.classList.remove('show'), 2500);
-        };
-
-        window.filterHistory = function(type, days, event) {
-            const parent = event.target.closest('.sub-tab-content');
-            parent.querySelectorAll('.filter-btn').forEach(el => el.classList.remove('active'));
-            event.target.classList.add('active');
-            const now = Date.now();
-            const ms = days * 24 * 60 * 60 * 1000;
-            if (type === 'trx') {
-                let f = days > 0 ? allTransactionsHistory.filter(t => (now - new Date(t.date).getTime()) <= ms) : allTransactionsHistory;
-                renderTrxHistory(f, days);
-            } else {
-                let f = days > 0 ? allOrdersHistory.filter(o => (now - new Date(o.orderDate).getTime()) <= ms) : allOrdersHistory;
-                renderOrdHistory(f, days);
-            }
-        };
-
-        function labelDays(d) {
-            if (d === 0) return 'Lifetime';
-            if (d === 1) return 'Today';
-            if (d === 365) return '1 Year';
-            return `Last ${d} Days`;
-        }
-
-        function renderTrxHistory(filtered, days) {
-            const list = document.getElementById('trxHistoryList');
-            const summary = document.getElementById('trxHistorySummary');
-            const total = filtered.filter(t => t.status === 'Approved').reduce((s, t) => s + parseInt(t.amount || 0), 0);
-            summary.innerHTML = `<div class="filter-summary-info">📊 ${labelDays(days)}: <strong>${filtered.length}</strong> trx</div><div class="filter-summary-info">💰 Approved: <strong>৳ ${total.toLocaleString()}</strong></div>`;
-            if (!filtered.length) { list.innerHTML = '<p style="text-align:center;color:#888;padding:30px;">No transactions</p>'; return; }
-            let html = '';
-            filtered.forEach(t => {
-                const c = t.status === 'Approved' ? '#00ff88' : '#ff6b6b';
-                const d = new Date(t.date).toLocaleString('en-GB');
-                html += `<div class="admin-item"><div class="admin-item-info"><h4>${t.userName} <span style="color:${c};">● ${t.status}</span></h4><p>📧 ${t.userEmail}</p><p>💰 <strong style="color:#8b00ff;">৳ ${t.amount}</strong> | ${(t.method||'').toUpperCase()}</p><p>📱 ${t.senderNumber} | TrxID: <strong>${t.trxId}</strong></p><p style="font-size:12px;color:#888;">${d}</p></div></div>`;
-            });
-            list.innerHTML = html;
-        }
-
-        function renderOrdHistory(filtered, days) {
-            const list = document.getElementById('ordHistoryList');
-            const summary = document.getElementById('ordHistorySummary');
-            const rev = filtered.filter(o => o.status === 'Complete').reduce((s, o) => s + parseInt(o.price || 0), 0);
-            const cc = filtered.filter(o => o.status === 'Complete').length;
-            const fc = filtered.filter(o => o.status === 'Rejected' || o.status === 'Failed').length;
-            summary.innerHTML = `<div class="filter-summary-info">📊 ${labelDays(days)}: <strong>${filtered.length}</strong> (✅${cc} ❌${fc})</div><div class="filter-summary-info">💰 Revenue: <strong>৳ ${rev.toLocaleString()}</strong></div>`;
-            if (!filtered.length) { list.innerHTML = '<p style="text-align:center;color:#888;padding:30px;">No orders</p>'; return; }
-            let html = '';
-            filtered.forEach(o => {
-                const c = o.status === 'Complete' ? '#00ff88' : '#ff6b6b';
-                const d = new Date(o.orderDate).toLocaleString('en-GB');
-                const oid = o.orderNumber ? '#' + String(o.orderNumber).padStart(3, '0') : o.id.substring(0, 10);
-                html += `<div class="admin-item"><div class="admin-item-info"><h4>${oid} - ${o.userName} <span style="color:${c};">● ${o.status}</span></h4><p>🎮 ${o.productName}</p><p>📦 ${o.packageName} | <strong style="color:#8b00ff;">৳ ${o.price}</strong></p><p>🆔 Player: <strong>${o.playerId}</strong></p>${o.rejectReason ? `<p style="color:#ff6b6b;">❌ Reason: ${o.rejectReason}</p>` : ''}<p style="font-size:12px;color:#888;">${d}</p></div></div>`;
-            });
-            list.innerHTML = html;
-        }
-
-        window.filterOrders = function() {
-            const q = document.getElementById('orderSearch').value.toLowerCase().trim();
-            if (!q) {
-                if (_originalOrdPending) document.getElementById('ordPending').innerHTML = _originalOrdPending;
-                if (_originalOrdHistory) document.getElementById('ordHistoryList').innerHTML = _originalOrdHistory;
-                return;
-            }
-            if (!_originalOrdPending) _originalOrdPending = document.getElementById('ordPending').innerHTML;
-            if (!_originalOrdHistory) _originalOrdHistory = document.getElementById('ordHistoryList').innerHTML;
-            const searchNum = q.replace('#', '').replace(/^0+/, '');
-            const pDiv = document.getElementById('ordPending');
-            const hDiv = document.getElementById('ordHistoryList');
-            if (_originalOrdPending) pDiv.innerHTML = _originalOrdPending;
-            if (_originalOrdHistory) hDiv.innerHTML = _originalOrdHistory;
-            const items = [...pDiv.querySelectorAll('.admin-item'), ...hDiv.querySelectorAll('.admin-item')];
-            let found = 0;
-            items.forEach(el => {
-                const txt = el.textContent.toLowerCase();
-                const match = txt.includes('#' + q.padStart(3, '0')) || txt.includes('#' + q) || (searchNum && txt.includes('#' + searchNum.padStart(3, '0')));
-                el.style.display = match ? '' : 'none';
-                if (match) found++;
-            });
-            if (found === 0) {
-                pDiv.innerHTML = '<p style="text-align:center;color:#888;padding:20px;">No order found</p>';
-                hDiv.innerHTML = '<p style="text-align:center;color:#888;padding:20px;">No order found</p>';
-            }
-        };
-
-        window.filterBanned = function() {
-            const q = document.getElementById('banSearch').value.toLowerCase().trim();
-            const list = document.getElementById('bannedList');
-            list.innerHTML = '';
-            const banned = Object.entries(allUsers).filter(([uid, u]) => u.banned === true);
-            const filtered = banned.filter(([uid, u]) => {
-                if (!q) return true;
-                const num = u.numericId || '';
-                return (u.name||'').toLowerCase().includes(q) || (u.email||'').toLowerCase().includes(q) || uid.toLowerCase().includes(q) || num.includes(q);
-            });
-            if (!filtered.length) { 
-                list.innerHTML = q ? '<p style="text-align:center;color:#888;padding:20px;">No banned user found</p>' : '<p style="text-align:center;color:#888;padding:20px;">🎉 No banned users</p>'; 
-                return; 
-            }
-            filtered.forEach(([uid, u]) => {
-                list.innerHTML += `<div class="admin-item"><div class="admin-item-info"><h4>${u.name} <span class="banned-badge">🚫 BANNED</span></h4><p>📧 ${u.email}</p><p>🆔 ${u.numericId || uid.substring(0,10)}</p></div><div class="admin-actions"><button class="btn-approve" onclick="unbanUser('${uid}')">✅ Unban</button></div></div>`;
-            });
-        };
-
-        window.filterUsers = function() {
-            const q = document.getElementById('userSearch').value.toLowerCase().trim();
-            const list = document.getElementById('usersList');
-            list.innerHTML = '';
-            const filtered = Object.entries(allUsers).filter(([uid, u]) => {
-                if (!q) return true;
-                const num = u.numericId || '';
-                return (u.name||'').toLowerCase().includes(q) || (u.email||'').toLowerCase().includes(q) || uid.toLowerCase().includes(q) || num.includes(q);
-            });
-            if (!filtered.length) { list.innerHTML = '<p style="text-align:center;color:#888;padding:20px;">No users found</p>'; return; }
-            filtered.forEach(([uid, u]) => renderUserItem(uid, u, list));
-        };
-
-        function renderUserItem(uid, user, container) {
-            const isBanned = user.banned === true;
-            const div = document.createElement('div');
-            div.className = 'admin-item clickable-user';
-            div.dataset.uid = uid;
-            const actionsHtml = currentAdminLevel === 'super' ? `<div class="admin-actions" onclick="event.stopPropagation();">
-                <button class="btn-approve" onclick="adminAddMoney('${uid}')">➕ Add</button>
-                <button class="btn-reject" onclick="adminDeductMoney('${uid}')">➖ Deduct</button>
-            </div>` : '';
-            div.innerHTML = `
-                <div class="admin-item-info">
-                    <h4>${user.name || 'Anonymous'} ${isBanned ? '<span class="banned-badge">🚫 BANNED</span>' : '<span style="color:#8b00ff;font-size:12px;">👆 Tap | Long press to Ban</span>'}</h4>
-                    <p>📧 ${user.email || 'N/A'}</p>
-                    <p>💰 Wallet: <strong style="color:#8b00ff;">৳ ${user.wallet || 0}</strong> | Spend: <strong>৳ ${user.totalSpend || 0}</strong></p>
-                    <p>📦 Orders: ${user.orders || 0} | 🆔 ${user.numericId || uid.substring(0,10)}</p>
-                </div>
-                ${actionsHtml}`;
-            div.addEventListener('click', () => showUserDetails(uid));
-            const startPress = (e) => {
-                if (e.target.tagName === 'BUTTON') return;
-                longPressTimer = setTimeout(() => {
-                    showBanPopup(uid, user.name || 'User', isBanned);
-                }, 600);
-            };
-            const cancelPress = () => { if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; } };
-            div.addEventListener('mousedown', startPress);
-            div.addEventListener('touchstart', startPress);
-            div.addEventListener('mouseup', cancelPress);
-            div.addEventListener('mouseleave', cancelPress);
-            div.addEventListener('touchend', cancelPress);
-            div.addEventListener('touchmove', cancelPress);
-            container.appendChild(div);
-        }
-
-        function showBanPopup(uid, name, isBanned) {
-            document.getElementById('banPopup').classList.add('show');
-            document.getElementById('banPopupTitle').textContent = isBanned ? 'Unban User?' : 'Ban User?';
-            document.getElementById('banPopupText').textContent = isBanned ? `Unban ${name}?` : `Ban ${name}? They cannot login/order.`;
-            const btn = document.getElementById('banConfirmBtn');
-            btn.textContent = isBanned ? 'Unban User' : 'Ban User';
-            btn.onclick = async () => {
-                if (isBanned) {
-                    await remove(ref(database, 'bannedUsers/' + uid));
-                    await update(ref(database, 'users/' + uid), { banned: false });
-                    showToast('✅ User unbanned');
+                if (redirectUrl) {
+                    window.location.href = redirectUrl;
                 } else {
-                    await set(ref(database, 'bannedUsers/' + uid), true);
-                    await update(ref(database, 'users/' + uid), { banned: true });
-                    showToast('🚫 User banned');
+                    throw new Error(data.message || data.error || 'Unauthorized API Key');
                 }
-                closeBanPopup();
-                loadData();
-            };
-        }
-        window.closeBanPopup = function() { document.getElementById('banPopup').classList.remove('show'); };
-
-        function loadBanned() { filterBanned(); }
-        window.unbanUser = async function(uid) {
-            await remove(ref(database, 'bannedUsers/' + uid));
-            await update(ref(database, 'users/' + uid), { banned: false });
-            showToast('✅ User unbanned');
-            loadData();
-        };
-
-        window.showUserDetails = async function(uid) {
-            document.getElementById('userModal').classList.add('show');
-            document.getElementById('userModalContent').innerHTML = '<p style="text-align:center;color:#888;padding:30px;">⏳ Loading...</p>';
-            try {
-                const uSnap = await get(ref(database, 'users/' + uid));
-                if (!uSnap.exists()) { document.getElementById('userModalContent').innerHTML = '<p style="text-align:center;color:red;padding:30px;">❌ Not found</p>'; return; }
-                const user = uSnap.val();
-                const tSnap = await get(ref(database, 'transactions'));
-                const oSnap = await get(ref(database, 'orders'));
-                const uTrx = [], uOrd = [];
-                if (tSnap.exists()) Object.entries(tSnap.val()).forEach(([id, t]) => { if (t.userId === uid) uTrx.push({id, ...t}); });
-                if (oSnap.exists()) Object.entries(oSnap.val()).forEach(([id, o]) => { if (o.userId === uid) uOrd.push({id, ...o}); });
-                uTrx.sort((a,b) => new Date(b.date) - new Date(a.date));
-                uOrd.sort((a,b) => new Date(b.orderDate) - new Date(a.orderDate));
-                const totDep = uTrx.filter(t => t.status === 'Approved').reduce((s,t) => s + parseInt(t.amount||0), 0);
-                const superButtons = currentAdminLevel === 'super' ? `<div style="display:flex;gap:10px;margin-bottom:20px;flex-wrap:wrap;"><button class="btn-approve" style="flex:1;min-width:130px;padding:12px;" onclick="adminAddMoney('${uid}')">➕ Add Money</button><button class="btn-reject" style="flex:1;min-width:130px;padding:12px;" onclick="adminDeductMoney('${uid}')">➖ Deduct</button></div>` : '';
-                let html = `<div class="user-profile-section"><img src="${user.photo || 'https://via.placeholder.com/70/8b00ff/ffffff?text=U'}"><div class="user-profile-info"><h3>${user.name} ${user.banned ? '<span class="banned-badge">🚫 BANNED</span>' : ''}</h3><p>📧 ${user.email}</p><p>🆔 ${user.numericId || uid.substring(0,15)}</p></div></div>
-                <div class="user-stats-grid"><div class="user-stat-item"><div class="stat-value">৳ ${user.wallet||0}</div><div class="stat-label">Wallet</div></div><div class="user-stat-item"><div class="stat-value">৳ ${user.totalSpend||0}</div><div class="stat-label">Spend</div></div><div class="user-stat-item"><div class="stat-value">${uOrd.length}</div><div class="stat-label">Orders</div></div><div class="user-stat-item"><div class="stat-value">৳ ${totDep}</div><div class="stat-label">Deposit</div></div></div>
-                ${superButtons}
-                <div class="modal-section"><h4>💳 Transactions <span>${uTrx.length}</span></h4>`;
-                if (!uTrx.length) html += '<p class="empty-msg">No transactions</p>';
-                else uTrx.forEach(t => {
-                    const c = t.status === 'Pending' ? '#ffaa00' : t.status === 'Approved' ? '#00ff88' : '#ff6b6b';
-                    html += `<div class="modal-item"><div class="modal-item-header"><strong>${(t.method||'').toUpperCase()} - ৳ ${t.amount}</strong><span class="modal-status" style="background:${c}20;color:${c};">● ${t.status}</span></div><p>📱 ${t.senderNumber}</p><p>🔢 ${t.trxId}</p><p style="color:#888;font-size:11px;">${new Date(t.date).toLocaleString('en-GB')}</p></div>`;
-                });
-                html += `</div><div class="modal-section"><h4>📦 Orders <span>${uOrd.length}</span></h4>`;
-                if (!uOrd.length) html += '<p class="empty-msg">No orders</p>';
-                else uOrd.forEach(o => {
-                    const c = o.status === 'Pending' ? '#ffaa00' : o.status === 'Complete' ? '#00ff88' : '#ff6b6b';
-                    const oid = o.orderNumber ? '#' + String(o.orderNumber).padStart(3, '0') : o.id.substring(0,10);
-                    html += `<div class="modal-item"><div class="modal-item-header"><strong>${oid} 🎮 ${o.productName}</strong><span class="modal-status" style="background:${c}20;color:${c};">● ${o.status}</span></div><p>📦 ${o.packageName}</p><p>💰 <strong style="color:#8b00ff;">৳ ${o.price}</strong></p><p>🆔 ${o.playerId}</p>${o.rejectReason ? `<p style="color:#ff6b6b;">❌ ${o.rejectReason}</p>` : ''}<p style="color:#888;font-size:11px;">${new Date(o.orderDate).toLocaleString('en-GB')}</p></div>`;
-                });
-                html += '</div>';
-                document.getElementById('userModalContent').innerHTML = html;
             } catch (err) {
-                document.getElementById('userModalContent').innerHTML = '<p style="text-align:center;color:red;padding:30px;">❌ ' + err.message + '</p>';
-            }
-        };
-        window.closeUserModal = function() { document.getElementById('userModal').classList.remove('show'); };
-
-        window.approveTransaction = async function(trxId, userId, amount) {
-            if (!confirm('Approve ৳ ' + amount + '?')) return;
-            const uRef = ref(database, 'users/' + userId);
-            const snap = await get(uRef);
-            if (snap.exists()) {
-                await update(uRef, { wallet: (snap.val().wallet||0) + parseInt(amount) });
-                await update(ref(database, 'transactions/' + trxId), { status: 'Approved', approvedDate: new Date().toISOString() });
-                showToast('✅ Approved!');
-                loadData();
-            }
-        };
-        window.rejectTransaction = async function(trxId) {
-            if (!confirm('Reject payment?')) return;
-            await update(ref(database, 'transactions/' + trxId), { status: 'Rejected', rejectedDate: new Date().toISOString() });
-            showToast('❌ Rejected');
-            loadData();
-        };
-
-        window.completeOrder = async function(orderId) {
-            await update(ref(database, 'orders/' + orderId), { status: 'Complete', updatedDate: new Date().toISOString() });
-            showToast('✅ Order Complete');
-            loadData();
-        };
-        window.showRejectPopup = function(orderId) {
-            currentRejectOrderId = orderId;
-            document.getElementById('rejectReason').value = '';
-            document.getElementById('rejectPopup').classList.add('show');
-        };
-        window.closeRejectPopup = function() { document.getElementById('rejectPopup').classList.remove('show'); };
-        document.getElementById('rejectConfirmBtn').addEventListener('click', async () => {
-            const reason = document.getElementById('rejectReason').value.trim();
-            const orderId = currentRejectOrderId;
-            const oSnap = await get(ref(database, 'orders/' + orderId));
-            if (oSnap.exists()) {
-                const ord = oSnap.val();
-                const uRef = ref(database, 'users/' + ord.userId);
-                const uSnap = await get(uRef);
-                if (uSnap.exists()) {
-                    const u = uSnap.val();
-                    await update(uRef, { 
-                        wallet: (u.wallet||0) + parseInt(ord.price||0),
-                        totalSpend: Math.max(0, (u.totalSpend||0) - parseInt(ord.price||0)),
-                        orders: Math.max(0, (u.orders||1) - 1)
-                    });
-                }
-                await update(ref(database, 'orders/' + orderId), { 
-                    status: 'Rejected', 
-                    rejectReason: reason || 'No reason provided',
-                    updatedDate: new Date().toISOString() 
-                });
-            }
-            closeRejectPopup();
-            showToast('❌ Order Rejected & Refunded');
-            loadData();
-        });
-
-        window.adminAddMoney = async function(uid) {
-            if (currentAdminLevel !== 'super') return alert('❌ Only Super Admin can do this');
-            const user = allUsers[uid];
-            const amt = prompt('Add money to ' + (user?.name||'user') + '\n\nAmount:', '100');
-            if (!amt) return;
-            const a = parseInt(amt);
-            if (isNaN(a) || a < 1) { alert('Invalid'); return; }
-            if (!confirm('Add ৳ ' + a + '?')) return;
-            const uRef = ref(database, 'users/' + uid);
-            const snap = await get(uRef);
-            if (snap.exists()) {
-                const u = snap.val();
-                await update(uRef, { wallet: (u.wallet||0) + a });
-                await push(ref(database, 'transactions'), {
-                    userId: uid, userName: u.name, userEmail: u.email, amount: a,
-                    method: 'admin', senderNumber: 'ADMIN', trxId: 'ADMIN-' + Date.now(),
-                    status: 'Approved', date: new Date().toISOString(), approvedDate: new Date().toISOString(),
-                    note: 'Added by ' + currentUser.email
-                });
-                showToast('✅ Added');
-                closeUserModal();
-                loadData();
-            }
-        };
-        window.adminDeductMoney = async function(uid) {
-            if (currentAdminLevel !== 'super') return alert('❌ Only Super Admin can do this');
-            const user = allUsers[uid];
-            const amt = prompt('Deduct from ' + (user?.name||'user') + '\nBalance: ৳ ' + (user?.wallet||0), '100');
-            if (!amt) return;
-            const a = parseInt(amt);
-            if (isNaN(a) || a < 1) { alert('Invalid'); return; }
-            if (a > (user?.wallet||0)) { alert('Insufficient'); return; }
-            if (!confirm('Deduct ৳ ' + a + '?')) return;
-            const uRef = ref(database, 'users/' + uid);
-            const snap = await get(uRef);
-            if (snap.exists()) {
-                await update(uRef, { wallet: (snap.val().wallet||0) - a });
-                showToast('✅ Deducted');
-                closeUserModal();
-                loadData();
+                console.error(err);
+                showAlert('❌ Payment Gateway Error: ' + err.message, 'error');
+                btn.disabled = false;
+                btn.textContent = '⚡ Proceed to Auto Pay ৳ ' + amount;
             }
         };
 
-        window.toggleProductStock = async function(k, s) { await update(ref(database, 'products/' + k), { stock: s === 'in' ? 'out' : 'in' }); showToast('✅ Updated'); loadProducts(); };
-        window.togglePackageStock = async function(pk, k, s) { await update(ref(database, 'products/' + pk + '/packages/' + k), { stock: s === 'in' ? 'out' : 'in' }); showToast('✅ Updated'); loadProducts(); };
-        window.editPrice = async function(pk, k, cp, n) { const np = prompt('Edit price for "' + n + '"', cp); if (!np) return; const p = parseInt(np); if (isNaN(p)) return alert('Invalid'); await update(ref(database, 'products/' + pk + '/packages/' + k), { price: p }); showToast('✅ Updated'); loadProducts(); };
-        window.editProductImage = async function(k, ci) { const ni = prompt('Image URL:', ci); if (!ni || !ni.startsWith('http')) return; await update(ref(database, 'products/' + k), { image: ni }); showToast('✅ Updated'); loadProducts(); };
-        window.editProductName = async function(k, cn) { const nn = prompt('Product name:', cn); if (!nn || nn === cn) return; await update(ref(database, 'products/' + k), { name: nn }); showToast('✅ Updated'); loadProducts(); };
-        window.editPackageName = async function(pk, k, cn) { const nn = prompt('Package name:', cn); if (!nn || nn === cn) return; await update(ref(database, 'products/' + pk + '/packages/' + k), { name: nn }); showToast('✅ Updated'); loadProducts(); };
-        window.togglePackages = function(k) { const c = document.getElementById('packages-'+k); const a = document.getElementById('arrow-'+k); if (c.style.display === 'none' || !c.style.display) { c.style.display = 'flex'; a.textContent = '▼'; } else { c.style.display = 'none'; a.textContent = '▶'; } };
-        window.addNewProduct = async function() {
-            const k = prompt('Product ID (no space, lowercase):'); if (!k) return;
-            const ck = k.trim().toLowerCase().replace(/\s+/g, '');
-            const chk = await get(ref(database, 'products/' + ck)); if (chk.exists()) return alert('❌ ID exists');
-            const n = prompt('Product name:'); if (!n) return;
-            const i = prompt('Image URL:', 'https://via.placeholder.com/300x240/1a0033/8b00ff?text=Product'); if (!i || !i.startsWith('http')) return alert('❌ Invalid URL');
-            const pn = prompt('First package name:', '100 Diamond'); if (!pn) return;
-            const pp = prompt('Package price:', '100'); if (!pp || isNaN(parseInt(pp))) return alert('❌ Invalid');
-            const ps = await get(ref(database, 'products'));
-            const oc = ps.exists() ? Object.keys(ps.val()).length : 0;
-            await set(ref(database, 'products/' + ck), { name: n, image: i, stock: 'in', order: oc, packages: { p1: { name: pn, price: parseInt(pp), stock: 'in', order: 0 } } });
-            showToast('✅ Added'); loadProducts();
-        };
-        window.addNewPackage = async function(pk) {
-            const n = prompt('Package name:'); if (!n) return;
-            const p = prompt('Price:', '100'); if (!p || isNaN(parseInt(p))) return alert('❌ Invalid');
-            const ps = await get(ref(database, 'products/' + pk));
-            if (!ps.exists()) return;
-            const pkgs = ps.val().packages || {};
-            const cnt = Object.keys(pkgs).length;
-            let fk = 'p' + (cnt+1), c = cnt+1;
-            while (pkgs[fk]) { c++; fk = 'p' + c; }
-            await set(ref(database, 'products/' + pk + '/packages/' + fk), { name: n, price: parseInt(p), stock: 'in', order: cnt });
-            showToast('✅ Added'); loadProducts();
-        };
-        window.deleteProduct = async function(k, n) { if (!confirm('Delete "'+n+'"?')) return; if (!confirm('Confirm delete?')) return; await remove(ref(database, 'products/'+k)); showToast('✅ Deleted'); loadProducts(); };
-        window.deletePackage = async function(pk, k, n) { if (!confirm('Delete "'+n+'"?')) return; await remove(ref(database, 'products/'+pk+'/packages/'+k)); showToast('✅ Deleted'); loadProducts(); };
+        // ============ AUTO PAYMENT VERIFY RETURN ============
+        async function checkAutoPaymentReturn() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const autoStatus = urlParams.get('auto_status') || urlParams.get('status');
+            const invoiceId = urlParams.get('invoice_id') || urlParams.get('payment_id') || urlParams.get('trx_id');
 
-        async function saveProductOrder() {
-            const cards = document.querySelectorAll('#productsList .product-admin-card');
-            const upd = {};
-            cards.forEach((c, i) => { upd[`products/${c.dataset.productKey}/order`] = i; });
-            await update(ref(database), upd); showToast('✅ Order saved');
-        }
-        async function savePackageOrder(pk) {
-            const rows = document.querySelectorAll(`#packages-${pk} .pkg-row`);
-            const upd = {};
-            rows.forEach((r, i) => { upd[`products/${pk}/packages/${r.dataset.pkgKey}/order`] = i; });
-            await update(ref(database), upd); showToast('✅ Order saved');
+            if (autoStatus === 'success' || invoiceId) {
+                window.history.replaceState({}, document.title, window.location.pathname);
+                showAlert('🎉 Payment Successful! Wallet updated successfully.', 'success');
+            } else if (autoStatus === 'cancel' || autoStatus === 'failed') {
+                window.history.replaceState({}, document.title, window.location.pathname);
+                showAlert('❌ Payment was cancelled or failed.', 'error');
+            }
         }
 
-        async function loadProducts() {
-            const snap = await get(ref(database, 'products'));
-            const list = document.getElementById('productsList');
-            list.innerHTML = '';
-            if (!snap.exists()) { list.innerHTML = '<p style="text-align:center;color:#888;padding:20px;">No products</p>'; return; }
-            const arr = Object.entries(snap.val()).map(([k,v]) => ({k,...v})).sort((a,b) => (a.order||0)-(b.order||0));
-            for (const p of arr) {
-                const isOut = p.stock === 'out';
-                let ph = '';
-                if (p.packages) {
-                    const pa = Object.entries(p.packages).map(([pk,pv]) => ({pk,...pv})).sort((a,b) => (a.order||0)-(b.order||0));
-                    for (const pkg of pa) {
-                        const po = pkg.stock === 'out';
-                        const safePkgName = encodeURIComponent(pkg.name);
-                        ph += `<div class="pkg-row ${po?'pkg-out':''}" data-pkg-key="${pkg.pk}"><span class="drag-handle pkg-drag">⋮⋮</span><span class="pkg-info">${pkg.name} - <strong style="color:#8b00ff;">৳ ${pkg.price}</strong></span><div class="pkg-actions"><button class="btn-edit" onclick="editPackageName('${p.k}','${pkg.pk}',decodeURIComponent('${safePkgName}'))">✏️</button><button class="btn-edit" onclick="editPrice('${p.k}','${pkg.pk}',${pkg.price},decodeURIComponent('${safePkgName}'))">💰</button><button class="btn-toggle ${po?'stock-out':'stock-in'}" onclick="togglePackageStock('${p.k}','${pkg.pk}','${pkg.stock}')">${po?'❌':'✅'}</button><button class="btn-edit" style="background:rgba(255,50,50,0.2);color:#ff6b6b;" onclick="deletePackage('${p.k}','${pkg.pk}',decodeURIComponent('${safePkgName}'))">🗑️</button></div></div>`;
+        async function loadSettings() {
+            try {
+                // Load Manual Numbers & Status
+                const snap = await get(ref(database, 'paymentSettings'));
+                if (snap.exists()) {
+                    const d = snap.val();
+                    paymentNumbers.bkash = d.bkash || '';
+                    paymentNumbers.nagad = d.nagad || '';
+
+                    if (d.bkashActive !== false && d.bkash && d.bkash.trim() !== '') {
+                        document.getElementById('bkashMethod').style.display = 'flex';
+                    } else {
+                        document.getElementById('bkashMethod').style.display = 'none';
+                    }
+
+                    if (d.nagadActive !== false && d.nagad && d.nagad.trim() !== '') {
+                        document.getElementById('nagadMethod').style.display = 'flex';
+                    } else {
+                        document.getElementById('nagadMethod').style.display = 'none';
                     }
                 }
-                const safePName = encodeURIComponent(p.name);
-                const safeImg = encodeURIComponent(p.image || '');
-                list.innerHTML += `<div class="product-admin-card ${isOut?'product-out':''}" data-product-key="${p.k}"><div class="product-admin-header"><span class="drag-handle product-drag">⋮⋮</span><div style="display:flex;align-items:center;gap:15px;flex:1;cursor:pointer;" onclick="togglePackages('${p.k}')"><img src="${p.image}" onerror="this.src='https://via.placeholder.com/70/8b00ff/ffffff?text=?'"><div class="product-admin-info"><h4>${p.name} <span id="arrow-${p.k}" style="color:#8b00ff;">▶</span></h4><p>${Object.keys(p.packages||{}).length} Packages</p></div></div><button class="btn-toggle ${isOut?'stock-out':'stock-in'}" onclick="event.stopPropagation();toggleProductStock('${p.k}','${p.stock}')">${isOut?'❌ OFF':'✅ ON'}</button></div><div class="product-edit-actions"><button class="btn-edit-img" onclick="editProductImage('${p.k}',decodeURIComponent('${safeImg}'))">📸 Image</button><button class="btn-edit-img" onclick="editProductName('${p.k}',decodeURIComponent('${safePName}'))">✏️ Name</button><button class="btn-edit-img" style="background:linear-gradient(135deg,#00c853,#00e676);" onclick="addNewPackage('${p.k}')">➕ Package</button><button class="btn-edit-img" style="background:linear-gradient(135deg,#ff3d00,#ff0000);" onclick="deleteProduct('${p.k}',decodeURIComponent('${safePName}'))">🗑️ Delete</button></div><div class="packages-container" id="packages-${p.k}" style="display:none;">${ph}</div></div>`;
-            }
-            new Sortable(list, { handle: '.product-drag', animation: 200, ghostClass: 'sortable-ghost', onEnd: saveProductOrder });
-            document.querySelectorAll('.packages-container').forEach(c => {
-                const pk = c.id.replace('packages-','');
-                new Sortable(c, { handle: '.pkg-drag', animation: 200, ghostClass: 'sortable-ghost', onEnd: () => savePackageOrder(pk) });
-            });
-        }
 
-        async function loadBanners() {
-            const snap = await get(ref(database, 'banners'));
-            const list = document.getElementById('bannersList');
-            list.innerHTML = '';
-            if (!snap.exists()) { list.innerHTML = '<p style="text-align:center;color:#888;padding:20px;">No banner yet</p>'; return; }
-            const arr = Object.entries(snap.val()).map(([k,v]) => ({k,...v})).sort((a,b) => (a.order||0)-(b.order||0));
-            arr.forEach(b => {
-                const linkDisplay = b.link ? `<br><small style="color:#00ff88;">🔗 ${b.link.substring(0,40)}${b.link.length>40?'...':''}</small>` : '<br><small style="color:#888;">🔗 No click link</small>';
-                list.innerHTML += `<div class="banner-card"><span class="drag-handle">⋮⋮</span><img src="${b.image}" onerror="this.src='https://via.placeholder.com/100x60/8b00ff/fff?text=?'"><div class="banner-info"><strong>Banner</strong><br><small style="color:#888;word-break:break-all;">🖼️ ${b.image.substring(0,40)}...</small>${linkDisplay}</div><div class="banner-actions"><button class="btn-edit" onclick="showBannerPopup('${b.k}')">✏️ Edit</button><button class="btn-edit" style="background:rgba(255,50,50,0.2);color:#ff6b6b;" onclick="deleteBanner('${b.k}')">🗑️</button></div></div>`;
-            });
-        }
-
-        window.showBannerPopup = async function(bannerKey) {
-            currentBannerKey = bannerKey;
-            document.getElementById('bannerImageInput').value = '';
-            document.getElementById('bannerLinkInput').value = '';
-            if (bannerKey) {
-                document.getElementById('bannerPopupTitle').textContent = '✏️ Edit Banner';
-                const snap = await get(ref(database, 'banners/' + bannerKey));
-                if (snap.exists()) {
-                    const b = snap.val();
-                    document.getElementById('bannerImageInput').value = b.image || '';
-                    document.getElementById('bannerLinkInput').value = b.link || '';
+                // Load Payment Gateway API Settings
+                const apiSnap = await get(ref(database, 'apiSettings/payment'));
+                if (apiSnap.exists() && apiSnap.val().enabled) {
+                    paymentApiSettings = apiSnap.val();
+                    document.getElementById('autoMethod').style.display = 'flex';
+                } else {
+                    document.getElementById('autoMethod').style.display = 'none';
                 }
-            } else {
-                document.getElementById('bannerPopupTitle').textContent = '🖼️ Add New Banner';
-            }
-            document.getElementById('bannerPopup').classList.add('show');
-        };
+            } catch (err) { console.log('Payment settings load error:', err); }
+        }
 
-        window.closeBannerPopup = function() { document.getElementById('bannerPopup').classList.remove('show'); };
+        loadSettings();
+        checkAutoPaymentReturn();
 
-        document.getElementById('bannerConfirmBtn').addEventListener('click', async () => {
-            const img = document.getElementById('bannerImageInput').value.trim();
-            const link = document.getElementById('bannerLinkInput').value.trim();
-            if (!img || !img.startsWith('http')) return alert('❌ Invalid image URL');
-            if (currentBannerKey) {
-                const snap = await get(ref(database, 'banners/' + currentBannerKey));
-                const order = snap.exists() ? (snap.val().order || 0) : 0;
-                const data = { image: img, order: order };
-                if (link) data.link = link;
-                await set(ref(database, 'banners/' + currentBannerKey), data);
-                showToast('✅ Banner updated');
-            } else {
-                const snap = await get(ref(database, 'banners'));
-                const cnt = snap.exists() ? Object.keys(snap.val()).length : 0;
-                const data = { image: img, order: cnt };
-                if (link) data.link = link;
-                await push(ref(database, 'banners'), data);
-                showToast('✅ Banner added');
+        onAuthStateChanged(auth, async (user) => {
+            if (!user) { window.location.href = 'login.html'; return; }
+
+            const banned = await checkIfBanned(user.uid);
+            if (banned) {
+                await signOut(auth);
+                alert('🚫 Your account has been banned.');
+                window.location.href = 'login.html';
+                return;
             }
-            closeBannerPopup();
-            loadBanners();
+
+            currentUser = user;
+            document.getElementById('userPhoto').src = user.photoURL;
+            document.getElementById('sidebarPhoto').src = user.photoURL;
+            document.getElementById('sidebarName').textContent = user.displayName;
+            document.getElementById('sidebarEmail').textContent = user.email;
+
+            const userRef = ref(database, 'users/' + user.uid);
+            const snapshot = await get(userRef);
+            if (snapshot.exists()) {
+                const data = snapshot.val();
+                document.getElementById('walletBalance').textContent = data.wallet || 0;
+            }
         });
 
-        window.deleteBanner = async function(k) {
-            if (!confirm('Delete this banner?')) return;
-            await remove(ref(database, 'banners/'+k));
-            showToast('✅ Deleted'); loadBanners();
-        };
+        // ============ MANUAL SUBMIT ============
+        document.getElementById('submitBtn').addEventListener('click', async () => {
+            if (submitProcessing) return;
+            const amount = parseInt(document.getElementById('amount').value);
+            const senderNumber = document.getElementById('senderNumber').value.trim();
+            const trxId = document.getElementById('trxId').value.trim();
 
-        async function loadPaymentNumbers() {
-            const snap = await get(ref(database, 'paymentSettings'));
-            if (snap.exists()) {
-                const d = snap.val();
-                document.getElementById('bkashInput').value = d.bkash || '';
-                document.getElementById('nagadInput').value = d.nagad || '';
-                document.getElementById('bkashEnabled').checked = d.bkashActive !== false;
-                document.getElementById('nagadEnabled').checked = d.nagadActive !== false;
-            }
-        }
+            if (!amount || amount < 20) return showAlert('Amount must be at least ৳ 20');
+            if (!senderNumber || senderNumber.length !== 11) return showAlert('Please enter a valid 11-digit number');
+            if (!trxId || trxId.length < 6) return showAlert('Please enter valid Transaction ID');
+            if (!selectedMethod) return showAlert('Please select payment method');
 
-        window.savePaymentNumbers = async function() {
-            const b = document.getElementById('bkashInput').value.trim();
-            const n = document.getElementById('nagadInput').value.trim();
-            const bActive = document.getElementById('bkashEnabled').checked;
-            const nActive = document.getElementById('nagadEnabled').checked;
-            
-            await set(ref(database, 'paymentSettings'), { 
-                bkash: b, 
-                nagad: n,
-                bkashActive: bActive,
-                nagadActive: nActive
-            });
-            showToast('✅ Payment settings saved');
-        };
+            submitProcessing = true;
+            document.getElementById('submitBtn').disabled = true;
+            document.getElementById('submitBtn').textContent = '⏳ Submitting...';
 
-        async function loadAdmins() {
-            const sSnap = await get(ref(database, 'superAdmins'));
-            const aSnap = await get(ref(database, 'admins'));
-            const sList = document.getElementById('superAdminsList');
-            const aList = document.getElementById('normalAdminsList');
-            const myEmail = (currentUser?.email || '').toLowerCase();
-            
-            sList.innerHTML = '';
-            if (sSnap.exists()) {
-                Object.keys(sSnap.val()).forEach(k => {
-                    const email = k.replace(/,/g, '.');
-                    const isMe = email.toLowerCase() === myEmail;
-                    const btnHtml = isMe 
-                        ? `<span style="color:#888;font-size:12px;padding:8px 12px;">🔒 You</span>` 
-                        : `<button class="btn-reject" onclick="removeAdmin('super','${k}','${email}')">🗑️ Remove</button>`;
-                    sList.innerHTML += `<div class="admin-mgmt-item"><div class="admin-info"><strong style="color:#ffd700;">👑 ${email}</strong><small>Super Admin${isMe ? ' (You)' : ''}</small></div>${btnHtml}</div>`;
+            try {
+                const trxRef = push(ref(database, 'transactions'));
+                await set(trxRef, {
+                    userId: currentUser.uid,
+                    userName: currentUser.displayName,
+                    userEmail: currentUser.email,
+                    amount: amount,
+                    method: selectedMethod,
+                    senderNumber: senderNumber,
+                    trxId: trxId,
+                    status: 'Pending',
+                    date: new Date().toISOString(),
+                    trxRefId: trxRef.key
                 });
-            } else sList.innerHTML = '<p style="text-align:center;color:#888;padding:20px;">No super admins</p>';
-            
-            aList.innerHTML = '';
-            if (aSnap.exists()) {
-                Object.keys(aSnap.val()).forEach(k => {
-                    const email = k.replace(/,/g, '.');
-                    const isMe = email.toLowerCase() === myEmail;
-                    const btnHtml = isMe 
-                        ? `<span style="color:#888;font-size:12px;padding:8px 12px;">🔒 You</span>` 
-                        : `<button class="btn-reject" onclick="removeAdmin('admin','${k}','${email}')">🗑️ Remove</button>`;
-                    aList.innerHTML += `<div class="admin-mgmt-item"><div class="admin-info"><strong>🔧 ${email}</strong><small>Normal Admin${isMe ? ' (You)' : ''}</small></div>${btnHtml}</div>`;
-                });
-            } else aList.innerHTML = '<p style="text-align:center;color:#888;padding:20px;">No normal admins</p>';
-        }
 
-        window.addAdmin = async function(type) {
-            const email = prompt((type === 'super' ? 'Super' : 'Normal') + ' Admin Email:'); 
-            if (!email || !email.includes('@')) return alert('Invalid email');
-            const key = emailToKey(email.trim().toLowerCase());
-            const path = type === 'super' ? 'superAdmins/' + key : 'admins/' + key;
-            await set(ref(database, path), true);
-            showToast('✅ Admin added');
-            loadAdmins();
-        };
-
-        window.removeAdmin = async function(type, key, email) {
-            const myEmail = (currentUser?.email || '').toLowerCase();
-            if (email.toLowerCase() === myEmail) {
-                return alert('❌ আপনি নিজেকে রিমুভ করতে পারবেন না!');
+                showAlert('Payment Request Submitted! Admin will verify soon.', 'success');
+                setTimeout(() => window.location.href = 'dashboard.html', 2000);
+            } catch (err) {
+                console.error(err);
+                showAlert('❌ Error: ' + err.message, 'error');
+                submitProcessing = false;
+                document.getElementById('submitBtn').disabled = false;
+                document.getElementById('submitBtn').textContent = 'Submit Payment Request';
             }
-            if (!confirm('Remove ' + email + '?')) return;
-            const path = type === 'super' ? 'superAdmins/' + key : 'admins/' + key;
-            await remove(ref(database, path));
-            showToast('✅ Removed');
-            loadAdmins();
-        };
+        });
 
-        window.updateOrderCount = function(days) {
-            const d = parseInt(days);
-            if (d === 0) {
-                document.getElementById('totalOrdersCount').textContent = window._allOrdersTotal || 0;
-            } else {
-                const now = Date.now();
-                const ms = d * 24 * 60 * 60 * 1000;
-                const count = (window._allOrdersDates || []).filter(t => (now - t) <= ms).length;
-                document.getElementById('totalOrdersCount').textContent = count;
-            }
-        };
-
-        async function loadData() {
-            const tSnap = await get(ref(database, 'transactions'));
-            const tp = document.getElementById('trxPending');
-            let pc = 0, ph = '';
-            allTransactionsHistory = [];
-            if (tSnap.exists()) {
-                Object.entries(tSnap.val()).reverse().forEach(([id, t]) => {
-                    if (t.status === 'Pending') {
-                        pc++;
-                        ph += `<div class="admin-item"><div class="admin-item-info"><h4>${t.userName} <span style="color:#ffaa00;">● Pending</span></h4><p>📧 ${t.userEmail}</p><p>💰 <strong style="color:#8b00ff;">৳ ${t.amount}</strong> | ${(t.method||'').toUpperCase()}</p><p>📱 ${t.senderNumber} | TrxID: <strong>${t.trxId}</strong></p><p style="font-size:12px;color:#888;">${new Date(t.date).toLocaleString('en-GB')}</p></div><div class="admin-actions"><button class="btn-approve" onclick="approveTransaction('${id}','${t.userId}',${t.amount})">✅ Approve</button><button class="btn-reject" onclick="rejectTransaction('${id}')">❌ Reject</button></div></div>`;
-                    } else allTransactionsHistory.push({id, ...t});
-                });
-            }
-            tp.innerHTML = ph || '<p style="text-align:center;color:#888;padding:20px;">🎉 No pending</p>';
-            document.getElementById('pendingCount').textContent = pc;
-            document.getElementById('trxPendingBadge').textContent = pc;
-            
-            const mtb = document.getElementById('mainTrxBadge');
-            if(pc > 0) { 
-                mtb.textContent = pc; 
-                mtb.style.display = 'inline-block'; 
-            } else { 
-                mtb.style.display = 'none'; 
-            }
-
-            const now = Date.now(), day = 24*60*60*1000;
-            renderTrxHistory(allTransactionsHistory.filter(t => (now-new Date(t.date).getTime()) <= day), 1);
-
-            const oSnap = await get(ref(database, 'orders'));
-            let oc = 0, opc = 0, oph = '';
-            allOrdersHistory = [];
-            window._allOrdersDates = [];
-            if (oSnap.exists()) {
-                const arr = Object.entries(oSnap.val()).reverse();
-                oc = arr.length;
-                arr.forEach(([id, o]) => {
-                    if (o.orderDate) window._allOrdersDates.push(new Date(o.orderDate).getTime());
-                    const oid = o.orderNumber ? '#' + String(o.orderNumber).padStart(3, '0') : id.substring(0,10);
-                    if (o.status === 'Pending') {
-                        opc++;
-                        oph += `<div class="admin-item"><div class="admin-item-info"><h4>${oid} - ${o.userName} <span style="color:#ffaa00;">● Pending</span></h4><p>🎮 ${o.productName}</p><p>📦 ${o.packageName} | <strong style="color:#8b00ff;">৳ ${o.price}</strong></p><p>🆔 Player: <strong>${o.playerId}</strong></p><p style="font-size:12px;color:#888;">${new Date(o.orderDate).toLocaleString('en-GB')}</p></div><div class="admin-actions"><button class="btn-approve" onclick="completeOrder('${id}')">✅ Complete</button><button class="btn-reject" onclick="showRejectPopup('${id}')">❌ Reject</button></div></div>`;
-                    } else allOrdersHistory.push({id, ...o});
-                });
-            }
-            document.getElementById('ordPending').innerHTML = oph || '<p style="text-align:center;color:#888;padding:20px;">🎉 No pending</p>';
-            _originalOrdPending = '';
-            _originalOrdHistory = '';
-            window._allOrdersTotal = oc;
-            updateOrderCount(document.getElementById('orderFilterSelect').value);
-            document.getElementById('ordPendingBadge').textContent = opc;
-
-            const mob = document.getElementById('mainOrdBadge');
-            if(opc > 0) { 
-                mob.textContent = opc; 
-                mob.style.display = 'inline-block'; 
-            } else { 
-                mob.style.display = 'none'; 
-            }
-
-            renderOrdHistory(allOrdersHistory.filter(o => (now-new Date(o.orderDate).getTime()) <= day), 1);
-
-            const uSnap = await get(ref(database, 'users'));
-            allUsers = uSnap.exists() ? uSnap.val() : {};
-            document.getElementById('totalUsers').textContent = Object.keys(allUsers).length;
-            document.getElementById('bannedCount').textContent = Object.values(allUsers).filter(u => u.banned).length;
-            filterUsers();
-            loadProducts();
-        }
+        document.getElementById('logoutBtn').addEventListener('click', async () => {
+            await signOut(auth);
+            window.location.href = 'login.html';
+        });
     </script>
 </body>
 </html>
