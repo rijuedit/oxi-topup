@@ -7,6 +7,14 @@
     <link rel="icon" type="image/png" href="https://i.ibb.co/HTHSLY80/Chat-GPT-Image-Jul-22-2026-11-58-48-PM.png">
     <link rel="stylesheet" href="style.css?v=3">
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        .auto-pay-badge { background: linear-gradient(135deg, #00c853, #00e676); color: white; font-size: 10px; padding: 2px 8px; border-radius: 10px; font-weight: 700; margin-left: 5px; }
+        .auto-pay-box { background: rgba(0, 200, 83, 0.1); border: 1px solid rgba(0, 200, 83, 0.4); border-radius: 15px; padding: 20px; text-align: center; margin-top: 15px; display: none; }
+        .auto-pay-box h4 { color: #00ff88; font-size: 16px; margin-bottom: 8px; font-family: 'Poppins', sans-serif; }
+        .auto-pay-box p { color: #a0a0c0; font-size: 13px; margin-bottom: 15px; }
+        .btn-auto-pay { width: 100%; background: linear-gradient(135deg, #00c853, #00e676); color: white; border: none; padding: 14px; border-radius: 12px; font-weight: 700; font-size: 15px; cursor: pointer; transition: 0.3s; font-family: 'Poppins', sans-serif; }
+        .btn-auto-pay:hover { transform: scale(1.02); box-shadow: 0 5px 20px rgba(0, 230, 118, 0.4); }
+    </style>
 </head>
 <body class="home-body">
 
@@ -44,10 +52,7 @@
     </div>
     <div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
 
-    <div id="toast" class="toast"></div>
-
-    <div class="addmoney-container">
-
+    <div class="product-container">
         <h2 class="addmoney-title">💰 Add Money to Wallet</h2>
 
         <div class="section-box">
@@ -65,23 +70,43 @@
         <div class="section-box">
             <h3><span class="step">2</span> Select Payment Method</h3>
             <div class="payment-methods">
+                
+                <!-- Auto Payment Gateway (Shows if enabled in Admin) -->
+                <div class="payment-method" id="autoMethod" style="display:none;" onclick="selectMethod('auto')">
+                    <img src="https://i.ibb.co/FLhq721L/image.png" alt="Auto Payment" class="pm-logo">
+                    <div>
+                        <h4>⚡ Auto Payment <span class="auto-pay-badge">Instant</span></h4>
+                        <p>bKash / Nagad / Rocket (Auto Add)</p>
+                    </div>
+                </div>
+
                 <div class="payment-method" id="bkashMethod" onclick="selectMethod('bkash')">
                     <img src="https://i.ibb.co/FLhq721L/image.png" alt="bKash" class="pm-logo">
                     <div>
                         <h4>bKash</h4>
-                        <p>Send Money</p>
+                        <p>Send Money (Manual)</p>
                     </div>
                 </div>
+
                 <div class="payment-method" id="nagadMethod" onclick="selectMethod('nagad')">
                     <img src="https://i.ibb.co/fdQMrx8q/image.png" alt="Nagad" class="pm-logo">
                     <div>
                         <h4>Nagad</h4>
-                        <p>Send Money</p>
+                        <p>Send Money (Manual)</p>
                     </div>
                 </div>
+
             </div>
         </div>
 
+        <!-- AUTO PAYMENT BOX -->
+        <div class="auto-pay-box" id="autoPayBox">
+            <h4>⚡ Instant Auto Add Money</h4>
+            <p>নিচের বাটনে ক্লিক করলে পেমেন্ট পেজ ওপেন হবে। টাকা পেমেন্ট সম্পূর্ণ করার সাথে সাথে ওয়ালেটে অটো টাকা জমা হবে!</p>
+            <button class="btn-auto-pay" id="autoPayBtn" onclick="processAutoPayment()">⚡ Proceed to Auto Pay ৳ <span id="autoPayAmount">0</span></button>
+        </div>
+
+        <!-- MANUAL PAYMENT BOX -->
         <div class="section-box" id="paymentInfoBox" style="display: none;">
             <h3><span class="step">3</span> Payment Instructions</h3>
             <div class="payment-info">
@@ -103,24 +128,25 @@
             <div class="instructions">
                 <p>⚠️ <strong>Important Instructions:</strong></p>
                 <ol>
-                    <li>উপরের নম্বরে <strong>Send Money</strong> করুন</li>
-                    <li>Transaction সফল হলে <strong>TrxID</strong> লিখুন</li>
-                    <li>আপনার নম্বর লিখুন যেটা থেকে Send করেছেন</li>
-                    <li>Submit চাপুন — Admin Approve করলে Wallet এ টাকা এড হবে</li>
+                    <li>উপরের নম্বরে <strong>Send Money</strong> করুন।</li>
+                    <li>Transaction সফল হলে <strong>TrxID</strong> লিখুন।</li>
+                    <li>আপনার নম্বর লিখুন যেটা থেকে Send করেছেন।</li>
+                    <li>Submit চাপুন - Admin Approve করলে Wallet এ টাকা এড হবে।</li>
                 </ol>
             </div>
 
-            <label>Your Number (যেটা থেকে পাঠিয়েছেন)</label>
+            <label>Your Number (যেটা থেকে পাঠিয়েছেন)</label>
             <input type="text" id="senderNumber" placeholder="01XXXXXXXXX" class="input-field">
 
             <label style="margin-top: 15px;">Transaction ID (TrxID)</label>
-            <input type="text" id="trxId" placeholder="Example: 8N7GT52KOP" class="input-field">
+            <input type="text" id="trxId" placeholder="Example: 8N7GT52K0P" class="input-field">
 
             <button class="btn-buy-now" id="submitBtn">Submit Payment Request</button>
         </div>
 
     </div>
 
+    <!-- Alert Modal -->
     <div id="alertModal" class="modal-overlay">
         <div class="modal-box">
             <div class="modal-icon" id="modalIcon">⚠️</div>
@@ -129,6 +155,8 @@
             <button onclick="closeModal()" class="btn-modal">OK</button>
         </div>
     </div>
+
+    <div id="toast" class="toast"></div>
 
     <a href="https://wa.me/8801604080312?text=Hello%20OXI%20TOP%20UP,%20I%20need%20help" target="_blank" class="whatsapp-float">
         💬
@@ -146,11 +174,12 @@
     </nav>
 
     <script type="module">
-        import { auth, database, signOut, onAuthStateChanged, ref, get, set, push, checkIfBanned } from './config.js';
+        import { auth, database, signOut, onAuthStateChanged, ref, get, set, push, update, checkIfBanned } from './config.js';
 
         let currentUser = null;
         let selectedMethod = null;
         let paymentNumbers = { bkash: '', nagad: '' };
+        let paymentApiSettings = null;
         let submitProcessing = false;
 
         window.toggleSidebar = function() {
@@ -184,12 +213,13 @@
         window.copyNumber = function() {
             const number = document.getElementById('paymentNumber').textContent;
             navigator.clipboard.writeText(number);
-            showToast('✅ Number Copied: ' + number);
+            showToast('📋 Number Copied: ' + number);
         };
 
         window.setAmount = function(amount) {
             document.getElementById('amount').value = amount;
             document.getElementById('showAmount').textContent = amount;
+            document.getElementById('autoPayAmount').textContent = amount;
         };
 
         window.selectMethod = function(method) {
@@ -201,33 +231,121 @@
             selectedMethod = method;
             document.getElementById('bkashMethod').classList.remove('active');
             document.getElementById('nagadMethod').classList.remove('active');
+            document.getElementById('autoMethod').classList.remove('active');
+            
             document.getElementById(method + 'Method').classList.add('active');
-            document.getElementById('paymentInfoBox').style.display = 'block';
-            document.getElementById('showAmount').textContent = amount;
-            document.getElementById('showMethod').textContent = method === 'bkash' ? 'bKash' : 'Nagad';
-            document.getElementById('paymentNumber').textContent = paymentNumbers[method] || 'Not set';
-            document.getElementById('paymentInfoBox').scrollIntoView({ behavior: 'smooth' });
+
+            if (method === 'auto') {
+                document.getElementById('paymentInfoBox').style.display = 'none';
+                document.getElementById('autoPayBox').style.display = 'block';
+                document.getElementById('autoPayAmount').textContent = amount;
+                document.getElementById('autoPayBox').scrollIntoView({ behavior: 'smooth' });
+            } else {
+                document.getElementById('autoPayBox').style.display = 'none';
+                document.getElementById('paymentInfoBox').style.display = 'block';
+                document.getElementById('showAmount').textContent = amount;
+                document.getElementById('showMethod').textContent = method === 'bkash' ? 'bKash' : 'Nagad';
+                document.getElementById('paymentNumber').textContent = paymentNumbers[method] || 'Not set';
+                document.getElementById('paymentInfoBox').scrollIntoView({ behavior: 'smooth' });
+            }
         };
 
-        async function loadPaymentNumbers() {
+        // ============ AUTO PAYMENT CHECKOUT ============
+        window.processAutoPayment = async function() {
+            const amount = document.getElementById('amount').value;
+            if (!amount || amount < 20) return showAlert('Please enter a valid amount (Min ৳ 20)');
+            if (!currentUser) return showAlert('Please login first');
+            if (!paymentApiSettings || !paymentApiSettings.enabled || !paymentApiSettings.key) {
+                return showAlert('Auto payment is not configured by Admin', 'error');
+            }
+
+            const btn = document.getElementById('autoPayBtn');
+            btn.disabled = true;
+            btn.textContent = '⏳ Creating Payment Link...';
+
             try {
+                const baseUrl = paymentApiSettings.url.replace(/\/$/, '');
+                const checkoutEndpoint = baseUrl + '/checkout';
+
+                const payload = {
+                    full_name: currentUser.displayName || 'User',
+                    email: currentUser.email || 'user@gmail.com',
+                    amount: parseInt(amount),
+                    metadata: {
+                        userId: currentUser.uid,
+                        amount: amount
+                    },
+                    redirect_url: window.location.origin + window.location.pathname + '?auto_status=success',
+                    cancel_url: window.location.origin + window.location.pathname + '?auto_status=cancel'
+                };
+
+                const response = await fetch(checkoutEndpoint, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json',
+                        'RT-PAYMENTLY-API-KEY': paymentApiSettings.key,
+                        'Apitoken': paymentApiSettings.key
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                const data = await response.json();
+                const redirectUrl = data.payment_url || data.checkout_url || (data.data && data.data.payment_url);
+
+                if (redirectUrl) {
+                    window.location.href = redirectUrl;
+                } else {
+                    throw new Error(data.message || 'Payment link creation failed');
+                }
+            } catch (err) {
+                console.error(err);
+                showAlert('❌ Payment Gateway Error: ' + err.message, 'error');
+                btn.disabled = false;
+                btn.textContent = '⚡ Proceed to Auto Pay ৳ ' + amount;
+            }
+        };
+
+        // ============ AUTO PAYMENT VERIFY RETURN ============
+        async function checkAutoPaymentReturn() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const autoStatus = urlParams.get('auto_status') || urlParams.get('status');
+            const invoiceId = urlParams.get('invoice_id') || urlParams.get('payment_id') || urlParams.get('trx_id');
+
+            if (autoStatus === 'success' || invoiceId) {
+                window.history.replaceState({}, document.title, window.location.pathname);
+                showAlert('🎉 Payment Successful! Wallet updated successfully.', 'success');
+            } else if (autoStatus === 'cancel' || autoStatus === 'failed') {
+                window.history.replaceState({}, document.title, window.location.pathname);
+                showAlert('❌ Payment was cancelled or failed.', 'error');
+            }
+        }
+
+        async function loadSettings() {
+            try {
+                // Load Manual Numbers
                 const snap = await get(ref(database, 'paymentSettings'));
                 if (snap.exists()) {
                     const d = snap.val();
                     paymentNumbers.bkash = d.bkash || '';
                     paymentNumbers.nagad = d.nagad || '';
                 }
-            } catch (err) { console.log('Payment settings not found'); }
+
+                // Load Payment Gateway API Settings
+                const apiSnap = await get(ref(database, 'apiSettings/payment'));
+                if (apiSnap.exists() && apiSnap.val().enabled) {
+                    paymentApiSettings = apiSnap.val();
+                    document.getElementById('autoMethod').style.display = 'flex';
+                }
+            } catch (err) { console.log('Payment settings load error:', err); }
         }
 
-        loadPaymentNumbers();
+        loadSettings();
+        checkAutoPaymentReturn();
 
         onAuthStateChanged(auth, async (user) => {
-            if (!user) {
-                window.location.href = 'login.html';
-                return;
-            }
-            
+            if (!user) { window.location.href = 'login.html'; return; }
+
             const banned = await checkIfBanned(user.uid);
             if (banned) {
                 await signOut(auth);
@@ -250,6 +368,7 @@
             }
         });
 
+        // ============ MANUAL SUBMIT ============
         document.getElementById('submitBtn').addEventListener('click', async () => {
             if (submitProcessing) return;
             const amount = parseInt(document.getElementById('amount').value);
@@ -296,6 +415,5 @@
             window.location.href = 'login.html';
         });
     </script>
-
 </body>
 </html>
