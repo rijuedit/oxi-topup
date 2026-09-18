@@ -264,8 +264,8 @@
             btn.textContent = '⏳ Creating Payment Link...';
 
             try {
-                const baseUrl = paymentApiSettings.url.replace(/\/$/, '');
-                const checkoutEndpoint = baseUrl + '/checkout';
+                let baseUrl = paymentApiSettings.url.trim().replace(/\/$/, '');
+                let checkoutEndpoint = baseUrl.includes('/checkout') ? baseUrl : baseUrl + '/checkout';
 
                 const payload = {
                     full_name: currentUser.displayName || 'User',
@@ -285,7 +285,9 @@
                         'Content-Type': 'application/json',
                         'Accept': 'application/json',
                         'RT-PAYMENTLY-API-KEY': paymentApiSettings.key,
-                        'Apitoken': paymentApiSettings.key
+                        'RT-UDDOKTAPAY-API-KEY': paymentApiSettings.key,
+                        'Authorization': 'Bearer ' + paymentApiSettings.key,
+                        'x-api-key': paymentApiSettings.key
                     },
                     body: JSON.stringify(payload)
                 });
@@ -296,7 +298,7 @@
                 if (redirectUrl) {
                     window.location.href = redirectUrl;
                 } else {
-                    throw new Error(data.message || 'Payment link creation failed');
+                    throw new Error(data.message || data.error || 'Unauthorized API Key');
                 }
             } catch (err) {
                 console.error(err);
