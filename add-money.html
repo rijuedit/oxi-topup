@@ -71,7 +71,7 @@
             <h3><span class="step">2</span> Select Payment Method</h3>
             <div class="payment-methods">
                 
-                <!-- Auto Payment Gateway (Shows if enabled in Admin) -->
+                <!-- Auto Payment Gateway -->
                 <div class="payment-method" id="autoMethod" style="display:none;" onclick="selectMethod('auto')">
                     <img src="https://i.ibb.co/FLhq721L/image.png" alt="Auto Payment" class="pm-logo">
                     <div>
@@ -80,7 +80,8 @@
                     </div>
                 </div>
 
-                <div class="payment-method" id="bkashMethod" onclick="selectMethod('bkash')">
+                <!-- bKash Manual -->
+                <div class="payment-method" id="bkashMethod" style="display:none;" onclick="selectMethod('bkash')">
                     <img src="https://i.ibb.co/FLhq721L/image.png" alt="bKash" class="pm-logo">
                     <div>
                         <h4>bKash</h4>
@@ -88,7 +89,8 @@
                     </div>
                 </div>
 
-                <div class="payment-method" id="nagadMethod" onclick="selectMethod('nagad')">
+                <!-- Nagad Manual -->
+                <div class="payment-method" id="nagadMethod" style="display:none;" onclick="selectMethod('nagad')">
                     <img src="https://i.ibb.co/fdQMrx8q/image.png" alt="Nagad" class="pm-logo">
                     <div>
                         <h4>Nagad</h4>
@@ -233,7 +235,9 @@
             document.getElementById('nagadMethod').classList.remove('active');
             document.getElementById('autoMethod').classList.remove('active');
             
-            document.getElementById(method + 'Method').classList.add('active');
+            if(document.getElementById(method + 'Method')) {
+                document.getElementById(method + 'Method').classList.add('active');
+            }
 
             if (method === 'auto') {
                 document.getElementById('paymentInfoBox').style.display = 'none';
@@ -325,12 +329,24 @@
 
         async function loadSettings() {
             try {
-                // Load Manual Numbers
+                // Load Manual Numbers & Status
                 const snap = await get(ref(database, 'paymentSettings'));
                 if (snap.exists()) {
                     const d = snap.val();
                     paymentNumbers.bkash = d.bkash || '';
                     paymentNumbers.nagad = d.nagad || '';
+
+                    if (d.bkashActive !== false && d.bkash && d.bkash.trim() !== '') {
+                        document.getElementById('bkashMethod').style.display = 'flex';
+                    } else {
+                        document.getElementById('bkashMethod').style.display = 'none';
+                    }
+
+                    if (d.nagadActive !== false && d.nagad && d.nagad.trim() !== '') {
+                        document.getElementById('nagadMethod').style.display = 'flex';
+                    } else {
+                        document.getElementById('nagadMethod').style.display = 'none';
+                    }
                 }
 
                 // Load Payment Gateway API Settings
@@ -338,6 +354,8 @@
                 if (apiSnap.exists() && apiSnap.val().enabled) {
                     paymentApiSettings = apiSnap.val();
                     document.getElementById('autoMethod').style.display = 'flex';
+                } else {
+                    document.getElementById('autoMethod').style.display = 'none';
                 }
             } catch (err) { console.log('Payment settings load error:', err); }
         }
