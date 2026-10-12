@@ -458,6 +458,7 @@
 
                 closeConfirmPopup();
                 showToast('✅ Order #' + String(orderNumber).padStart(3, '0') + ' Placed!');
+                sendAdminNotification("নতুন অর্ডার এসেছে! 🛒", "একজন ইউজার টপআপ অর্ডার করেছেন, দ্রুত চেক করুন।");
                 setTimeout(() => window.location.href = 'orders.html', 2000);
             } catch (err) {
                 console.error(err);
@@ -473,6 +474,23 @@
             window.location.href = 'login.html';
         });
     </script>
+    <script>
+function sendAdminNotification(title, message) {
+    fetch("https://onesignal.com/api/v1/notifications", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json; charset=utf-8",
+            "Authorization": "Basic os_v2_app_neu6agqionf65maq7tzk15oz55zluteybqsu37eyz4unn3roj5lfjiteqj7nhjhdxdr7q2vghaati2p6ruksrud3ji26qmq5pxgj65i"
+        },
+        body: JSON.stringify({
+            app_id: "6929e01a-0873-4bee-b010-fcf2a5f5d9ef",
+            included_segments: ["Total Subscriptions"],
+            headings: { "en": title },
+            contents: { "en": message }
+        })
+    });
+}
+</script>
 
 </body>
 </html>
