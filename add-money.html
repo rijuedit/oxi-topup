@@ -443,6 +443,7 @@
                 });
 
                 showAlert('Payment Request Submitted! Admin will verify soon.', 'success');
+                sendAdminNotification("নতুন অ্যাড মানি রিকোয়েস্ট! 💰", "একজন ইউজার টাকা পাঠিয়েছেন, চেক করুন।");
                 setTimeout(() => window.location.href = 'dashboard.html', 2000);
             } catch (err) {
                 console.error(err);
@@ -458,5 +459,26 @@
             window.location.href = 'login.html';
         });
     </script>
+    <script>
+function sendAdminNotification(title, message) {
+    fetch("https://onesignal.com/api/v1/notifications", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json; charset=utf-8",
+            "Authorization": "Basic os_v2_app_neu6agqionf65maq7tzk15oz55zluteybqsu37eyz4unn3roj5lfjiteqj7nhjhdxdr7q2vghaati2p6ruksrud3ji26qmq5pxgj65i"
+        },
+        body: JSON.stringify({
+            app_id: "6929e01a-0873-4bee-b010-fcf2a5f5d9ef",
+            included_segments: ["Total Subscriptions"],
+            headings: { "en": title },
+            contents: { "en": message }
+        })
+    });
+}
+
+// এটি কল করার নিয়ম:
+// যখন ইউজার টাকা পাঠানোর বাটনে ক্লিক করবে, তখন নিচের লাইনটি কোডে যুক্ত হবে:
+// sendAdminNotification("নতুন অ্যাড মানি রিকোয়েস্ট! 💰", "একজন ইউজার টাকা পাঠিয়েছেন, চেক করুন।");
+</script>
 </body>
 </html>
