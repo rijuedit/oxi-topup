@@ -444,6 +444,30 @@
 
                 showAlert('Payment Request Submitted! Admin will verify soon.', 'success');
                 sendAdminNotification("নতুন অ্যাড মানি রিকোয়েস্ট! 💰", "একজন ইউজার টাকা পাঠিয়েছেন, চেক করুন।");
+
+                // === TELEGRAM ADD MONEY NOTIFICATION ===
+                const tgAddMoneyMsg = `💰 <b>নতুন অ্যাড মানি রিকোয়েস্ট এসেছে!</b>\n\n` +
+                                      `👤 ইউজারের নাম: ${currentUser.displayName}\n` +
+                                      `📧 ইমেইল: ${currentUser.email}\n` +
+                                      `💵 পরিমাণ: <b>৳ ${amount}</b>\n` +
+                                      `💳 মেথড: ${selectedMethod.toUpperCase()}\n` +
+                                      `📱 প্রেরকের নম্বর: <code>${senderNumber}</code>\n` +
+                                      `🔢 TrxID: <code>${trxId}</code>`;
+
+                const botToken = "8587890247:AAFQG54BQAs8RXNHegVKAlj3ZkkRX61RFeg";
+                const chatId = "8459663093";
+
+                fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        chat_id: chatId,
+                        text: tgAddMoneyMsg,
+                        parse_mode: "HTML"
+                    })
+                }).catch(err => console.error("Telegram error:", err));
+                // === TELEGRAM END ===
+
                 setTimeout(() => window.location.href = 'dashboard.html', 2000);
             } catch (err) {
                 console.error(err);
