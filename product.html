@@ -85,7 +85,6 @@
             </div>
 
             <div class="product-grid">
-
                 <div class="product-left">
                     <div class="section-box">
                         <h3><span class="step">1</span> Select Recharge</h3>
@@ -94,7 +93,6 @@
                 </div>
 
                 <div class="product-right">
-                    
                     <div class="section-box">
                         <h3><span class="step">2</span> Account Info</h3>
                         <label id="inputFieldLabel">Player ID</label>
@@ -118,11 +116,9 @@
                             <button class="btn-buy-now" id="buyNowBtn">Buy Now</button>
                         </div>
                     </div>
-
                 </div>
             </div>
 
-            <!-- গিল্ড সেটিং পিকচার সেকশন -->
             <div id="guildSettingBox" class="section-box" style="display:none; margin-top:20px;">
                 <h3>📸 গিল্ড সেটিং</h3>
                 <img id="guildSettingImg" src="https://i.ibb.co.com/0yNZXkq4/image.png" class="product-detail-img" alt="Guild Setting Guide" onerror="this.src='https://i.ibb.co/0yNZXkq4/image.png'">
@@ -144,7 +140,6 @@
             <p style="color:#a0a0c0;margin-top:15px;">This product is currently unavailable. Please check back later.</p>
             <a href="index.html" class="btn-buy-now" style="display:inline-block;margin-top:20px;padding:15px 40px;text-decoration:none;">← Back to Home</a>
         </div>
-
     </div>
 
     <div id="confirmPopup" class="confirm-popup">
@@ -204,10 +199,8 @@
         async function loadApiSettings() {
             try {
                 const snap = await get(ref(database, 'apiSettings/uid'));
-                if (snap.exists()) {
-                    uidApiSettings = snap.val();
-                }
-            } catch (err) { console.log('API settings not found'); }
+                if (snap.exists()) uidApiSettings = snap.val();
+            } catch (err) {}
         }
 
         window.checkPlayerName = async function() {
@@ -241,14 +234,10 @@
                 
                 const response = await fetch(url, {
                     method: method,
-                    headers: {
-                        'x-api-key': uidApiSettings.key,
-                        'Content-Type': 'application/json'
-                    }
+                    headers: { 'x-api-key': uidApiSettings.key, 'Content-Type': 'application/json' }
                 });
 
                 const data = await response.json();
-                
                 let playerName = null;
                 let playerLevel = null;
                 let playerRegion = null;
@@ -293,37 +282,26 @@
         async function loadProduct() {
             const productRef = ref(database, 'products/' + productType);
             const snapshot = await get(productRef);
-
             document.getElementById('loadingProduct').style.display = 'none';
 
-            if (!snapshot.exists()) {
+            if (!snapshot.exists() || snapshot.val().stock === 'out') {
                 document.getElementById('outOfStockMsg').style.display = 'block';
                 return;
             }
 
             productData = snapshot.val();
-
-            if (productData.stock === 'out') {
-                document.getElementById('outOfStockMsg').style.display = 'block';
-                return;
-            }
-
             document.getElementById('productContent').style.display = 'block';
             document.getElementById('productName').textContent = productData.name;
             if (productData.image) document.getElementById('productImg').src = productData.image;
             document.title = productData.name + " - OXI TOP UP";
 
-            // AUTO GUILD DETECT & SETTINGS
             const isGuild = productData.name.toLowerCase().includes('guild') || productType.toLowerCase().includes('guild');
-            
             if (isGuild) {
                 document.getElementById('inputFieldLabel').textContent = 'Guild ID';
                 document.getElementById('playerId').placeholder = 'Enter Guild ID Code';
                 document.getElementById('checkNameBtn').style.display = 'none';
                 document.getElementById('guildSettingBox').style.display = 'block';
-                if (productData.detailImage) {
-                    document.getElementById('guildSettingImg').src = productData.detailImage;
-                }
+                if (productData.detailImage) document.getElementById('guildSettingImg').src = productData.detailImage;
             } else {
                 document.getElementById('inputFieldLabel').textContent = 'Player ID';
                 document.getElementById('playerId').placeholder = 'Enter Player ID';
@@ -335,14 +313,12 @@
 
             const rechargeList = document.getElementById('rechargeList');
             rechargeList.innerHTML = '';
-
             const packagesArray = Object.entries(productData.packages || {}).map(([pkgKey, pkgVal]) => ({ pkgKey, ...pkgVal }));
             packagesArray.sort((a, b) => (a.order || 0) - (b.order || 0));
 
             for (const pkg of packagesArray) {
                 const pkgKey = pkg.pkgKey;
                 const isOut = pkg.stock === 'out';
-
                 const div = document.createElement('div');
                 div.className = 'recharge-item' + (isOut ? ' pkg-out-user' : '');
                 div.innerHTML = `
@@ -370,20 +346,15 @@
 
         onAuthStateChanged(auth, async (user) => {
             if (!user) { window.location.href = 'login.html'; return; }
-            
             const banned = await checkIfBanned(user.uid);
-            if (banned) {
-                await signOut(auth);
-                alert('🚫 Your account has been banned. Contact support.');
-                window.location.href = 'login.html';
-                return;
-            }
+            if (banned) { await signOut(auth); alert('🚫 Your account has been banned.'); window.location.href = 'login.html'; return; }
 
             currentUser = user;
             document.getElementById('userPhoto').src = user.photoURL;
             document.getElementById('sidebarPhoto').src = user.photoURL;
             document.getElementById('sidebarName').textContent = user.displayName;
             document.getElementById('sidebarEmail').textContent = user.email;
+            
             const userRef = ref(database, 'users/' + user.uid);
             const snapshot = await get(userRef);
             if (snapshot.exists()) {
@@ -393,7 +364,6 @@
             }
         });
 
-        // ============ CONFIRM POPUP ============
         window.closeConfirmPopup = function() {
             document.getElementById('confirmPopup').classList.remove('show');
         };
@@ -425,11 +395,8 @@
 
             try {
                 const playerId = document.getElementById('playerId').value.trim();
-
                 const counterRef = ref(database, 'orderCounter');
-                const trxResult = await runTransaction(counterRef, (current) => {
-                    return (current || 0) + 1;
-                });
+                const trxResult = await runTransaction(counterRef, (current) => { return (current || 0) + 1; });
                 const orderNumber = trxResult.snapshot.val();
 
                 const orderRef = push(ref(database, 'orders'));
@@ -460,32 +427,35 @@
                 showToast('✅ Order #' + String(orderNumber).padStart(3, '0') + ' Placed!');
                 sendAdminNotification("নতুন অর্ডার এসেছে! 🛒", "একজন ইউজার টপআপ অর্ডার করেছেন, দ্রুত চেক করুন।");
 
-                // === TELEGRAM NOTIFICATION ===
-                const tgMessage = `🔔 <b>নতুন টপ-আপ অর্ডার এসেছে!</b>\n\n` +
-                                  `🆔 অর্ডার নম্বর: <b>#${String(orderNumber).padStart(3, '0')}</b>\n` +
-                                  `👤 ইউজারের নাম: ${currentUser.displayName}\n` +
-                                  `🎮 গেম: ${productData.name}\n` +
-                                  `📦 প্যাকেজ: ${selectedPackage.name}\n` +
-                                  `🆔 Player ID: <code>${playerId}</code>\n` +
-                                  `💰 দাম: ${selectedPackage.price} টাকা`;
+                // === DYNAMIC TELEGRAM ORDER NOTIFICATION ===
+                try {
+                    const tgSnap = await get(ref(database, 'apiSettings/telegram'));
+                    if (tgSnap.exists() && tgSnap.val().enabled) {
+                        const tgData = tgSnap.val();
+                        const botToken = tgData.orderToken;
+                        const chatId = tgData.orderChatId;
 
-                const botToken = "8587890247:AAFQG54BQAs8RXNHegVKAlj3ZkkRX61RFeg";
-                const chatId = "-5405709437";
+                        if (botToken && chatId) {
+                            const tgMessage = `🔔 <b>নতুন টপ-আপ অর্ডার এসেছে!</b>\n\n` +
+                                              `🆔 অর্ডার নম্বর: <b>#${String(orderNumber).padStart(3, '0')}</b>\n` +
+                                              `👤 ইউজারের নাম: ${currentUser.displayName}\n` +
+                                              `🎮 গেম: ${productData.name}\n` +
+                                              `📦 প্যাকেজ: ${selectedPackage.name}\n` +
+                                              `🆔 Player ID: <code>${playerId}</code>\n` +
+                                              `💰 দাম: ${selectedPackage.price} টাকা`;
 
-                fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        chat_id: chatId,
-                        text: tgMessage,
-                        parse_mode: "HTML"
-                    })
-                }).catch(err => console.error("Telegram error:", err));
-                // === TELEGRAM END ===
+                            fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ chat_id: chatId, text: tgMessage, parse_mode: "HTML" })
+                            }).catch(err => console.log("TG Error:", err));
+                        }
+                    }
+                } catch (err) { console.log("Telegram fetch error:", err); }
+                // === END ===
 
                 setTimeout(() => window.location.href = 'orders.html', 2000);
             } catch (err) {
-                console.error(err);
                 showToast('❌ Error: ' + err.message);
                 btn.disabled = false;
                 btn.textContent = '✅ Confirm Order';
@@ -499,22 +469,22 @@
         });
     </script>
     <script>
-function sendAdminNotification(title, message) {
-    fetch("https://onesignal.com/api/v1/notifications", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json; charset=utf-8",
-            "Authorization": "Basic os_v2_app_neu6agqionf65maq7tzk15oz55zluteybqsu37eyz4unn3roj5lfjiteqj7nhjhdxdr7q2vghaati2p6ruksrud3ji26qmq5pxgj65i"
-        },
-        body: JSON.stringify({
-            app_id: "6929e01a-0873-4bee-b010-fcf2a5f5d9ef",
-            included_segments: ["Total Subscriptions"],
-            headings: { "en": title },
-            contents: { "en": message }
-        })
-    });
-}
-</script>
+        function sendAdminNotification(title, message) {
+            fetch("https://onesignal.com/api/v1/notifications", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json; charset=utf-8",
+                    "Authorization": "Basic os_v2_app_neu6agqionf65maq7tzk15oz55zluteybqsu37eyz4unn3roj5lfjiteqj7nhjhdxdr7q2vghaati2p6ruksrud3ji26qmq5pxgj65i"
+                },
+                body: JSON.stringify({
+                    app_id: "6929e01a-0873-4bee-b010-fcf2a5f5d9ef",
+                    included_segments: ["Total Subscriptions"],
+                    headings: { "en": title },
+                    contents: { "en": message }
+                })
+            });
+        }
+    </script>
 
 </body>
 </html>
