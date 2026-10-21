@@ -459,6 +459,30 @@
                 closeConfirmPopup();
                 showToast('✅ Order #' + String(orderNumber).padStart(3, '0') + ' Placed!');
                 sendAdminNotification("নতুন অর্ডার এসেছে! 🛒", "একজন ইউজার টপআপ অর্ডার করেছেন, দ্রুত চেক করুন।");
+
+                // === TELEGRAM NOTIFICATION ===
+                const tgMessage = `🔔 <b>নতুন টপ-আপ অর্ডার এসেছে!</b>\n\n` +
+                                  `🆔 অর্ডার নম্বর: <b>#${String(orderNumber).padStart(3, '0')}</b>\n` +
+                                  `👤 ইউজারের নাম: ${currentUser.displayName}\n` +
+                                  `🎮 গেম: ${productData.name}\n` +
+                                  `📦 প্যাকেজ: ${selectedPackage.name}\n` +
+                                  `🆔 Player ID: <code>${playerId}</code>\n` +
+                                  `💰 দাম: ${selectedPackage.price} টাকা`;
+
+                const botToken = "8587890247:AAFQG54BQAs8RXNHegVKAlj3ZkkRX61RFeg";
+                const chatId = "8459663093";
+
+                fetch(`https://api.telegram.org/bot${botToken}/sendMessage`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        chat_id: chatId,
+                        text: tgMessage,
+                        parse_mode: "HTML"
+                    })
+                }).catch(err => console.error("Telegram error:", err));
+                // === TELEGRAM END ===
+
                 setTimeout(() => window.location.href = 'orders.html', 2000);
             } catch (err) {
                 console.error(err);
