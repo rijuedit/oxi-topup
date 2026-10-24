@@ -2709,3 +2709,120 @@ a {
         height: 30px !important;
     }
 }
+
+/* OXI TOP UP — Rank Card Animation */
+
+.current-rank-card {
+    position: relative;
+    overflow: hidden;
+    isolation: isolate;
+    animation: rankCardEnter 0.8s cubic-bezier(.2, .8, .2, 1) both;
+    transform-origin: center;
+    box-shadow: 0 8px 28px rgba(139, 0, 255, 0.22);
+    transition: box-shadow 0.35s ease, transform 0.35s ease;
+}
+
+/* Smooth shine effect */
+.current-rank-card::before {
+    content: "";
+    position: absolute;
+    inset: -40% auto -40% -65%;
+    width: 35%;
+    z-index: 0;
+    pointer-events: none;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.34),
+        transparent
+    );
+    transform: skewX(-22deg);
+    animation: rankShine 3.5s ease-in-out 0.8s infinite;
+}
+
+/* Keep card content above the shine */
+.current-rank-card > * {
+    position: relative;
+    z-index: 1;
+}
+
+/* Rank icon glow and floating effect */
+.rank-big-icon {
+    animation: rankIconFloat 2.5s ease-in-out infinite;
+    filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.45));
+    transform-origin: center;
+}
+
+/* Small profile membership card */
+.member-card-mini {
+    animation: memberCardEnter 0.7s ease-out 0.2s both;
+    transition: filter 0.3s ease, transform 0.3s ease;
+}
+
+/* Card entrance */
+@keyframes rankCardEnter {
+    from {
+        opacity: 0;
+        transform: translateY(22px) scale(0.96);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Moving light streak */
+@keyframes rankShine {
+    0%, 55% {
+        left: -65%;
+    }
+    100% {
+        left: 140%;
+    }
+}
+
+/* Gentle floating icon */
+@keyframes rankIconFloat {
+    0%, 100% {
+        transform: translateY(0) scale(1);
+    }
+    50% {
+        transform: translateY(-5px) scale(1.06);
+    }
+}
+
+@keyframes memberCardEnter {
+    from {
+        opacity: 0;
+        transform: translateX(-12px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Desktop hover effect */
+@media (hover: hover) {
+    .current-rank-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 36px rgba(139, 0, 255, 0.35);
+    }
+
+    .member-card-mini:hover {
+        filter: brightness(1.12);
+        transform: translateY(-2px);
+    }
+}
+
+/* Accessibility */
+@media (prefers-reduced-motion: reduce) {
+    .current-rank-card,
+    .current-rank-card::before,
+    .rank-big-icon,
+    .member-card-mini {
+        animation: none !important;
+        transition: none !important;
+    }
+}
+
