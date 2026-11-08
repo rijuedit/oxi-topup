@@ -114,6 +114,62 @@
             .banner-dot { width: 8px; height: 8px; }
             .banner-dot.active { width: 24px; }
         }
+
+        /* ===== FF INFO CHECKER BUTTON ===== */
+        .ff-info-btn-container {
+            padding: 15px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            display: none; /* ডিফল্টভাবে লুকানো, ডাটাবেস চেক করে অন হবে */
+        }
+        .ff-info-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+            background: linear-gradient(135deg, #8b00ff, #ff007f);
+            color: white;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+            padding: 18px 20px;
+            border-radius: 15px;
+            text-decoration: none;
+            box-shadow: 0 8px 25px rgba(139, 0, 255, 0.4);
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+        }
+        .ff-info-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+            transition: 0.5s;
+        }
+        .ff-info-btn:hover::before {
+            left: 100%;
+        }
+        .ff-info-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(139, 0, 255, 0.6);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+        .ff-info-btn .icon {
+            font-size: 22px;
+        }
+        @media (max-width: 768px) {
+            .ff-info-btn-container { padding: 10px 12px; }
+            .ff-info-btn { font-size: 15px; padding: 15px 15px; letter-spacing: 1px; }
+            .ff-info-btn .icon { font-size: 18px; }
+        }
     </style>
 </head>
 <body class="home-body">
@@ -163,6 +219,14 @@
             <div class="banner-empty">⏳ Loading banners...</div>
         </div>
     </section>
+
+    <!-- ✨ FF Info Checker Button (Admin Panel থেকে Control হবে) -->
+    <div class="ff-info-btn-container" id="ffInfoCheckerContainer">
+        <a href="free-fire-info-check.html" class="ff-info-btn">
+            <span class="icon">🔍</span>
+            <span>Free Fire Info Checker</span>
+        </a>
+    </div>
 
     <section class="packages-section" id="packages">
         <h2>💎 Free Fire Topup</h2>
@@ -273,6 +337,23 @@
             document.getElementById('sidebar').classList.toggle('open');
             document.getElementById('sidebarOverlay').classList.toggle('show');
         };
+
+        // ============ FF INFO CHECKER STATUS (Admin Panel থেকে Control) ============
+        async function loadInfoCheckerStatus() {
+            const container = document.getElementById('ffInfoCheckerContainer');
+            try {
+                const snap = await get(ref(database, 'apiSettings/infoChecker'));
+                if (snap.exists() && snap.val().enabled === true) {
+                    container.style.display = 'block';
+                } else {
+                    container.style.display = 'none';
+                }
+            } catch (error) {
+                console.error('Info Checker Status Error:', error);
+                container.style.display = 'none';
+            }
+        }
+        loadInfoCheckerStatus();
 
         // ============ BANNER SLIDER ============
         let currentSlide = 0;
